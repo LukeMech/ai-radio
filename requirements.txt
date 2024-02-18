@@ -1,3 +1,1 @@
-uvicorn~=0.27.1
-fastapi~=0.109.2
-moviepy~=1.0.3
+Flask~=3.0.2

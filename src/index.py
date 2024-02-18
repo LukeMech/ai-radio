@@ -1,64 +1,49 @@
-import asyncio
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
-from moviepy.editor import AudioFileClip
-import uvicorn
+from flask import Flask, Response, render_template
+from multiprocessing import Process
+import subprocess
 
-app = FastAPI()
+app = Flask(__name__)
+p = None  # Define p globally
 
-# Ścieżka do pliku MP4
-audio_file_path = 'sciezka/do/pliku.mp4'
+@app.route('/')
+def index():
+    response = render_template('index.html')
+    response = add_no_cache_headers(response)
+    return response
 
-# Kolejka asynchroniczna do przechowywania strumienia audio
-audio_queue = asyncio.Queue()
+def add_no_cache_headers(response):
+    response = Response(response)
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'  # Prevent caching by the browser
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
-# Funkcja do odtwarzania pliku MP4 jako strumienia audio
-async def play_audio_stream():
+def start_audio_stream():
+    global p
     while True:
-        # Otwórz plik MP4 za pomocą moviepy
-        audio_clip = AudioFileClip(audio_file_path)
-        # Odtwarzaj strumień audio
-        for chunk in audio_clip.iter_chunks():
-            await audio_queue.put(chunk)
-            await asyncio.sleep(0.1)  # Dla asynchroniczności
+        command = [
+            'ffmpeg',
+            '-re',             # Read data from input at native frame rate
+            '-i', 'test.mp3',  # Path to the file
+            '-f', 'mp3',       # Output format MP3
+            '-'
+        ]
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=10**8)
+        p.wait()  # Wait for the subprocess to finish before restarting
 
-# Rozpoczęcie odtwarzania globalnego strumienia audio
-async def start_global_audio_stream():
-    asyncio.create_task(play_audio_stream())  # uruchomienie odtwarzania strumienia
+@app.route('/listen')
+def listen():
+    global p
+    if p is None or p.poll() is not None:  # If the subprocess has not been started or has finished
+        start_audio_stream()  # Start the audio streaming process
 
-# Trasa do strumienia audio
-@app.get('/audio_stream')
-async def audio_stream(request: Request):
-    async def audio_stream_generator():
-        while True:
-            chunk = await audio_queue.get()
-            yield chunk
-
-    return StreamingResponse(audio_stream_generator(), media_type="audio/mpeg")
-
-# Trasa do strony głównej z przyciskiem start
-@app.get('/')
-async def index():
-    html_content = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>AIRadio</title>
-        <script>
-            var audio = new Audio('/audio_stream');
-            function startAudio() {
-                audio.play();
-            }
-        </script>
-    </head>
-    <body>
-        <h1>AIRadio</h1>
-        <button onclick="startAudio()">Start</button>
-    </body>
-    </html>
-    """
-    return HTMLResponse(content=html_content)
+    if p and p.stdout:  # Check if p and its stdout attribute are not None
+        return Response(iter(lambda: p.stdout.read(1024), b''), mimetype='audio/mpeg')
+    else:
+        return Response(b'', mimetype='audio/mpeg')
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8000)
-    asyncio.run(start_global_audio_stream())  # Uruchomienie globalnego strumienia audio
+    audio_process = Process(target=start_audio_stream)
+    audio_process.start()
+
+    app.run(debug=True, host='0.0.0.0', port=5000)
