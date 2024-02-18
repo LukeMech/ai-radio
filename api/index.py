@@ -1,34 +1,30 @@
-from sanic import Sanic
-from sanic.response import html, stream
-from moviepy.editor import AudioFileClip
-import asyncio
+import uvicorn
+from fastapi import FastAPI
 
-app = Sanic()
+app = FastAPI()
 
 # Ścieżka do pliku MP4
 audio_file_path = 'src/test.mp4'
 
 # Funkcja do odtwarzania pliku MP4 jako strumienia audio
-async def play_audio_stream():
-    while True:
-        # Otwórz plik MP4 za pomocą moviepy
-        audio_clip = AudioFileClip(audio_file_path)
-        # Odtwarzaj strumień audio
-        for chunk in audio_clip.iter_chunks():
-            yield chunk
-            await asyncio.sleep(0.1)  # Dla asynchroniczności
+# async def play_audio_stream():
+#     while True:
+#         # Otwórz plik MP4 za pomocą moviepy
+#         audio_clip = AudioFileClip(audio_file_path)
+#         # Odtwarzaj strumień audio
+#         for chunk in audio_clip.iter_chunks():
+#             yield chunk
+#             await asyncio.sleep(0.1)  # Dla asynchroniczności
 
 # Trasa do strumienia audio
-@app.route('/audio_stream')
-async def audio_stream(request):
-    headers = {'Content-Type': 'audio/mpeg'}
-    return stream(play_audio_stream(), headers=headers)
+# @app.get('/audio_stream')
+# async def audio_stream(request):
+#     headers = {'Content-Type': 'audio/mpeg'}
+#     return stream(play_audio_stream(), headers=headers)
 
-# Trasa do strony głównej z przyciskiem start
-@app.route('/')
-@app.route('/<path:path>')
-async def index(request):
-    return html("""
+@app.get("/")
+async def root():
+    return """
     <!DOCTYPE html>
     <html>
     <head>
@@ -45,4 +41,7 @@ async def index(request):
         <button onclick="startAudio()">Start</button>
     </body>
     </html>
-    """)    
+    """
+  
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
