@@ -1,7 +1,7 @@
 import uvicorn, asyncio
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, StreamingResponse
-from moviepy import AudioFileClip
+from moviepy.editor import AudioFileClip
 
 app = FastAPI()
 
