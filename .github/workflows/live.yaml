@@ -1,4 +1,4 @@
-name: Live server with ngrok connection
+name: Live server / ngrok
 
 on:
   schedule:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  start-server:
+  server:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -27,7 +27,7 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
           pip install -r requirements.txt
 
-      - name: Start Server and Expose with ngrok
+      - name: Start and expose server
         run: |
           ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
 
