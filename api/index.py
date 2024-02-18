@@ -27,25 +27,22 @@ async def audio_stream(request):
 # Trasa do strony głównej z przyciskiem start
 @app.route('/')
 @app.route('/<path:path>')
-async def index(request, path=""):
-    return json({'hello': path})
-# @app.route('/<path:path>')
-# async def index(request, path=""):
-#     return html("""
-#     <!DOCTYPE html>
-#     <html>
-#     <head>
-#         <title>AIRadio</title>
-#         <script>
-#             var audio = new Audio('/audio_stream');
-#             function startAudio() {
-#                 audio.play();
-#             }
-#         </script>
-#     </head>
-#     <body>
-#         <h1>AIRadio</h1>
-#         <button onclick="startAudio()">Start</button>
-#     </body>
-#     </html>
-#     """)    
+async def index(request):
+    return html("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>AIRadio</title>
+        <script>
+            var audio = new Audio('/audio_stream');
+            function startAudio() {
+                audio.play();
+            }
+        </script>
+    </head>
+    <body>
+        <h1>AIRadio</h1>
+        <button onclick="startAudio()">Start</button>
+    </body>
+    </html>
+    """)    
