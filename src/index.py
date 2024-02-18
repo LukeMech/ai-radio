@@ -30,11 +30,11 @@ def listen():
         return "Not authorized", 403  # Return forbidden status if user is not connected via WebSocket
     
     elif session_id in radio["ffmpeg_processes"]:
-        print(f"Terminating ffmpeg process for IP {session_id}...")
+        print(f"Terminating ffmpeg process for one of sessions...")
         radio["ffmpeg_processes"][session_id].terminate()
         del radio["ffmpeg_processes"][session_id]
 
-    print(f"Starting ffmpeg proccess for ip {str(session_id)}...")
+    print(f"Starting ffmpeg proccess for one of sessions...")
     ffmpeg_process = start_ffmpeg_process(radio["time"])
     radio["ffmpeg_processes"][session_id] = ffmpeg_process
 
@@ -46,17 +46,17 @@ def listen():
 def handle_connect():
     global radio
     session_id = request.remote_addr
-    print(f"Client connected: {session_id}")
+    print(f"One of clients connected")
     radio["active_connections"][session_id] = True
 
 @socketio.on('disconnect')
 def handle_disconnect():
     session_id = request.remote_addr
-    print(f"Client disconnected: {session_id}")
+    print(f"One of clients disconnected")
     global radio
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
     if session_id in radio["ffmpeg_processes"]:
-        print(f"Terminating ffmpeg process for IP {session_id}...")
+        print(f"Terminating ffmpeg process for one of sessions...")
         radio["ffmpeg_processes"][session_id].terminate()
         del radio["ffmpeg_processes"][session_id]
 
@@ -105,4 +105,4 @@ if __name__ == '__main__':
     time_thread.daemon = True
     time_thread.start()
 
-    socketio.run(app, debug=False, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
