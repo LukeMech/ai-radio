@@ -1,5 +1,5 @@
 from sanic import Sanic
-from sanic.response import html, stream, json
+from sanic.response import html, stream
 from moviepy.editor import AudioFileClip
 import asyncio
 
