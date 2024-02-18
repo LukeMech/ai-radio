@@ -25,11 +25,12 @@ jobs:
           curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
             | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
             | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
-        
-          ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
+          pip install -r requirements.txt
 
       - name: Start Server and Expose with ngrok
         run: |
+          ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
+
           cd src
           python index.py &
           ngrok http http://localhost:8080 --log=stdout > ngrok.log 2>&1 &
