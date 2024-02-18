@@ -1,12 +1,12 @@
 from sanic import Sanic
-from sanic.response import html, stream
+from sanic.response import html, stream, json
 from moviepy.editor import AudioFileClip
 import asyncio
 
-app = Sanic('AIRadio')
+app = Sanic()
 
 # Ścieżka do pliku MP4
-audio_file_path = '../src/test.mp4'
+audio_file_path = 'src/test.mp4'
 
 # Funkcja do odtwarzania pliku MP4 jako strumienia audio
 async def play_audio_stream():
@@ -26,23 +26,26 @@ async def audio_stream(request):
 
 # Trasa do strony głównej z przyciskiem start
 @app.route('/')
-@app.route('/api')
+@app.route('/<path:path>')
 async def index(request, path=""):
-    return html("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>AIRadio</title>
-        <script>
-            var audio = new Audio('/audio_stream');
-            function startAudio() {
-                audio.play();
-            }
-        </script>
-    </head>
-    <body>
-        <h1>AIRadio</h1>
-        <button onclick="startAudio()">Start</button>
-    </body>
-    </html>
-    """)
+    return json({'hello': path})
+# @app.route('/<path:path>')
+# async def index(request, path=""):
+#     return html("""
+#     <!DOCTYPE html>
+#     <html>
+#     <head>
+#         <title>AIRadio</title>
+#         <script>
+#             var audio = new Audio('/audio_stream');
+#             function startAudio() {
+#                 audio.play();
+#             }
+#         </script>
+#     </head>
+#     <body>
+#         <h1>AIRadio</h1>
+#         <button onclick="startAudio()">Start</button>
+#     </body>
+#     </html>
+#     """)    
