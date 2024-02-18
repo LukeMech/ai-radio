@@ -1,7 +1,7 @@
 {
-  "redirects": [{ "source": "/", "destination": "/api"}],
-  "routes": [{
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
-  }]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/", "destination": "/api"},
+    { "source": "/api/(.*)", "destination": "/api/index.py"}
+  ]
 }
