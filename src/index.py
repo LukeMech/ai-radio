@@ -105,4 +105,4 @@ if __name__ == '__main__':
     time_thread.daemon = True
     time_thread.start()
 
-    socketio.run(app, debug=True, host='0.0.0.0', port=8000)
+    socketio.run(app, debug=True, host='0.0.0.0', port=8080)
