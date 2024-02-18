@@ -26,7 +26,8 @@ async def audio_stream(request):
 
 # Trasa do strony głównej z przyciskiem start
 @app.route('/')
-async def index(request):
+@app.route('/api')
+async def index(request, path=""):
     return html("""
     <!DOCTYPE html>
     <html>
