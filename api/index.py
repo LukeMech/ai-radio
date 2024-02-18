@@ -6,7 +6,7 @@ import asyncio
 app = Sanic('AIRadio')
 
 # Ścieżka do pliku MP4
-audio_file_path = 'test.mp4'
+audio_file_path = '../src/test.mp4'
 
 # Funkcja do odtwarzania pliku MP4 jako strumienia audio
 async def play_audio_stream():
