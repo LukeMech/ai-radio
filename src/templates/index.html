@@ -45,11 +45,12 @@
             } else {
                 playPauseButton.textContent = 'Loading...';   
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', '/listen', true);
+                xhr.open('GET', '/listen');
                 xhr.setRequestHeader('Device-ID', devId); // Add Device-ID header to the request
                 xhr.responseType = 'blob';  // Set the response type to Blob
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                        audio = new Audio();
                         var blob = xhr.response;  // Get the response as a Blob object
                         audio.src = window.URL.createObjectURL(blob);  // Create object URL from the Blob
                         audio.play();
