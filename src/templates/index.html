@@ -53,21 +53,25 @@
                         'Device-ID': devId
                     }
                 })
-                .then(response => {
+                .then(function(response) {
                     // Check if the response is ok
                     if (!response.ok) {
-                        throw new Error('Error while fetching audio stream');
+                        throw new Error('Network response was not ok');
                     }
-                    // Set the audio source to the stream
-                    audio.srcObject = response.body;
-                    // Start playing the audio
+                    // The data has to be a JavaScript ArrayBuffer
+                    return response.arrayBuffer();
+                })
+                .then(function(audioData) {
+                    // Set the audio source to the fetched audio data
+                    audio.src = URL.createObjectURL(new Blob([audioData]));
+                    // Play the audio
                     audio.play();
+                    // Update the button text
+                    playPauseButton.textContent = 'Pause';   
                 })
                 .catch(error => {
                     console.error('There was a problem with the fetch operation:', error);
                 });
-
-
             }
         });
 
