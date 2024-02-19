@@ -2,7 +2,7 @@ from flask import Flask, Response, render_template, request
 from flask_socketio import SocketIO
 import subprocess, time, threading
 
-version = '0.2.1'
+version = '0.2.2'
 
 app = Flask(__name__)
 socketio = SocketIO(app)    
@@ -101,7 +101,7 @@ def get_audio_duration(file_path):
     return duration
 
 def ai_radio_streamer():
-    global radio, queue
+    global radio, queue, fallbackQueue
     duration = 0
     while True:
         if len(queue) == 0:
