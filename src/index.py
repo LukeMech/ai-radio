@@ -68,7 +68,6 @@ def start_ffmpeg_process(start_time):
     command = [
         'ffmpeg',
         '-re',                      # Read data from input at native frame rate
-        '-stream_loop', '-1',       # Loop indefinitely
         '-ss', str(start_time),     # Start from given time
         '-i', WAV_FILE_PATH,        # Input file
         '-f', 'mp3',                # Output format MP3,
