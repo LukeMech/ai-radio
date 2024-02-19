@@ -2,7 +2,7 @@ name: Live server / ngrok
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # 0.5h hours
+    - cron: '*/30 * * * *' # 0.5h
 
   push:
     branches:
@@ -44,7 +44,6 @@ jobs:
           ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
 
           cd src
-          sleep 40
           python index.py &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8080 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
