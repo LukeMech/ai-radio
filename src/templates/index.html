@@ -44,20 +44,30 @@
                 playPauseButton.textContent = 'Play';
             } else {
                 playPauseButton.textContent = 'Loading...';   
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', '/listen');
-                xhr.setRequestHeader('Device-ID', devId); // Add Device-ID header to the request
-                xhr.responseType = 'blob';  // Set the response type to Blob
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                        audio = new Audio();
-                        var blob = xhr.response;  // Get the response as a Blob object
-                        audio.src = window.URL.createObjectURL(blob);  // Create object URL from the Blob
-                        audio.play();
-                        playPauseButton.textContent = 'Pause';   
+                // Assuming devId is defined elsewhere in your code
+                audio = new Audio();
+
+                // Fetch the audio stream
+                fetch('/listen', {
+                    headers: {
+                        'Device-ID': devId
                     }
-                };
-                xhr.send();           
+                })
+                .then(response => {
+                    // Check if the response is ok
+                    if (!response.ok) {
+                        throw new Error('Error while fetching audio stream');
+                    }
+                    // Set the audio source to the stream
+                    audio.srcObject = response.body;
+                    // Start playing the audio
+                    audio.play();
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+
+
             }
         });
 
