@@ -20,11 +20,12 @@
             var randomId = Math.random().toString(36).substr(2, 9);
             return randomId + timestamp;
         }
+        var devId = generateDeviceId()
 
         // Connect to WebSocket
         var socket = io({
             extraHeaders: {
-                'Device-ID': generateDeviceId() // Generuj i dodaj nagłówek Device-ID przy połączeniu WebSocket
+                'Device-ID': devId // Generuj i dodaj nagłówek Device-ID przy połączeniu WebSocket
             }
         });
 
@@ -46,7 +47,7 @@
             } else {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', '/listen', true);
-                xhr.setRequestHeader('Device-ID', generateDeviceId()); // Generuj i dodaj nagłówek Device-ID do żądania HTTP
+                xhr.setRequestHeader('Device-ID', devId); // Generuj i dodaj nagłówek Device-ID do żądania HTTP
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                         audio = new Audio(URL.createObjectURL(xhr.response));
