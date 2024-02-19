@@ -20,6 +20,32 @@
                 return v.toString(16);
             });
         }
+        async function fetchAudio() {
+            const requestOptions = {
+                method: 'GET',
+                headers: {
+                    'devid': devId
+                }
+            };  
+            const url = '/listen/';
+            // fetch() returns a promise that resolves once headers have been received
+            return fetch(url, requestOptions)
+                .then(res => {
+                if (!res.ok)
+                    throw new Error('Network response was not ok');
+
+                // Calling getReader() gives us exclusive access to
+                // the stream's content      
+                var reader = res.body.getReader();
+
+                // read() returns a promise that resolves when a value has been received      
+                return reader
+                    .read()
+                    .then((result) => {
+                        return result;
+                    });
+                })
+        }
         const devId = genereteDeviceId()
 
         // Connect to WebSocket
@@ -42,34 +68,28 @@
                 audio.pause();
                 audio.src=''
                 playPauseButton.textContent = 'Play';
-            } else {
+            } 
+            else {
                 playPauseButton.textContent = 'Loading...';   
                 audio = new Audio();
                 // Fetch the audio stream with headers
-                fetch('/listen', {
-                    headers: {
-                        'devid': devId
-                    }
-                })
-                .then(response => {
-                    // Check if the response is ok
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    // Return the audio stream response
-                    return response.blob();
-                })
-                .then(blob => {
-                    // Set the audio source to the stream
-                    audio.src = URL.createObjectURL(blob);
-                    // Play the audio
-                    audio.play();
-                    // Update the button text
-                    playPauseButton.textContent = 'Pause';   
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                });
+                fetchAudio()
+                    .then((response) => {
+                        // response.value for fetch streams is a Uint8Array
+                        var blob = new Blob([response.value], { type: 'audio/mpeg' });
+                        var url = window.URL.createObjectURL(blob)
+
+                        audio = new Audio();
+                        audio.src = url;
+                        audio.play();
+                        // Update the button text
+                        playPauseButton.textContent = 'Pause';   
+                    })
+                    .catch((error) => {
+                        this.setState({
+                            error: error.message
+                        });
+                    });
             }
         });
     </script>    
