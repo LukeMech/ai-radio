@@ -3,24 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <title>AI Radio</title>
 </head>
 <body>
-    <button id="playPauseButton">Play</button>
-    <p> v 0.0.1 </p>
+
+    <div class="btn play" id="play-pause-button">
+        <span class="bar bar-1"></span>
+        <span class="bar bar-2"></span>       
+    </div>    
+  
+    <div class="version">
+        <p> v 0.0.2 </p>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" integrity="sha512-tE1z+95+lMCGwy+9PnKgUSIeHhvioC9lMlI7rLWU0Ps3XTdjRygLcy4mLuL0JAoK4TLdQEyP0yOl/9dMOqpH/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        var playPauseButton = document.getElementById('playPauseButton');
-        var audio={paused:true}
+
+        const playPauseButton = document.getElementById('play-pause-button');
+        let audio={paused:true}
 
         function generateid() {
             return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
         }
-
         const id = generateid()
 
         // Connect to WebSocket
-        var socket = io({
+        const socket = io({
             extraHeaders: {
                 "id": id,
             }
@@ -31,52 +39,68 @@
         socket.on('disconnect', function() {
             console.log('Disconnected from server');
             try {audio.pause()} catch(e) {}
-            playPauseButton.textContent = 'Play';
         });
+
+        const loadedDataHandler = () => {
+            if (audio.readyState >= 2) {
+                audio.play();
+            }
+            if (audio.readyState > 2) {
+                playPauseButton.classList.remove('loading');
+                playPauseButton.classList.add('pause');
+            }
+        };
+        const errorHandler = err => {
+            audioErr('Loading audio failed', err)
+        };
+        const stalledHandler = () => {
+            audioStop()
+            playPauseButton.classList.remove('pause')
+            playPauseButton.classList.add('loading')
+            setTimeout(() => {
+                audioStart()
+            }, 2000);
+        };
 
         function audioStop() {
             audio.pause();
+            audio.removeEventListener("loadeddata", loadedDataHandler);
+            audio.removeEventListener("error", errorHandler);
+            audio.removeEventListener("stalled", stalledHandler);
             audio.src = ''
-            playPauseButton.textContent = 'Play';
         }
-        function audioErr(error) {
-            playPauseButton.textContent = 'Error: ' + error + ' . Refresh page to continue.';
+        function audioStart() {
+
+            audio = new Audio('/listen?id=' + id);
+            if (!audio.canPlayType('audio/mpeg')) {
+                return audioErr('Type not currently supported', '', false)
+            }
+            playPauseButton.classList.remove('play')
+            playPauseButton.classList.remove('pause')
+            audio.addEventListener("loadeddata", loadedDataHandler);
+            audio.addEventListener('error', errorHandler);
+            audio.addEventListener('stalled', stalledHandler);
+            playPauseButton.classList.add('loading');
         }
+        function audioErr(msg, err, repeat=true) {
+            console.warn(msg)
+            console.warn(err)
+            if(repeat) stalledHandler()
+        }
+
         playPauseButton.addEventListener('click', function() {
-            if (!audio.paused && playPauseButton.textContent.includes('Pause')) {  
+
+            if (playPauseButton.classList.contains('pause')) {  
                 audioStop()  
+                playPauseButton.classList.remove('pause')
+                playPauseButton.classList.remove('loading');
+                playPauseButton.classList.add('play')
             } 
-            else if (playPauseButton.textContent == 'Play') {
-                audio = new Audio('/listen?id=' + id);
-                if (!audio.canPlayType('audio/mpeg')) {
-                    audioErr('Type not currently supported')
-                }
-                audio.addEventListener('playing', function() {
-                    if(playPauseButton.textContent.includes("Loading")) {
-                        playPauseButton.textContent = 'Pause (still buffering...)'; // Change button content when audio is ready
-                        setTimeout(function() {
-                            if (playPauseButton.textContent === 'Pause (still buffering...)') {
-                                playPauseButton.textContent = 'Pause (buffer unknown)'; // Change button content if audio has been playing for a while
-                            }
-                        }, 5000);
-                    }
-                });
-                audio.addEventListener('canplaythrough', function() {
-                    playPauseButton.textContent = 'Pause'; // Change button content when audio is ready
-                });
-                audio.addEventListener('stalled', function() {
-                    audioStop()
-                });
-                audio.addEventListener('ended', function() {
-                    audioStop()
-                });
-                audio.addEventListener('error', err => {
-                    if(!err.target.paused) audioErr('Loading audio failed')
-                });
-                playPauseButton.textContent = 'Loading...';     
-                audio.play()
+            else if (!playPauseButton.classList.contains('loading')) {
+                audioStart()
             }
         });
+
     </script>    
 </body>
 </html>

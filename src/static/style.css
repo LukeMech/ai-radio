@@ -1,0 +1,96 @@
+body, html {
+  height: 100%;
+  margin: 50px 0 0 0;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes moveUpDown {
+  0% { margin-top: 0px }
+  25% { margin-top: 5px }
+  50% { margin-top: 0px }
+  75% { margin-top: -5px }
+  100% { margin-top: 0px }
+}
+
+.btn {
+  scale: 4;
+  margin-bottom: 20px;
+  width: 40px;
+  height: 40px;
+  border: rgb(15, 60, 242) 3px solid;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: border 0.1s ease-in-out;
+  
+  &:hover {
+    border: #3a4cd6 3px solid;
+    .bar {
+      background-color: #1aa747; 
+    }
+  }
+  
+  .bar {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 3px;
+    height: 20px;
+    border-radius: 3px;
+    background-color: rgb(228, 27, 27);
+    transform-origin: center;
+    transition: transform 0.4s ease-in-out, background 0.1s ease-in-out, margin-top 0.4s;
+  }
+  
+  &.loading {
+    .bar {
+      background-color: rgb(230, 14, 14);
+    }
+    .bar-1 {
+      transform: translateX(13.5px) translateY(0px) rotate(0deg);
+      animation: moveUpDown 1s infinite;
+    }
+    .bar-2 {
+      transform: translateX(24px) translateY(0px) rotate(0deg);
+      animation: moveUpDown 1s infinite;
+      animation-delay: 0.5s; /* Delay the animation of the second bar */
+    }
+  }  
+
+  &.pause {
+    .bar {
+      background-color: rgb(14, 230, 54);
+    }
+    .bar-1 {
+      margin-top: 0px;
+      transform: translateX(13.5px) translateY(0px) rotate(0deg);
+    }
+    .bar-2 {
+      margin-top: 0px;
+      transform: translateX(24px) translateY(0px) rotate(0deg);
+    }
+  }
+  
+  &.play {
+    .bar {
+      background-color: rgb(225, 230, 81);
+    }
+    .bar-1 {
+      margin-top: 0px;
+      transform: translateX(20px) translateY(-5px) rotate(-55deg);
+    }
+    .bar-2 {
+      margin-top: 0px;
+      transform: translateX(20px) translateY(5px) rotate(-125deg);
+    }
+  }
+  
+}
+
+.version {
+  font-size: 60px;
+  color: #1aa747;
+}
