@@ -13,13 +13,27 @@
         var playPauseButton = document.getElementById('playPauseButton');
         var audio = {}
         audio.paused = true
+
+        function generateDeviceId() {
+            var currentDate = new Date();
+            var timestamp = currentDate.getTime();
+            var randomId = Math.random().toString(36).substr(2, 9);
+            return randomId + timestamp;
+        }
+
         // Connect to WebSocket
-        var socket = io();
-        socket.on('connect', function() {
-            console.log('Authorized via websocket');
+        var socket = io({
+            extraHeaders: {
+                'Device-ID': generateDeviceId() // Generuj i dodaj nagłówek Device-ID przy połączeniu WebSocket
+            }
         });
+
+        socket.on('connect', function() {
+            console.log('Authorized via WebSocket');
+        });
+
         socket.on('disconnect', function() {
-            console.log('Disconnected from server');
+            console.log('Disconnected from WebSocket');
             try {audio.pause()} catch(e) {}
             playPauseButton.textContent = 'Play';
         });
@@ -30,9 +44,18 @@
                 audio.src=''
                 playPauseButton.textContent = 'Play';
             } else {
-                audio = new Audio('/listen');
-                audio.play()
-                playPauseButton.textContent = 'Pause';            
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/listen', true);
+                xhr.setRequestHeader('Device-ID', generateDeviceId()); // Generuj i dodaj nagłówek Device-ID do żądania HTTP
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                        audio = new Audio(URL.createObjectURL(xhr.response));
+                        audio.play();
+                        playPauseButton.textContent = 'Pause';   
+                    }
+                };
+                xhr.responseType = 'blob';
+                xhr.send();           
             }
         });
     </script>    

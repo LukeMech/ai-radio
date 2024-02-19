@@ -25,16 +25,21 @@ def index():
 @app.route('/listen')
 def listen():
     global radio
-    session_id = request.remote_addr
+    session_id = request.headers.get('Device-ID')  # Użyj nagłówka Device-ID jako identyfikatora sesji
+
+    if not session_id:
+        return "Missing Device-ID header", 400  # Zwróć błąd 400 Bad Request, jeśli brakuje nagłówka Device-ID
     if session_id not in radio["active_connections"]:
-        return "Not authorized", 403  # Return forbidden status if user is not connected via WebSocket
+        return "Not connected to websocket, not authorized", 403  # Return forbidden status if user is not connected via WebSocket
     
     elif session_id in radio["ffmpeg_processes"]:
-        print(f"Terminating ffmpeg process for one of sessions...")
+        app.logger.info("Restarting ffmpeg process for id " + session_id + "...")
         radio["ffmpeg_processes"][session_id].terminate()
         del radio["ffmpeg_processes"][session_id]
 
-    print(f"Starting ffmpeg proccess for one of sessions...")
+    else:
+        app.logger.info("Starting ffmpeg process for id " + session_id + "...")
+        
     ffmpeg_process = start_ffmpeg_process(radio["time"])
     radio["ffmpeg_processes"][session_id] = ffmpeg_process
 
@@ -45,18 +50,22 @@ def listen():
 @socketio.on('connect')
 def handle_connect():
     global radio
-    session_id = request.remote_addr
-    print(f"One of clients connected")
+    session_id = request.headers.get('Device-ID')  # Użyj nagłówka Device-ID jako identyfikatora sesji
+    if not session_id:
+        app.logger.error("No Device-ID header provided for the connection.")
+        return "Missing Device-ID header", 400  # Zwróć błąd 400 Bad Request, jeśli brakuje nagłówka Device-ID
+    
+    app.logger.info("Client connected with session id: " + session_id)
     radio["active_connections"][session_id] = True
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    session_id = request.remote_addr
-    print(f"One of clients disconnected")
+    session_id = request.headers.get('Device-ID')  # Użyj nagłówka Device-ID jako identyfikatora sesji
+    app.logger.info("Client disconnected with session id: " + session_id)
     global radio
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
     if session_id in radio["ffmpeg_processes"]:
-        print(f"Terminating ffmpeg process for one of sessions...")
+        app.logger.info("Terminating ffmpeg process for id " + session_id + "...")
         radio["ffmpeg_processes"][session_id].terminate()
         del radio["ffmpeg_processes"][session_id]
 
