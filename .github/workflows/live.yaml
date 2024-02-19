@@ -38,7 +38,7 @@ jobs:
           ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
 
           cd src
-          sleep 60
+          sleep 30
           python index.py &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8080 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
