@@ -4,12 +4,17 @@ on:
   schedule:
     - cron: '0 */6 * * *' # Run every 6 hours
 
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   server:
     runs-on: ubuntu-latest
     steps:
+      - name: Stop previous server
+        uses: styfle/cancel-workflow-action@0.12.1
+  
       - name: Clone repository
         uses: actions/checkout@v4
 

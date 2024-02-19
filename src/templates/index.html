@@ -57,11 +57,11 @@
                         throw new Error('Network response was not ok');
                     }
                     // Return the audio stream response
-                    return response;
+                    return response.blob();
                 })
-                .then(stream => {
+                .then(blob => {
                     // Set the audio source to the stream
-                    audio.src = URL.createObjectURL(stream);
+                    audio.src = URL.createObjectURL(blob);
                     // Play the audio
                     audio.play();
                     // Update the button text
