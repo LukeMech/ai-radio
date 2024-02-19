@@ -8,16 +8,14 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   server:
     runs-on: ubuntu-latest
-    steps:
-      - name: Stop previous server
-        uses: potiuk/cancel-workflow-runs@v4_9
-        with:
-          cancelMode: allDuplicates
-          token: ${{ secrets.GITHUB_TOKEN }}
-              
+    steps:              
       - name: Clone repository
         uses: actions/checkout@v4
 
