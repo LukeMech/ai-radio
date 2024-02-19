@@ -112,7 +112,6 @@ def ai_radio_streamer():
 
         if not duration:
             duration = get_audio_duration(queue[0])
-            radio["time"] = duration - 20
             radio["fpath"] = queue[0]
             queue.pop(0)
 
