@@ -39,23 +39,26 @@
             audio.src = ''
             playPauseButton.textContent = 'Play';
         }
+        function audioErr(error) {
+            playPauseButton.textContent = 'Error: ' + error + ' . Refresh page to continue.';
+        }
         playPauseButton.addEventListener('click', function() {
             if (!audio.paused && playPauseButton.textContent == 'Pause') {  
-                audioStop()   
+                audioStop()  
             } 
             else if (playPauseButton.textContent == 'Play') {
                 audio = new Audio('/listen?id=' + id);
+                if (!audio.canPlayType('audio/mpeg')) {
+                    audioErr('Type not currently supported')
+                }
                 audio.addEventListener('playing', function() {
                     playPauseButton.textContent = 'Pause'; // Change button content when audio is ready
                 });
-                audio.addEventListener('waiting', function() {
+                audio.addEventListener('stalled', function() {
                     audioStop()
                 });
                 audio.addEventListener('error', function() {
-                    playPauseButton.textContent = 'ERROR';
-                    setTimeout(() => {
-                        audioStop()
-                    }, 3000);
+                    audioErr('Loading audio failed')
                 });
                 playPauseButton.textContent = 'Loading...';     
                 audio.play()
