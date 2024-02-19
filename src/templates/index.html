@@ -10,49 +10,19 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" integrity="sha512-tE1z+95+lMCGwy+9PnKgUSIeHhvioC9lMlI7rLWU0Ps3XTdjRygLcy4mLuL0JAoK4TLdQEyP0yOl/9dMOqpH/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        const playPauseButton = document.getElementById('playPauseButton');
-        var audio = {}
-        audio.paused = true
+        var playPauseButton = document.getElementById('playPauseButton');
+        var audio={paused:true}
 
-        function genereteDeviceId() {
-            return 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
+        function generateid() {
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
         }
-        
-        const devId = genereteDeviceId()
 
-        async function fetchAudio() {
-            const requestOptions = {
-                headers: {
-                    'devid': devId
-                }
-            };  
-            const url = '/listen';
-            // fetch() returns a promise that resolves once headers have been received
-            return fetch(url, requestOptions)
-                .then(res => {
-                if (!res.ok)
-                    throw new Error('Network response was not ok');
-
-                // Calling getReader() gives us exclusive access to
-                // the stream's content      
-                var reader = res.body.getReader();
-
-                // read() returns a promise that resolves when a value has been received      
-                return reader
-                    .read()
-                    .then((result) => {
-                        return result;
-                    });
-                })
-        }
+        const id = generateid()
 
         // Connect to WebSocket
         var socket = io({
             extraHeaders: {
-                'devid': devId // Generuj i dodaj nagłówek devid przy połączeniu WebSocket
+                "id": id,
             }
         });
         socket.on('connect', function() {
@@ -65,30 +35,18 @@
         });
 
         playPauseButton.addEventListener('click', function() {
-            if (!audio.paused) {       
+            if (!audio.paused && playPauseButton.textContent == 'Pause') {     
                 audio.pause();
-                audio.src=''
+                audio.src = ''
                 playPauseButton.textContent = 'Play';
             } 
-            else {
-                playPauseButton.textContent = 'Loading...';   
-                audio = new Audio();
-                // Fetch the audio stream with headers
-                fetchAudio()
-                    .then((response) => {
-                        // response.value for fetch streams is a Uint8Array
-                        var blob = new Blob([response.value], { type: 'audio/mpeg' });
-                        var url = window.URL.createObjectURL(blob)
-
-                        audio = new Audio();
-                        audio.src = url;
-                        audio.play();
-                        // Update the button text
-                        playPauseButton.textContent = 'Pause';   
-                    })
-                    .catch((error) => {
-                        console.error(error)
-                    });
+            else if (playPauseButton.textContent == 'Play') {
+                audio = new Audio('/listen?id=' + id);
+                audio.addEventListener('canplaythrough', function() {
+                    audio.play()
+                    playPauseButton.textContent = 'Pause'; // Change button content when audio is ready
+                });
+                playPauseButton.textContent = 'Loading...';     
             }
         });
     </script>    

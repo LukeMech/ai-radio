@@ -1,5 +1,5 @@
 from flask import Flask, Response, render_template, request
-from flask_socketio import SocketIO, ConnectionRefusedError
+from flask_socketio import SocketIO
 import subprocess, time, threading
 
 app = Flask(__name__)
@@ -25,10 +25,8 @@ def index():
 @app.route('/listen')
 def listen():
     global radio
-    session_id = request.headers.get('devid')  # Użyj nagłówka devid jako identyfikatora sesji
+    session_id = request.args.get('id')
 
-    if not session_id:
-        return "Missing devid header", 400  # Zwróć błąd 400 Bad Request, jeśli brakuje nagłówka devid
     if session_id not in radio["active_connections"]:
         return "Not connected to websocket, not authorized", 403  # Return forbidden status if user is not connected via WebSocket
     
@@ -50,17 +48,13 @@ def listen():
 @socketio.on('connect')
 def handle_connect():
     global radio
-    session_id = str(request.headers.get('devid'))  # Użyj nagłówka devid jako identyfikatora sesji
-    if not session_id:
-        app.logger.error("No devid header provided for the connection.")
-        raise ConnectionRefusedError('Missing devid header')  # Odrzuć połączenie socketu
-    
+    session_id = request.headers.get('id')
     app.logger.info("Client connected with session id: " + session_id)
     radio["active_connections"][session_id] = True
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    session_id = str(request.headers.get('devid'))  # Użyj nagłówka devid jako identyfikatora sesji
+    session_id = request.headers.get('id')
     app.logger.info("Client disconnected with session id: " + session_id)
     global radio
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
