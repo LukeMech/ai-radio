@@ -3,13 +3,16 @@ from flask_socketio import SocketIO
 import subprocess, time, threading
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+socketio = SocketIO(app)    
+
+fallbackQueue = ["lalalove.wav", "myohmy.wav"]
+queue = []
 radio = {
     "ffmpeg_processes": {},
     "active_connections": {},
+    "fpath": "",
     "time": 0
 }
-WAV_FILE_PATH = 'test.wav'
 
 def add_no_cache_headers(response):
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'  # Prevent caching by the browser
@@ -38,12 +41,12 @@ def listen():
     else:
         app.logger.info("Starting ffmpeg process for id " + session_id + "...")
 
-    ffmpeg_process = start_ffmpeg_process(radio["time"])
+    ffmpeg_process = start_ffmpeg_process()
     radio["ffmpeg_processes"][session_id] = ffmpeg_process
 
     time.sleep(1)
 
-    return add_no_cache_headers(Response(generate_audio(ffmpeg_process), mimetype='audio/mpeg'))
+    return add_no_cache_headers(Response(generate_audio(ffmpeg_process, radio["fpath"]), mimetype='audio/mpeg'))
 
 @socketio.on('connect')
 def handle_connect():
@@ -63,20 +66,24 @@ def handle_disconnect():
         radio["ffmpeg_processes"][session_id].terminate()
         del radio["ffmpeg_processes"][session_id]
 
-def start_ffmpeg_process(start_time):
+def start_ffmpeg_process():
+    global radio
     # Rozpocznij proces ffmpeg
     command = [
         'ffmpeg',
         '-re',                      # Read data from input at native frame rate
-        '-ss', str(start_time),     # Start from given time
-        '-i', WAV_FILE_PATH,        # Input file
+        '-ss', str(radio["time"]),     # Start from given time
+        '-i', str(radio["fpath"]),        # Input file
         '-f', 'mp3',                # Output format MP3,
         '-'
     ]
     return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10**8)
 
-def generate_audio(ffmpeg_process):
+def generate_audio(ffmpeg_process, currentlyplaying):
+    global radio
     while True:
+        if(radio["fpath"] != currentlyplaying):
+            break
         data = ffmpeg_process.stdout.read(1024)
         if not data:
             break
@@ -91,19 +98,31 @@ def get_audio_duration(file_path):
     duration = float(result.stdout)
     return duration
 
-def count_time():
-    duration = get_audio_duration(WAV_FILE_PATH)
-    global radio
+def ai_radio_streamer():
+    global radio, queue
+    duration = 0
     while True:
+        if not queue:
+            queue = fallbackQueue
+
+        if not radio["fpath"]:
+           radio["fpath"] = queue[0]
+           queue.pop(0)
+
+        if not duration:
+            duration = get_audio_duration(radio["fpath"])
+ 
         # Increment time by 1 second
         radio["time"] += 0.1
         if radio["time"] > duration:
-            # If time exceeds duration, reset to 0
+            # If time exceeds duration, reset to 0 and change to next music
             radio["time"] = 0
+            radio["fpath"] = 0
+
         time.sleep(0.1)
 
 if __name__ == '__main__':
-    time_thread = threading.Thread(target=count_time)
+    time_thread = threading.Thread(target=ai_radio_streamer)
     time_thread.daemon = True
     time_thread.start()
 

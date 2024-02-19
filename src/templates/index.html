@@ -19,7 +19,7 @@
         </div>    
       
         <div class="version">
-            <p> v 0.1.1 </p>
+            <p> v 0.2.0 </p>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" integrity="sha512-tE1z+95+lMCGwy+9PnKgUSIeHhvioC9lMlI7rLWU0Ps3XTdjRygLcy4mLuL0JAoK4TLdQEyP0yOl/9dMOqpH/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -88,9 +88,10 @@
             }
             catch (err) {}
         }
-        function audioStart() {
+        function audioStart(user=false) {
 
             if (!connectedToServer) {
+                if(playPauseButton.classList.contains('play') && !user) return
                 playPauseButton.classList.remove('play')
                 playPauseButton.classList.remove('pause')
                 playPauseButton.classList.add('loading')
@@ -120,14 +121,15 @@
 
         playPauseButton.addEventListener('click', function() {
 
-            if (playPauseButton.classList.contains('pause')) {  
+            if (playPauseButton.classList.contains('pause') || playPauseButton.classList.contains('loading')) {
+            
                 audioStop()  
                 playPauseButton.classList.remove('pause')
                 playPauseButton.classList.remove('loading');
                 playPauseButton.classList.add('play')
             } 
             else if (!playPauseButton.classList.contains('loading')) {
-                audioStart()
+                audioStart(true)
             }
         });
 
