@@ -15,10 +15,8 @@
         audio.paused = true
 
         function generateDeviceId() {
-            var currentDate = new Date();
-            var timestamp = currentDate.getTime();
             var randomId = Math.random().toString(36).substr(2, 9);
-            return randomId + timestamp;
+            return randomId;
         }
         var devId = generateDeviceId()
 
@@ -45,20 +43,23 @@
                 audio.src=''
                 playPauseButton.textContent = 'Play';
             } else {
+                playPauseButton.textContent = 'Loading...';   
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', '/listen', true);
-                xhr.setRequestHeader('Device-ID', devId); // Generuj i dodaj nagłówek Device-ID do żądania HTTP
+                xhr.setRequestHeader('Device-ID', devId); // Add Device-ID header to the request
+                xhr.responseType = 'blob';  // Set the response type to Blob
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                        audio = new Audio(URL.createObjectURL(xhr.response));
+                        var blob = xhr.response;  // Get the response as a Blob object
+                        audio.src = window.URL.createObjectURL(blob);  // Create object URL from the Blob
                         audio.play();
                         playPauseButton.textContent = 'Pause';   
                     }
                 };
-                xhr.responseType = 'blob';
                 xhr.send();           
             }
         });
+
     </script>    
 </body>
 </html>
