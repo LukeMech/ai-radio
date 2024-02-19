@@ -8,18 +8,26 @@
 </head>
 <body>
 
-    <div class="btn play" id="play-pause-button">
-        <span class="bar bar-1"></span>
-        <span class="bar bar-2"></span>       
-    </div>    
-  
-    <div class="version">
-        <p> v 0.0.2 </p>
+    <div class="session-id">
+        <p id="session-id">Authenticating...</p>
+    </div>
+
+    <div class="main">
+        <div class="btn play" id="play-pause-button">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>       
+        </div>    
+      
+        <div class="version">
+            <p> v 0.0.2 </p>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" integrity="sha512-tE1z+95+lMCGwy+9PnKgUSIeHhvioC9lMlI7rLWU0Ps3XTdjRygLcy4mLuL0JAoK4TLdQEyP0yOl/9dMOqpH/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
 
         const playPauseButton = document.getElementById('play-pause-button');
+        const sessionIDText = document.getElementById('session-id');
+
         let audio={paused:true}
 
         function generateid() {
@@ -35,6 +43,7 @@
         });
         socket.on('connect', function() {
             console.log('Authorized via websocket');
+            sessionIDText.innerHTML = "Session ID: " + id
         });
         socket.on('disconnect', function() {
             console.log('Disconnected from server');
@@ -67,6 +76,7 @@
             audio.removeEventListener("loadeddata", loadedDataHandler);
             audio.removeEventListener("error", errorHandler);
             audio.removeEventListener("stalled", stalledHandler);
+            audio.removeEventListener("ended", stalledHandler);
             audio.src = ''
         }
         function audioStart() {
@@ -80,6 +90,7 @@
             audio.addEventListener("loadeddata", loadedDataHandler);
             audio.addEventListener('error', errorHandler);
             audio.addEventListener('stalled', stalledHandler);
+            audio.addEventListener('ended', stalledHandler);
             playPauseButton.classList.add('loading');
         }
         function audioErr(msg, err, repeat=true) {
