@@ -9,8 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Stop previous server
-        uses: styfle/cancel-workflow-action@0.12.1
-  
+        uses: potiuk/cancel-workflow-runs@v4_9
+        with:
+          cancelMode: allDuplicates
+          token: ${{ secrets.GITHUB_TOKEN }}
+              
       - name: Clone repository
         uses: actions/checkout@v4
 

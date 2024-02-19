@@ -2,8 +2,6 @@ from flask import Flask, Response, render_template, request
 from flask_socketio import SocketIO
 import subprocess, time, threading
 
-version = '0.2.2'
-
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
@@ -35,20 +33,7 @@ def listen():
     if session_id not in radio["active_connections"]:
         return "Not connected to websocket, not authorized", 403  # Return forbidden status if user is not connected via WebSocket
     
-    elif session_id in radio["ffmpeg_processes"]:
-        app.logger.info("Restarting ffmpeg process for id " + session_id + "...")
-        radio["ffmpeg_processes"][session_id].terminate()
-        del radio["ffmpeg_processes"][session_id]
-
-    else:
-        app.logger.info("Starting ffmpeg process for id " + session_id + "...")
-
-    ffmpeg_process = start_ffmpeg_process()
-    radio["ffmpeg_processes"][session_id] = ffmpeg_process
-
-    time.sleep(1)
-
-    return add_no_cache_headers(Response(generate_audio(ffmpeg_process, radio["fpath"]), mimetype='audio/mpeg'))
+    return add_no_cache_headers(Response(generate_audio(session_id), mimetype='audio/mpeg'))
 
 @socketio.on('connect')
 def handle_connect():
@@ -73,25 +58,42 @@ def start_ffmpeg_process():
     # Rozpocznij proces ffmpeg
     command = [
         'ffmpeg',
-        '-re',                      # Read data from input at native frame rate
-        '-ss', str(radio["time"]),     # Start from given time
-        '-i', str(radio["fpath"]),        # Input file
-        '-f', 'mp3',                # Output format MP3,
+        '-re',                          # Read data from input at native frame rate
+        '-ss', str(radio["time"]),      # Start from given time
+        '-i', str(radio["fpath"]),      # Input file
+        '-c:a', 'libmp3lame',           # Audio codec
+        '-b:a', '128k',                 # Audio bitrate
+        '-ar', '44100',                 # Audio sample rate
+        '-ac', '2',                     # Audio channels (stereo)
+        '-preset', 'fast',              # Encoding preset for fast encoding
+        '-f', 'mp3',                    # Output format MP3,
         '-'
     ]
     return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10**8)
 
-def generate_audio(ffmpeg_process, currentlyplaying):
+def generate_audio(session_id):
     global radio
-    while True:
-        if(radio["fpath"] != currentlyplaying):
-            break
-        data = ffmpeg_process.stdout.read(1024)
-        if not data:
-            break
-        else: 
-            yield data
+    currentlyplaying = None
+    ffmpeg_process = None
+    data = None
+    def restart():
+        app.logger.info("Starting new ffmpeg process for id " + session_id + "...")
+        if session_id in radio["ffmpeg_processes"]: 
+            radio["ffmpeg_processes"][session_id].terminate()
+            del radio["ffmpeg_processes"][session_id]
+        ffmpeg_process = start_ffmpeg_process()
+        radio["ffmpeg_processes"][session_id] = ffmpeg_process
+        return ffmpeg_process
 
+    while True:
+        try: data = ffmpeg_process.stdout.read(1024)
+        except:pass
+
+        if radio["fpath"] != currentlyplaying:
+            ffmpeg_process = restart()
+            currentlyplaying = radio["fpath"]
+        else: yield data
+        
 def get_audio_duration(file_path):
     # Run ffprobe to get audio duration
     result = subprocess.run(['ffprobe', '-v', 'error', '-show_entries',
@@ -108,19 +110,17 @@ def ai_radio_streamer():
         if len(queue) == 0:
             queue.extend(fallbackQueue)
 
-        if not radio["fpath"]:
-           radio["fpath"] = queue[0]
-           queue.pop(0)
-
         if not duration:
-            duration = get_audio_duration(radio["fpath"])
- 
+            duration = get_audio_duration(queue[0])
+            radio["time"] = duration - 20
+            radio["fpath"] = queue[0]
+            queue.pop(0)
+
         # Increment time by 0.1 second
         radio["time"] += 0.1
         if radio["time"] > duration:
             # If time exceeds duration, reset to 0 and change to next music
             duration = 0
-            radio["fpath"] = 0
             radio["time"] = 0
 
         time.sleep(0.1)
