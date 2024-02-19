@@ -107,4 +107,4 @@ if __name__ == '__main__':
     time_thread.daemon = True
     time_thread.start()
 
-    socketio.run(app, debug=True, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=8000, allow_unsafe_werkzeug=True)

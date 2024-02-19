@@ -9,7 +9,7 @@
 <body>
 
     <div class="session-id">
-        <p id="session-id">Authenticating...</p>
+        <p id="session-id"></p>
     </div>
 
     <div class="main">
@@ -19,7 +19,7 @@
         </div>    
       
         <div class="version">
-            <p> v 0.1.0 </p>
+            <p> v 0.1.1 </p>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" integrity="sha512-tE1z+95+lMCGwy+9PnKgUSIeHhvioC9lMlI7rLWU0Ps3XTdjRygLcy4mLuL0JAoK4TLdQEyP0yOl/9dMOqpH/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -27,6 +27,9 @@
 
         const playPauseButton = document.getElementById('play-pause-button');
         const sessionIDText = document.getElementById('session-id');
+        const sessionIDDefault = 'Connecting...'
+        sessionIDText.innerHTML = sessionIDDefault
+        let connectedToServer = false;
 
         let audio={paused:true}
 
@@ -44,10 +47,12 @@
         socket.on('connect', function() {
             console.log('Authorized via websocket');
             sessionIDText.innerHTML = "Session ID: " + id
+            connectedToServer = true
         });
         socket.on('disconnect', function() {
             console.log('Disconnected from server');
-            try {audio.pause()} catch(e) {}
+            sessionIDText.innerHTML = sessionIDDefault
+            connectedToServer = false
         });
 
         const loadedDataHandler = () => {
@@ -64,6 +69,7 @@
         };
         const stalledHandler = () => {
             audioStop()
+            playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
             playPauseButton.classList.add('loading')
             setTimeout(() => {
@@ -72,14 +78,27 @@
         };
 
         function audioStop() {
-            audio.pause();
-            audio.removeEventListener("loadeddata", loadedDataHandler);
-            audio.removeEventListener("error", errorHandler);
-            audio.removeEventListener("stalled", stalledHandler);
-            audio.removeEventListener("ended", stalledHandler);
-            audio.src = ''
+            try {
+                audio.pause();
+                audio.removeEventListener("loadeddata", loadedDataHandler);
+                audio.removeEventListener("error", errorHandler);
+                audio.removeEventListener("stalled", stalledHandler);
+                audio.removeEventListener("ended", stalledHandler);
+                audio.src = ''
+            }
+            catch (err) {}
         }
         function audioStart() {
+
+            if (!connectedToServer) {
+                playPauseButton.classList.remove('play')
+                playPauseButton.classList.remove('pause')
+                playPauseButton.classList.add('loading')
+                setTimeout(() => {
+                    audioStart()
+                }, 2000);
+                return
+            }
 
             audio = new Audio('/listen?id=' + id);
             if (!audio.canPlayType('audio/mpeg')) {
@@ -87,11 +106,11 @@
             }
             playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
+            playPauseButton.classList.add('loading');
             audio.addEventListener("loadeddata", loadedDataHandler);
             audio.addEventListener('error', errorHandler);
             audio.addEventListener('stalled', stalledHandler);
             audio.addEventListener('ended', stalledHandler);
-            playPauseButton.classList.add('loading');
         }
         function audioErr(msg, err, repeat=true) {
             console.warn(msg)
