@@ -12,7 +12,7 @@ queue = []
 radio = {
     "ffmpeg_processes": {},
     "active_connections": {},
-    "fpath": "",
+    "fpath": 0,
     "time": 0
 }
 
@@ -101,11 +101,12 @@ def get_audio_duration(file_path):
     return duration
 
 def ai_radio_streamer():
-    global radio, queue, fallbackQueue
+    global queue, radio, fallbackQueue
     duration = 0
     while True:
+
         if len(queue) == 0:
-            queue = fallbackQueue
+            queue.extend(fallbackQueue)
 
         if not radio["fpath"]:
            radio["fpath"] = queue[0]
@@ -114,12 +115,13 @@ def ai_radio_streamer():
         if not duration:
             duration = get_audio_duration(radio["fpath"])
  
-        # Increment time by 1 second
+        # Increment time by 0.1 second
         radio["time"] += 0.1
         if radio["time"] > duration:
             # If time exceeds duration, reset to 0 and change to next music
-            radio["time"] = 0
+            duration = 0
             radio["fpath"] = 0
+            radio["time"] = 0
 
         time.sleep(0.1)
 
