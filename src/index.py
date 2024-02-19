@@ -45,13 +45,23 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     session_id = request.headers.get('id')
-    app.logger.info("Client disconnected with session id: " + session_id)
     global radio
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
     if session_id in radio["ffmpeg_processes"]:
         app.logger.info("Terminating ffmpeg process for id " + session_id + "...")
         radio["ffmpeg_processes"][session_id].terminate()
         del radio["ffmpeg_processes"][session_id]
+    app.logger.info("Client disconnected with session id: " + session_id)
+
+
+@socketio.on('musicstop')
+def handle_music_stop(session_id):
+    if session_id in radio["ffmpeg_processes"]:
+        app.logger.info("Terminating ffmpeg process for id " + session_id + "...")
+        radio["ffmpeg_processes"][session_id].terminate()
+        del radio["ffmpeg_processes"][session_id]
+    else:
+        app.logger.info(f"No ffmpeg process found for session id: {session_id}")
 
 def start_ffmpeg_process():
     global radio

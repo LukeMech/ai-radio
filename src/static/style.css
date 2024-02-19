@@ -7,21 +7,25 @@
 }
 
 :root {
-  --background-color: #fff;
-  --text-color: #222;
-  --btn-border: rgb(15, 60, 242) 3px solid;
-  --btn-hover-border: #3a4cd6 3px solid;
-  --version-font-color: #422ce2;
-  --theme-switcher-content: "🌜";
-  --theme-switcher-bg-color: #222;
-}
-[data-theme="dark"] {
   --background-color: #1e1e1e; /* Dark gray */
   --text-color: #ffffff; /* White */
   --btn-border: rgb(114, 113, 229) 3px solid;
+  --btn-hover-border: #3a4cd6 3px solid;
   --version-font-color: #0bceff;
-  --theme-switcher-content: "🌞";
+  --theme-switcher-content: '\f185';
+  --theme-switcher-color: #222;
+  --theme-switcher-font: var(--fa-font-solid);
   --theme-switcher-bg-color: #fff;
+}
+[data-theme="light"] {
+  --background-color: #fff;
+  --text-color: #222;
+  --btn-border: rgb(15, 60, 242) 3px solid;
+  --version-font-color: #422ce2;
+  --theme-switcher-content: '\f186';
+  --theme-switcher-color: #fff;
+  --theme-switcher-font: var(--fa-font-regular);
+  --theme-switcher-bg-color: #222;
 }
 @media (prefers-color-scheme: dark) {}
 
@@ -29,6 +33,7 @@ body {
   color-scheme: light dark;
   background-color: var(--background-color);
   color: var(--text-color);
+  transition: all 0.3s ease-in-out;
 }
 
 .session-id {
@@ -59,13 +64,14 @@ body {
 
 .theme-switch::before {
   content: var(--theme-switcher-content); /* Ustaw ikonę */
+  font: var(--theme-switcher-font);
+  color: var(--theme-switcher-color);
   display: block;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 22px; /* Dostosuj rozmiar ikony */
-  color: var(--version-font-color); /* Kolor ikony */
 }
 
 .btn {

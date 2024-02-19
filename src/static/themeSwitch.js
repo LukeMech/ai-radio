@@ -1,6 +1,6 @@
 //determines if the user has a set theme
 function detectColorScheme(){
-    var theme="light";    //default to light
+    var theme="dark";    //default to dark
 
     //local storage is used to override OS theme settings
     if(localStorage.getItem("theme")){
