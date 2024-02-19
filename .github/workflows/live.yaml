@@ -42,4 +42,4 @@ jobs:
           python index.py &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8080 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
-          sleep 21600 # 6 hours = 6 * 60 * 60 seconds
+          sleep 14400 # 4 hours = 4 * 60 * 60 seconds
