@@ -10,29 +10,29 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" integrity="sha512-tE1z+95+lMCGwy+9PnKgUSIeHhvioC9lMlI7rLWU0Ps3XTdjRygLcy4mLuL0JAoK4TLdQEyP0yOl/9dMOqpH/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        var playPauseButton = document.getElementById('playPauseButton');
+        const playPauseButton = document.getElementById('playPauseButton');
         var audio = {}
         audio.paused = true
 
-        function generateDeviceId() {
-            var randomId = Math.random().toString(36).substr(2, 9);
-            return randomId;
+        function genereteDeviceId() {
+            return 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
         }
-        var devId = generateDeviceId()
+        const devId = genereteDeviceId()
 
         // Connect to WebSocket
         var socket = io({
             extraHeaders: {
-                'Device-ID': devId // Generuj i dodaj nagłówek Device-ID przy połączeniu WebSocket
+                'devid': devId // Generuj i dodaj nagłówek devid przy połączeniu WebSocket
             }
         });
-
         socket.on('connect', function() {
-            console.log('Authorized via WebSocket');
+            console.log('Authorized via websocket');
         });
-
         socket.on('disconnect', function() {
-            console.log('Disconnected from WebSocket');
+            console.log('Disconnected from server');
             try {audio.pause()} catch(e) {}
             playPauseButton.textContent = 'Play';
         });
@@ -43,38 +43,11 @@
                 audio.src=''
                 playPauseButton.textContent = 'Play';
             } else {
-                playPauseButton.textContent = 'Loading...';   
-                // Assuming devId is defined elsewhere in your code
-                audio = new Audio();
-
-                // Fetch the audio stream
-                fetch('/listen', {
-                    headers: {
-                        'Device-ID': devId
-                    }
-                })
-                .then(function(response) {
-                    // Check if the response is ok
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    // The data has to be a JavaScript ArrayBuffer
-                    return response.arrayBuffer();
-                })
-                .then(function(audioData) {
-                    // Set the audio source to the fetched audio data
-                    audio.src = URL.createObjectURL(new Blob([audioData]));
-                    // Play the audio
-                    audio.play();
-                    // Update the button text
-                    playPauseButton.textContent = 'Pause';   
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                });
+                audio = new Audio('/listen?devid=' + devId);
+                audio.play()
+                playPauseButton.textContent = 'Pause';            
             }
         });
-
     </script>    
 </body>
 </html>
