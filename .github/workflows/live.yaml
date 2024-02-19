@@ -19,11 +19,6 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Set Swap Space
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 20
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -36,7 +31,6 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/ngrok.list
           sudo apt update
           sudo apt install ffmpeg ngrok
-          pip install -U pip
           pip install -r requirements.txt
 
       - name: Start and expose server
