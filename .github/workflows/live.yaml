@@ -30,6 +30,7 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/ngrok.list
           sudo apt update
           sudo apt install ffmpeg ngrok
+          pip install -U pip
           pip install -r requirements.txt
 
       - name: Start and expose server
@@ -37,6 +38,7 @@ jobs:
           ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
 
           cd src
+          sleep 60
           python index.py &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8080 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
