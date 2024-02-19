@@ -2,6 +2,8 @@ from flask import Flask, Response, render_template, request
 from flask_socketio import SocketIO
 import subprocess, time, threading
 
+version = '0.2.1'
+
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
@@ -102,7 +104,7 @@ def ai_radio_streamer():
     global radio, queue
     duration = 0
     while True:
-        if not queue:
+        if len(queue) == 0:
             queue = fallbackQueue
 
         if not radio["fpath"]:
