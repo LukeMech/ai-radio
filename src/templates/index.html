@@ -7,7 +7,7 @@
 </head>
 <body>
     <button id="playPauseButton">Play</button>
-
+    <p> v 0.0.1 </p>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" integrity="sha512-tE1z+95+lMCGwy+9PnKgUSIeHhvioC9lMlI7rLWU0Ps3XTdjRygLcy4mLuL0JAoK4TLdQEyP0yOl/9dMOqpH/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         var playPauseButton = document.getElementById('playPauseButton');
@@ -52,7 +52,14 @@
                     audioErr('Type not currently supported')
                 }
                 audio.addEventListener('playing', function() {
-                    playPauseButton.textContent = 'Pause (still buffering...)'; // Change button content when audio is ready
+                    if(playPauseButton.textContent.includes("Loading")) {
+                        playPauseButton.textContent = 'Pause (still buffering...)'; // Change button content when audio is ready
+                        setTimeout(function() {
+                            if (playPauseButton.textContent === 'Pause (still buffering...)') {
+                                playPauseButton.textContent = 'Pause (buffer unknown)'; // Change button content if audio has been playing for a while
+                            }
+                        }, 5000);
+                    }
                 });
                 audio.addEventListener('canplaythrough', function() {
                     playPauseButton.textContent = 'Pause'; // Change button content when audio is ready
