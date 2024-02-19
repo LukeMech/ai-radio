@@ -2,7 +2,7 @@ name: Live server / ngrok
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # Run every 4 hours
+    - cron '*/30 * * * *' # 0.5h hours
 
   push:
     branches:
@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -43,19 +43,8 @@ jobs:
           ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
 
           cd src
-          sleep 30
+          sleep 20
           python index.py &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8080 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
-          sleep 1200 # 20mins -> 60secs*20
-          sleep 1200
-          sleep 1200
-          sleep 1200
-          sleep 1200
-          sleep 1200
-          sleep 1200
-          sleep 1200
-          sleep 1200
-          sleep 1200
-          sleep 1200
-          sleep 1200
+          sleep 1800 # 30mins -> 60secs*30
