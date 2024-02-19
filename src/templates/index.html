@@ -43,9 +43,33 @@
                 audio.src=''
                 playPauseButton.textContent = 'Play';
             } else {
-                audio = new Audio('/listen?devid=' + devId);
-                audio.play()
-                playPauseButton.textContent = 'Pause';            
+                playPauseButton.textContent = 'Loading...';   
+                audio = new Audio();
+                // Fetch the audio stream with headers
+                fetch('/listen', {
+                    headers: {
+                        'devid': devId
+                    }
+                })
+                .then(response => {
+                    // Check if the response is ok
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Return the audio stream response
+                    return response;
+                })
+                .then(stream => {
+                    // Set the audio source to the stream
+                    audio.src = URL.createObjectURL(stream);
+                    // Play the audio
+                    audio.play();
+                    // Update the button text
+                    playPauseButton.textContent = 'Pause';   
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
             }
         });
     </script>    
