@@ -20,9 +20,11 @@
                 return v.toString(16);
             });
         }
+        
+        const devId = genereteDeviceId()
+
         async function fetchAudio() {
             const requestOptions = {
-                method: 'GET',
                 headers: {
                     'devid': devId
                 }
@@ -46,7 +48,6 @@
                     });
                 })
         }
-        const devId = genereteDeviceId()
 
         // Connect to WebSocket
         var socket = io({
@@ -86,9 +87,7 @@
                         playPauseButton.textContent = 'Pause';   
                     })
                     .catch((error) => {
-                        this.setState({
-                            error: error.message
-                        });
+                        console.error(error)
                     });
             }
         });
