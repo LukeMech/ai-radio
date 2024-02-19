@@ -43,7 +43,7 @@
             playPauseButton.textContent = 'Error: ' + error + ' . Refresh page to continue.';
         }
         playPauseButton.addEventListener('click', function() {
-            if (!audio.paused && playPauseButton.textContent == 'Pause') {  
+            if (!audio.paused && playPauseButton.textContent.includes('Pause')) {  
                 audioStop()  
             } 
             else if (playPauseButton.textContent == 'Play') {
@@ -52,13 +52,19 @@
                     audioErr('Type not currently supported')
                 }
                 audio.addEventListener('playing', function() {
+                    playPauseButton.textContent = 'Pause (still buffering...)'; // Change button content when audio is ready
+                });
+                audio.addEventListener('canplaythrough', function() {
                     playPauseButton.textContent = 'Pause'; // Change button content when audio is ready
                 });
                 audio.addEventListener('stalled', function() {
                     audioStop()
                 });
-                audio.addEventListener('error', function() {
-                    audioErr('Loading audio failed')
+                audio.addEventListener('ended', function() {
+                    audioStop()
+                });
+                audio.addEventListener('error', err => {
+                    if(!err.target.paused) audioErr('Loading audio failed')
                 });
                 playPauseButton.textContent = 'Loading...';     
                 audio.play()
