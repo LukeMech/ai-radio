@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='radio.ico') }}">
     <title>AI Radio</title>
 </head>
 <body>
@@ -23,7 +24,7 @@
         </label>
 
         <div class="version">
-            <p> Server v0.3.1 </p>
+            <p> Server v0.3.2 </p>
         </div>
 
     </div>
@@ -31,10 +32,11 @@
     <script src="{{ url_for('static', filename='themeSwitch.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-
         const playPauseButton = document.getElementById('play-pause-button');
         const sessionIDText = document.getElementById('session-id');
         const sessionIDDefault = 'Connecting...'
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isFirefox = navigator.userAgent.includes("Firefox");
         sessionIDText.innerHTML = sessionIDDefault
         let connectedToServer = false;
 
@@ -44,6 +46,28 @@
             return Math.random().toString(36).substring(2, 15)
         }
         const id = generateid()
+
+        const mediaMetadata = new MediaMetadata({
+            title: 'LukeMech | AI Radio | 2024',
+            artist: 'Live stream',
+            artwork: [
+                { src: "{{ url_for('static', filename='radio.ico') }}" }
+            ]
+        });
+        const loadingMetadata = new MediaMetadata({
+            title: 'Loading...',
+            artist: 'LukeMech | AI Radio | 2024',
+            artwork: [
+                { src: "{{ url_for('static', filename='radio.ico') }}" }
+            ]
+        })
+        const connectingMetadata = new MediaMetadata({
+            title: 'Connecting to the server...',
+            artist: 'LukeMech | AI Radio | 2024',
+            artwork: [
+                { src: "{{ url_for('static', filename='radio.ico') }}" }
+            ]
+        })
 
         // Connect to WebSocket
         const socket = io({
@@ -67,6 +91,9 @@
                 audio.play();
             }
             if (audio.readyState > 2) {
+                navigator.mediaSession.metadata = mediaMetadata
+                navigator.mediaSession.playbackState = 'playing'
+                
                 playPauseButton.classList.remove('loading');
                 playPauseButton.classList.add('pause');
             }
@@ -85,6 +112,8 @@
         };
 
         function audioStop() {
+            navigator.mediaSession.metadata = mediaMetadata
+            navigator.mediaSession.playbackState = 'paused'
             socket.emit('musicstop', id)
             try {
                 audio.pause();
@@ -92,27 +121,30 @@
                 audio.removeEventListener("error", errorHandler);
                 audio.removeEventListener("stalled", stalledHandler);
                 audio.removeEventListener("ended", stalledHandler);
-                audio.src = ''
             }
             catch (err) {}
         }
         function audioStart(user=false) {
-
             if (!connectedToServer) {
                 if(playPauseButton.classList.contains('play') && !user) return
                 playPauseButton.classList.remove('play')
                 playPauseButton.classList.remove('pause')
                 playPauseButton.classList.add('loading')
+                navigator.mediaSession.playbackState = 'playing'
+                navigator.mediaSession.metadata = connectingMetadata
+
                 setTimeout(() => {
                     audioStart()
                 }, 2000);
                 return
             }
-
+            if(!isMobile || isFirefox) audio.src = ''
             audio = new Audio('/listen?id=' + id);
             if (!audio.canPlayType('audio/mpeg')) {
                 return audioErr('Type not currently supported', '', false)
             }
+            navigator.mediaSession.playbackState = 'playing'
+            navigator.mediaSession.metadata = loadingMetadata
             playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
             playPauseButton.classList.add('loading');
@@ -130,7 +162,6 @@
         playPauseButton.addEventListener('click', function() {
 
             if (playPauseButton.classList.contains('pause') || playPauseButton.classList.contains('loading')) {
-            
                 audioStop()  
                 playPauseButton.classList.remove('pause')
                 playPauseButton.classList.remove('loading');
@@ -141,6 +172,18 @@
             }
         });
 
-    </script>    
+        if ("mediaSession" in navigator) {
+            navigator.mediaSession.setActionHandler('play', function() {
+                audioStart(true)
+            });
+            navigator.mediaSession.setActionHandler('pause', function() {
+                audioStop()
+                playPauseButton.classList.remove('pause')
+                playPauseButton.classList.remove('loading');
+                playPauseButton.classList.add('play')
+            });
+        }
+
+    </script>
 </body>
 </html>
