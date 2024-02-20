@@ -42,7 +42,7 @@ def listen():
 def handle_connect():
     global radio
     session_id = request.headers.get('id')
-    print("Client connected with session id: " + session_id)
+    print("Client connected with session id: " + session_id, flush=True)
     radio["active_connections"][session_id] = request.sid
     socketio.emit('trackChange', {'file': radio["fpath"], 'title': radio["title"], 'author': radio["author"], 'duration': radio["duration"], 'time': radio["time"]}, to=request.sid)
 
@@ -53,19 +53,19 @@ def handle_disconnect():
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
     if session_id in radio["ffmpeg_processes"]:
         for process in radio['ffmpeg_processes'][session_id]:
-            print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...")
+            print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...", flush=True)
             process["process"].terminate()
-        print("Client disconnected with session id: " + session_id)
+        print("Client disconnected with session id: " + session_id, flush=True)
 
 @socketio.on('musicstop')
 def handle_music_stop(session_id):
     if session_id in radio["ffmpeg_processes"]:
         for process in radio['ffmpeg_processes'][session_id]:
-            print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...")
+            print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...", flush=True)
             process["process"].terminate()
         radio["ffmpeg_processes"][session_id] = 'terminated'
     else:
-        print("No ffmpeg process found for session id: " + session_id)
+        print("No ffmpeg process found for session id: " + session_id, flush=True)
 
 def start_ffmpeg_process():
     global radio
@@ -95,7 +95,7 @@ def generate_audio(session_id):
             
             if terminate:
                 if len(radio['ffmpeg_processes'][session_id]) > 1:
-                    print("Terminating ffmpeg process for id '" + session_id + "' for media '" + radio["ffmpeg_processes"][session_id][0]["file"] + "'...")
+                    print("Terminating ffmpeg process for id '" + session_id + "' for media '" + radio["ffmpeg_processes"][session_id][0]["file"] + "'...", flush=True)
                     radio['ffmpeg_processes'][session_id][0]["process"].terminate()
                     del radio["ffmpeg_processes"][session_id][0]
                     return radio["ffmpeg_processes"][session_id][0]["process"]
@@ -107,7 +107,7 @@ def generate_audio(session_id):
             radio["ffmpeg_processes"][session_id] = []
 
         if not terminate:
-            print("Starting new ffmpeg process for " + radio["fpath"] + " for id " + session_id + "...")
+            print("Starting new ffmpeg process for " + radio["fpath"] + " for id " + session_id + "...", flush=True)
             ffmpeg_process = start_ffmpeg_process()
             process_json = {
                 "process": ffmpeg_process, 
