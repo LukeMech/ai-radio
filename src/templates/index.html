@@ -24,7 +24,7 @@
         </label>
 
         <div class="version">
-            <p> Server v0.3.2 </p>
+            <p> Server v0.3.3 </p>
         </div>
 
     </div>
@@ -47,9 +47,16 @@
         }
         const id = generateid()
 
-        const mediaMetadata = new MediaMetadata({
-            title: 'LukeMech | AI Radio | 2024',
-            artist: 'Live stream',
+        const mediaPlayingMetadata = new MediaMetadata({
+            title: 'AI Radio | 2024',
+            artist: 'LukeMech',
+            artwork: [
+                { src: "{{ url_for('static', filename='radio.ico') }}" }
+            ]
+        });
+        const mediaStoppedMetadata = new MediaMetadata({
+            title: 'Stopped',
+            artist: 'LukeMech | AI Radio | 2024',
             artwork: [
                 { src: "{{ url_for('static', filename='radio.ico') }}" }
             ]
@@ -62,7 +69,7 @@
             ]
         })
         const connectingMetadata = new MediaMetadata({
-            title: 'Connecting to the server...',
+            title: 'Connecting...',
             artist: 'LukeMech | AI Radio | 2024',
             artwork: [
                 { src: "{{ url_for('static', filename='radio.ico') }}" }
@@ -91,7 +98,7 @@
                 audio.play();
             }
             if (audio.readyState > 2) {
-                navigator.mediaSession.metadata = mediaMetadata
+                navigator.mediaSession.metadata = mediaPlayingMetadata
                 navigator.mediaSession.playbackState = 'playing'
                 
                 playPauseButton.classList.remove('loading');
@@ -110,17 +117,25 @@
                 audioStart()
             }, 2000);
         };
+        const pausedHandler = () => {
+            audioStop()
+            playPauseButton.classList.remove('pause')
+            playPauseButton.classList.remove('loading');
+            playPauseButton.classList.add('play');
+            audio.src = ''
+        }
 
         function audioStop() {
-            navigator.mediaSession.metadata = mediaMetadata
+            navigator.mediaSession.metadata = mediaStoppedMetadata
             navigator.mediaSession.playbackState = 'paused'
             socket.emit('musicstop', id)
             try {
-                audio.pause();
+                audio.removeEventListener("pause", pausedHandler);
                 audio.removeEventListener("loadeddata", loadedDataHandler);
                 audio.removeEventListener("error", errorHandler);
                 audio.removeEventListener("stalled", stalledHandler);
                 audio.removeEventListener("ended", stalledHandler);
+                audio.pause();
             }
             catch (err) {}
         }
@@ -130,8 +145,8 @@
                 playPauseButton.classList.remove('play')
                 playPauseButton.classList.remove('pause')
                 playPauseButton.classList.add('loading')
-                navigator.mediaSession.playbackState = 'playing'
                 navigator.mediaSession.metadata = connectingMetadata
+                navigator.mediaSession.playbackState = 'playing'
 
                 setTimeout(() => {
                     audioStart()
@@ -143,14 +158,16 @@
             if (!audio.canPlayType('audio/mpeg')) {
                 return audioErr('Type not currently supported', '', false)
             }
-            navigator.mediaSession.playbackState = 'playing'
+
             navigator.mediaSession.metadata = loadingMetadata
+            navigator.mediaSession.playbackState = 'playing'
             playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
             playPauseButton.classList.add('loading');
             audio.addEventListener("loadeddata", loadedDataHandler);
             audio.addEventListener('error', errorHandler);
             audio.addEventListener('stalled', stalledHandler);
+            audio.addEventListener('pause', pausedHandler);
             audio.addEventListener('ended', stalledHandler);
         }
         function audioErr(msg, err, repeat=true) {
@@ -172,17 +189,15 @@
             }
         });
 
-        if ("mediaSession" in navigator) {
-            navigator.mediaSession.setActionHandler('play', function() {
-                audioStart(true)
-            });
-            navigator.mediaSession.setActionHandler('pause', function() {
-                audioStop()
-                playPauseButton.classList.remove('pause')
-                playPauseButton.classList.remove('loading');
-                playPauseButton.classList.add('play')
-            });
-        }
+        navigator.mediaSession.setActionHandler('play', function() {
+            audioStart(true)
+        });
+        navigator.mediaSession.setActionHandler('pause', function() {
+            audioStop()  
+            playPauseButton.classList.remove('pause')
+            playPauseButton.classList.remove('loading');
+            playPauseButton.classList.add('play')
+        });
 
     </script>
 </body>

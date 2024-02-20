@@ -50,7 +50,7 @@ def handle_disconnect():
     if session_id in radio["ffmpeg_processes"]:
         app.logger.info("Terminating ffmpeg process for id " + session_id + "...")
         radio["ffmpeg_processes"][session_id].terminate()
-        del radio["ffmpeg_processes"][session_id]
+        radio["ffmpeg_processes"][session_id] = 'terminated'
     app.logger.info("Client disconnected with session id: " + session_id)
 
 
@@ -59,13 +59,13 @@ def handle_music_stop(session_id):
     if session_id in radio["ffmpeg_processes"]:
         app.logger.info("Terminating ffmpeg process for id " + session_id + "...")
         radio["ffmpeg_processes"][session_id].terminate()
-        del radio["ffmpeg_processes"][session_id]
+        radio["ffmpeg_processes"][session_id] = 'terminated'
     else:
         app.logger.info(f"No ffmpeg process found for session id: {session_id}")
 
 def start_ffmpeg_process():
     global radio
-    # Rozpocznij proces ffmpeg
+    # Start ffmpeg process
     command = [
         'ffmpeg',
         '-re',                          # Read data from input at native frame rate
@@ -79,31 +79,45 @@ def start_ffmpeg_process():
         '-f', 'mp3',                    # Output format MP3,
         '-'
     ]
-    return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10**8)
+    return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=128)
 
 def generate_audio(session_id):
     global radio
     currentlyplaying = None
     ffmpeg_process = None
     data = None
+
     def restart():
-        app.logger.info("Starting new ffmpeg process for id " + session_id + "...")
         if session_id in radio["ffmpeg_processes"]: 
+            if radio["ffmpeg_processes"][session_id] == 'terminated':
+                del radio["ffmpeg_processes"][session_id]
+                return
+            
             radio["ffmpeg_processes"][session_id].terminate()
             del radio["ffmpeg_processes"][session_id]
+
+        app.logger.info("Starting new ffmpeg process for id " + session_id + "...")
         ffmpeg_process = start_ffmpeg_process()
         radio["ffmpeg_processes"][session_id] = ffmpeg_process
         return ffmpeg_process
 
     while True:
-        try: data = ffmpeg_process.stdout.read(1024)
+        try: data = ffmpeg_process.stdout.read(128)
         except:pass
 
-        if radio["fpath"] != currentlyplaying:
+        # TODO : Array of ffmpeg processes, start playing another file, then switch to second process
+
+        # if radio["fpath"] != currentlyplaying:
+        #     currentlyplaying = radio["fpath"]
+        #     ffmpeg_process2 = restart()
+
+        if not data:
             ffmpeg_process = restart()
-            currentlyplaying = radio["fpath"]
-        else: yield data
-        
+            if not ffmpeg_process:
+                break
+        else: 
+            yield data
+
 def get_audio_duration(file_path):
     # Run ffprobe to get audio duration
     result = subprocess.run(['ffprobe', '-v', 'error', '-show_entries',
@@ -119,18 +133,17 @@ def ai_radio_streamer():
 
         if len(queue) == 0:
             queue.extend(fallbackQueue)
-
         if not duration:
             duration = get_audio_duration(queue[0])
             radio["fpath"] = queue[0]
+            radio["time"] = 0
             queue.pop(0)
 
         # Increment time by 0.1 second
         radio["time"] += 0.1
-        if radio["time"] > duration:
+        if radio["time"] > duration-1:
             # If time exceeds duration, reset to 0 and change to next music
             duration = 0
-            radio["time"] = 0
 
         time.sleep(0.1)
 
