@@ -24,14 +24,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Setup ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v3
+
+      - name: Setup ngrok
         run: |
-          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
-            | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
-            | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt update
-          sudo apt install ffmpeg ngrok
-          pip install -r requirements.txt
+          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
+          sudo tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
+
+      - name: Install python dependencies
+        run: pip install -r requirements.txt
 
       - name: Start and expose server
         run: |
@@ -41,4 +43,4 @@ jobs:
           gunicorn -k eventlet index:app &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
-          sleep 1800 # 30mins -> 60secs*30
+          sleep 3600 # 1h -> 60secs*60
