@@ -2,7 +2,7 @@ name: Live server / ngrok
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # 0.5h
+    - cron: '* */1 * * *'  # 1h
 
   push:
     branches:
