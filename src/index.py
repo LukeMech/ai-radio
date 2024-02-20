@@ -49,7 +49,7 @@ def handle_disconnect():
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
     if session_id in radio["ffmpeg_processes"]:
         for process in radio['ffmpeg_processes'][session_id]:
-            app.logger.info("Terminating ffmpeg process for " + radio['ffmpeg_processes'][session_id][0]["file"] + " for id " + session_id + "...")
+            app.logger.info("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...")
             process["process"].terminate()
         app.logger.info("Client disconnected with session id: " + session_id)
 
@@ -58,7 +58,7 @@ def handle_disconnect():
 def handle_music_stop(session_id):
     if session_id in radio["ffmpeg_processes"]:
         for process in radio['ffmpeg_processes'][session_id]:
-            app.logger.info("Terminating ffmpeg process for " + radio['ffmpeg_processes'][session_id][0]["file"] + " for id " + session_id + "...")
+            app.logger.info("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...")
             process["process"].terminate()
         radio["ffmpeg_processes"][session_id] = 'terminated'
     else:
@@ -92,7 +92,7 @@ def generate_audio(session_id):
             
             if terminate:
                 if len(radio['ffmpeg_processes'][session_id]) > 1:
-                    app.logger.info("Terminating ffmpeg process for " + radio['ffmpeg_processes'][session_id][0]["file"] + " for id " + session_id + "...")
+                    app.logger.info("Terminating ffmpeg process for id '" + session_id + "' for media '" + radio["ffmpeg_processes"][session_id][0]["file"] + "'...")
                     radio['ffmpeg_processes'][session_id][0]["process"].terminate()
                     del radio["ffmpeg_processes"][session_id][0]
                     return radio["ffmpeg_processes"][session_id][0]["process"]
