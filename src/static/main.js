@@ -128,6 +128,9 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             }, 2000);
             return
         }
+        playPauseButton.classList.remove('play')
+        playPauseButton.classList.remove('pause')
+        playPauseButton.classList.add('loading')
         if(!isMobile || isFirefox) audio.src = ''
         audio = new Audio('/listen?id=' + id);
         if (!audio.canPlayType('audio/mpeg')) {
@@ -138,9 +141,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             navigator.mediaSession.metadata = loadingMetadata
             navigator.mediaSession.playbackState = 'playing'
         }
-        playPauseButton.classList.remove('play')
-        playPauseButton.classList.remove('pause')
-        playPauseButton.classList.add('loading');
         audio.addEventListener("loadeddata", loadedDataHandler);
         audio.addEventListener('error', errorHandler);
         audio.addEventListener('stalled', stalledHandler);
@@ -177,4 +177,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             playPauseButton.classList.add('play')
         });
     }
+
+    playPauseButton.classList.remove('play-loading')
+    playPauseButton.classList.add('play')
 });

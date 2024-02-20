@@ -1,7 +1,14 @@
+@keyframes fadeOutIn {
+  0% { scale: 1 }
+  25% { scale: 0.9 }
+  50% { scale: 1 }
+  75% { scale: 1.1 }
+  100% { scale: 1 }
+}
 @keyframes moveUpDown {
   0% { margin-top: 0px }
   25% { margin-top: 5px }
-  50% { margin-top: 0px }
+  50% { margin-top: 0px; }
   75% { margin-top: -5px }
   100% { margin-top: 0px }
 }
@@ -90,7 +97,7 @@ body {
   border: var(--btn-border);
   border-radius: 3px;
   cursor: pointer;
-  transition: border 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
   
   &:hover {
     border: var(--btn-hover-border);
@@ -116,15 +123,14 @@ body {
   &.loading {
     .bar {
       background-color: rgb(230, 14, 14);
+      animation: moveUpDown 1s infinite;
     }
     .bar-1 {
       transform: translateX(13.5px) translateY(0px) rotate(0deg);
-      animation: moveUpDown 1s infinite;
       animation-delay: 0.5s;
     }
     .bar-2 {
       transform: translateX(24px) translateY(0px) rotate(0deg);
-      animation: moveUpDown 1s infinite;
     }
   }  
 
@@ -155,5 +161,16 @@ body {
       transform: translateX(20px) translateY(5px) rotate(-125deg);
     }
   }
-  
+  &.play-loading {
+    .bar {
+      background-color: rgb(230, 14, 14);
+      animation: fadeOutIn 1s infinite;
+    }
+    .bar-1 {
+      transform: translateX(20px) translateY(-5px) rotate(-55deg);
+    }
+    .bar-2 {
+      transform: translateX(20px) translateY(5px) rotate(-125deg);
+    }
+  }
 }
