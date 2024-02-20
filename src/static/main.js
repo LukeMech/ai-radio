@@ -112,9 +112,9 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
         catch (err) {}
     }
-    function audioStart(user=false) {
+    function audioStart(ignorePlayClass=false) {
+        if(playPauseButton.classList.contains('play') && !ignorePlayClass) return
         if (!connectedToServer) {
-            if(playPauseButton.classList.contains('play') && !user) return
             playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
             playPauseButton.classList.add('loading')
@@ -156,10 +156,10 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     playPauseButton.addEventListener('click', function() {
     
         if (playPauseButton.classList.contains('pause') || playPauseButton.classList.contains('loading')) {
-            audioStop()  
+            playPauseButton.classList.add('play')
             playPauseButton.classList.remove('pause')
             playPauseButton.classList.remove('loading');
-            playPauseButton.classList.add('play')
+            audioStop()
         } 
         else if (!playPauseButton.classList.contains('loading')) {
             audioStart(true)
