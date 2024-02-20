@@ -8,12 +8,16 @@
     <title>AI Radio</title>
 </head>
 <body>
-
+    <h1 id="error"></h1>
     <div class="session-id">
         <p id="session-id"></p>
     </div>
 
     <div class="main">
+        <div class="version">
+            <p> AI Radio v0.4.0 </p>
+        </div>
+
         <div class="btn play" id="play-pause-button">
             <span class="bar bar-1"></span>
             <span class="bar bar-2"></span>       
@@ -22,183 +26,12 @@
         <label id="theme-switch" class="theme-switch" for="checkbox_theme">
             <input type="checkbox" id="checkbox_theme">
         </label>
-
-        <div class="version">
-            <p> Server v0.3.3 </p>
-        </div>
-
     </div>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="{{ url_for('static', filename='themeSwitch.js') }}"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        const playPauseButton = document.getElementById('play-pause-button');
-        const sessionIDText = document.getElementById('session-id');
-        const sessionIDDefault = 'Connecting...'
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        const isFirefox = navigator.userAgent.includes("Firefox");
-        sessionIDText.innerHTML = sessionIDDefault
-        let connectedToServer = false;
-
-        let audio={paused:true}
-
-        function generateid() {
-            return Math.random().toString(36).substring(2, 15)
-        }
-        const id = generateid()
-
-        const mediaPlayingMetadata = new MediaMetadata({
-            title: 'AI Radio | 2024',
-            artist: 'LukeMech',
-            artwork: [
-                { src: "{{ url_for('static', filename='radio.ico') }}" }
-            ]
-        });
-        const mediaStoppedMetadata = new MediaMetadata({
-            title: 'Stopped',
-            artist: 'LukeMech | AI Radio | 2024',
-            artwork: [
-                { src: "{{ url_for('static', filename='radio.ico') }}" }
-            ]
-        });
-        const loadingMetadata = new MediaMetadata({
-            title: 'Loading...',
-            artist: 'LukeMech | AI Radio | 2024',
-            artwork: [
-                { src: "{{ url_for('static', filename='radio.ico') }}" }
-            ]
-        })
-        const connectingMetadata = new MediaMetadata({
-            title: 'Connecting...',
-            artist: 'LukeMech | AI Radio | 2024',
-            artwork: [
-                { src: "{{ url_for('static', filename='radio.ico') }}" }
-            ]
-        })
-
-        // Connect to WebSocket
-        const socket = io({
-            extraHeaders: {
-                "id": id,
-            }
-        });
-        socket.on('connect', function() {
-            console.log('Authorized via websocket');
-            sessionIDText.innerHTML = "Session ID: " + id
-            connectedToServer = true
-        });
-        socket.on('disconnect', function() {
-            console.log('Disconnected from server');
-            sessionIDText.innerHTML = sessionIDDefault
-            connectedToServer = false
-        });
-
-        const loadedDataHandler = () => {
-            if (audio.readyState >= 2) {
-                audio.play();
-            }
-            if (audio.readyState > 2) {
-                navigator.mediaSession.metadata = mediaPlayingMetadata
-                navigator.mediaSession.playbackState = 'playing'
-                
-                playPauseButton.classList.remove('loading');
-                playPauseButton.classList.add('pause');
-            }
-        };
-        const errorHandler = err => {
-            audioErr('Loading audio failed', err)
-        };
-        const stalledHandler = () => {
-            audioStop()
-            playPauseButton.classList.remove('play')
-            playPauseButton.classList.remove('pause')
-            playPauseButton.classList.add('loading')
-            setTimeout(() => {
-                audioStart()
-            }, 2000);
-        };
-        const pausedHandler = () => {
-            audioStop()
-            playPauseButton.classList.remove('pause')
-            playPauseButton.classList.remove('loading');
-            playPauseButton.classList.add('play');
-            audio.src = ''
-        }
-
-        function audioStop() {
-            navigator.mediaSession.metadata = mediaStoppedMetadata
-            navigator.mediaSession.playbackState = 'paused'
-            socket.emit('musicstop', id)
-            try {
-                audio.removeEventListener("pause", pausedHandler);
-                audio.removeEventListener("loadeddata", loadedDataHandler);
-                audio.removeEventListener("error", errorHandler);
-                audio.removeEventListener("stalled", stalledHandler);
-                audio.removeEventListener("ended", stalledHandler);
-                audio.pause();
-            }
-            catch (err) {}
-        }
-        function audioStart(user=false) {
-            if (!connectedToServer) {
-                if(playPauseButton.classList.contains('play') && !user) return
-                playPauseButton.classList.remove('play')
-                playPauseButton.classList.remove('pause')
-                playPauseButton.classList.add('loading')
-                navigator.mediaSession.metadata = connectingMetadata
-                navigator.mediaSession.playbackState = 'playing'
-
-                setTimeout(() => {
-                    audioStart()
-                }, 2000);
-                return
-            }
-            if(!isMobile || isFirefox) audio.src = ''
-            audio = new Audio('/listen?id=' + id);
-            if (!audio.canPlayType('audio/mpeg')) {
-                return audioErr('Type not currently supported', '', false)
-            }
-
-            navigator.mediaSession.metadata = loadingMetadata
-            navigator.mediaSession.playbackState = 'playing'
-            playPauseButton.classList.remove('play')
-            playPauseButton.classList.remove('pause')
-            playPauseButton.classList.add('loading');
-            audio.addEventListener("loadeddata", loadedDataHandler);
-            audio.addEventListener('error', errorHandler);
-            audio.addEventListener('stalled', stalledHandler);
-            audio.addEventListener('pause', pausedHandler);
-            audio.addEventListener('ended', stalledHandler);
-        }
-        function audioErr(msg, err, repeat=true) {
-            console.warn(msg)
-            console.warn(err)
-            if(repeat) stalledHandler()
-        }
-
-        playPauseButton.addEventListener('click', function() {
-
-            if (playPauseButton.classList.contains('pause') || playPauseButton.classList.contains('loading')) {
-                audioStop()  
-                playPauseButton.classList.remove('pause')
-                playPauseButton.classList.remove('loading');
-                playPauseButton.classList.add('play')
-            } 
-            else if (!playPauseButton.classList.contains('loading')) {
-                audioStart(true)
-            }
-        });
-
-        navigator.mediaSession.setActionHandler('play', function() {
-            audioStart(true)
-        });
-        navigator.mediaSession.setActionHandler('pause', function() {
-            audioStop()  
-            playPauseButton.classList.remove('pause')
-            playPauseButton.classList.remove('loading');
-            playPauseButton.classList.add('play')
-        });
-
-    </script>
+    <script src="{{ url_for('static', filename='language.js') }}"></script>
+    <script src="{{ url_for('static', filename='themeSwitch.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
