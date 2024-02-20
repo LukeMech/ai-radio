@@ -2,5 +2,6 @@
     "stopped": "Zatrzymano",
     "loading": "Ładowanie...",
     "connecting": "Łączenie...",
-    "sessionID": "ID sesji"
+    "sessionID": "ID sesji",
+    "nowPlaying": "Teraz gramy"
 }

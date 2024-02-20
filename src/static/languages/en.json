@@ -2,5 +2,6 @@
     "stopped": "Stopped",
     "loading": "Loading...",
     "connecting": "Connecting...",
-    "sessionID": "Session ID"
+    "sessionID": "Session ID",
+    "nowPlaying": "Now playing"
 }

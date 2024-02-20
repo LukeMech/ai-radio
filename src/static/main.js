@@ -1,3 +1,4 @@
+var socket
 document.querySelector('body').addEventListener('languagesLoaded', () => {
     const sessionIDText = document.getElementById('session-id');
     sessionIDText.innerHTML = languageStrings.connecting
@@ -47,17 +48,17 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     }
     
     // Connect to WebSocket
-    const socket = io({
+    socket = io({
         extraHeaders: {
             "id": id,
         }
     });
-    socket.on('connect', function() {
+    socket.on('connect', () => {
         console.log('Authorized via websocket');
         sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
         connectedToServer = true
     });
-    socket.on('disconnect', function() {
+    socket.on('disconnect', () => {
         console.log('Disconnected from server');
         sessionIDText.innerHTML = languageStrings.connecting
         connectedToServer = false
@@ -180,4 +181,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
 
     playPauseButton.classList.remove('play-loading')
     playPauseButton.classList.add('play')
+
+    document.querySelector('body').dispatchEvent(new Event('mainLoaded'));
 });

@@ -5,12 +5,15 @@ import subprocess, time, threading
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
-fallbackQueue = ["lalalove.wav", "myohmy.wav"]
+fallbackQueue = [
+    {"fpath": "lalalove.wav", "title": "La La Love", "author": "C-Bool, SkyTech, GiangPham"}, 
+    {"fpath": "myohmy.wav", "title": "Czułe Słowa (My Oh My)", "author": "Piękni I Młodzi, Magdalena Narożna"}
+]
 queue = []
 radio = {
     "ffmpeg_processes": {},
     "active_connections": {},
-    "fpath": 0,
+    "fpath": 0, "title": '', "author": '', "duration": 0,
     "time": 0
 }
 
@@ -39,8 +42,9 @@ def listen():
 def handle_connect():
     global radio
     session_id = request.headers.get('id')
-    app.logger.info("Client connected with session id: " + session_id)
-    radio["active_connections"][session_id] = True
+    print("Client connected with session id: " + session_id)
+    radio["active_connections"][session_id] = request.sid
+    socketio.emit('trackChange', {'file': radio["fpath"], 'title': radio["title"], 'author': radio["author"], 'duration': radio["duration"], 'time': radio["time"]}, to=request.sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -49,20 +53,19 @@ def handle_disconnect():
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
     if session_id in radio["ffmpeg_processes"]:
         for process in radio['ffmpeg_processes'][session_id]:
-            app.logger.info("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...")
+            print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...")
             process["process"].terminate()
-        app.logger.info("Client disconnected with session id: " + session_id)
-
+        print("Client disconnected with session id: " + session_id)
 
 @socketio.on('musicstop')
 def handle_music_stop(session_id):
     if session_id in radio["ffmpeg_processes"]:
         for process in radio['ffmpeg_processes'][session_id]:
-            app.logger.info("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...")
+            print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...")
             process["process"].terminate()
         radio["ffmpeg_processes"][session_id] = 'terminated'
     else:
-        app.logger.info(f"No ffmpeg process found for session id: {session_id}")
+        print("No ffmpeg process found for session id: " + session_id)
 
 def start_ffmpeg_process():
     global radio
@@ -92,7 +95,7 @@ def generate_audio(session_id):
             
             if terminate:
                 if len(radio['ffmpeg_processes'][session_id]) > 1:
-                    app.logger.info("Terminating ffmpeg process for id '" + session_id + "' for media '" + radio["ffmpeg_processes"][session_id][0]["file"] + "'...")
+                    print("Terminating ffmpeg process for id '" + session_id + "' for media '" + radio["ffmpeg_processes"][session_id][0]["file"] + "'...")
                     radio['ffmpeg_processes'][session_id][0]["process"].terminate()
                     del radio["ffmpeg_processes"][session_id][0]
                     return radio["ffmpeg_processes"][session_id][0]["process"]
@@ -104,7 +107,7 @@ def generate_audio(session_id):
             radio["ffmpeg_processes"][session_id] = []
 
         if not terminate:
-            app.logger.info("Starting new ffmpeg process for " + radio["fpath"] + " for id " + session_id + "...")
+            print("Starting new ffmpeg process for " + radio["fpath"] + " for id " + session_id + "...")
             ffmpeg_process = start_ffmpeg_process()
             process_json = {
                 "process": ffmpeg_process, 
@@ -149,10 +152,14 @@ def ai_radio_streamer():
         if len(queue) == 0:
             queue.extend(fallbackQueue)
         if not duration:
-            duration = get_audio_duration(queue[0])
-            radio["fpath"] = queue[0]
+            duration = get_audio_duration(queue[0]["fpath"])
             radio["time"] = 0
+            radio["fpath"] = queue[0]["fpath"]
+            radio["title"] = queue[0]["title"]
+            radio["author"] = queue[0]["author"]
+            radio["duration"] = duration
             queue.pop(0)
+            socketio.emit('trackChange', {'file': radio["fpath"], 'title': radio["title"], 'author': radio["author"], 'duration': radio["duration"], 'time': 0})
 
         # Increment time by 0.1 second
         radio["time"] += 0.1
@@ -162,9 +169,8 @@ def ai_radio_streamer():
 
         time.sleep(0.1)
 
+time_thread = threading.Thread(target=ai_radio_streamer)
+time_thread.daemon = True
+time_thread.start()
 if __name__ == '__main__':
-    time_thread = threading.Thread(target=ai_radio_streamer)
-    time_thread.daemon = True
-    time_thread.start()
-
-    socketio.run(app, debug=True, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=8080)

@@ -23,6 +23,7 @@
   --theme-switcher-color: #ffff00;
   --theme-switcher-font: var(--fa-font-solid);
   --theme-switcher-bg-color: #343232;
+  --text-color-nowplaying: #0bff89;
 }
 [data-theme="light"] {
   --background-color: #fff;
@@ -33,6 +34,7 @@
   --theme-switcher-color: #222;
   --theme-switcher-font: var(--fa-font-regular);
   --theme-switcher-bg-color: #e2d561;
+  --text-color-nowplaying: #1aa747;
 }
 @media (prefers-color-scheme: dark) {}
 
@@ -70,6 +72,7 @@ body {
   height: 40px; /* Dostosuj wysokość, aby pasowała do ikony */
   background-color: var(--theme-switcher-bg-color);
   border-radius: 20px;
+  margin-bottom: 40px;
 }
 
 .theme-switch input[type="checkbox"] {
@@ -91,7 +94,7 @@ body {
 .btn {
   scale: 4;
   margin-top: 100px;
-  margin-bottom: 130px;
+  margin-bottom: 100px;
   width: 40px;
   height: 40px;
   border: var(--btn-border);
@@ -173,4 +176,20 @@ body {
       transform: translateX(20px) translateY(5px) rotate(-125deg);
     }
   }
+}
+
+.player-info {
+  font-size: 25px;
+  margin-top: -10px;
+  margin-bottom: 30px;
+  text-align: center;
+  color: var(--text-color-nowplaying);
+}
+.player-info-box {
+  font-size: 20px;
+  text-align: center;
+  color: var(--text-color);
+}
+.player-info-box p {
+  margin-top: -15px;
 }
