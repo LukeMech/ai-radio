@@ -179,8 +179,17 @@ def ai_radio_streamer():
         queue[0]["fetched"] = True
         print("Downloaded and set to queue track " + t + ", id: " + fp, flush=True)
         nonlocal firstLaunchReady; firstLaunchReady = True;
+    def addToQueue():
+        response = requests.get(ytlist_url)
+        if response.status_code == 200:
+            # Assign the fetched data to ytUrlList
+            ytUrlList = response.json()
+        else:
+            # Fallback urls
+            ytUrlList = ["https://www.youtube.com/watch?v=d8OI9FllKfg"]
+        queue.append({"url": random.choice(ytUrlList)})
 
-    queue.append({"url": random.choice(ytUrlList)})
+    addToQueue()
     youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed)
 
     while firstLaunchReady:
@@ -231,14 +240,7 @@ def ai_radio_streamer():
                 downloadReqSent = False
 
         if len(queue) < 1:
-            response = requests.get(ytlist_url)
-            if response.status_code == 200:
-                # Assign the fetched data to ytUrlList
-                ytUrlList = response.json()
-            else:
-                # Fallback urls
-                ytUrlList = ["https://www.youtube.com/watch?v=d8OI9FllKfg"]
-            queue.append({"url": random.choice(ytUrlList)})
+            addToQueue()
 
         # Increment time by 0.1 second
         radio["time"] += 0.1
