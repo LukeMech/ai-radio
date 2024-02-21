@@ -39,7 +39,11 @@ def downloadWavFromUrl(url, callback):
     subprocess.run(['ffmpeg', '-i', filename + '.' + 'tmp', '-af', 'silenceremove=start_periods=1:start_duration=1:start_silence=0.05:start_threshold=0.02:stop_periods=1:stop_duration=1:stop_silence=0.05:stop_threshold=0.02', filename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     os.remove(filename + '.' + 'tmp')
 
-    artist, title = get_artist_title(info_dict.get('title', None))
-
+    try:
+        artist, title = get_artist_title(info_dict.get('title', None))
+    except:
+        artist = info_dict.get('uploader', None)
+        title = info_dict.get('title', None)
+        
     # Title, author, filepath, extension, thumbnail
     callback(title, artist, fpath, ext, 'webp')
