@@ -191,13 +191,14 @@ body {
   max-width: 100px; 
   max-height: 150px;
   margin-right: 15px;
+  border-radius: 10px;
 }
 
-.text-info {
+.player-info-box .text-info {
   display: flex;
   flex-direction: column;
 }
-.text-info p {
+.player-info-box .text-info p {
   margin: 0;
 }
 .text-info #currently-playing-author {

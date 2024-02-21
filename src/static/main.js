@@ -7,7 +7,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const isFirefox = navigator.userAgent.includes("Firefox");
     const useMediaButtons = ('mediaSession' in navigator)
-    let connectedToServer = false;
+    let connectedToServer=false, stalled=false
     let audio={paused:true}
     
     function generateid() {
@@ -61,6 +61,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     });
     socket.on('disconnect', () => {
         console.log('Disconnected from server');
+        // playPauseButton.classList.add('play-loading')
         sessionIDText.innerHTML = languageStrings.connecting
         connectedToServer = false
     });
@@ -82,6 +83,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         audioErr('Loading audio failed', err)
     };
     const stalledHandler = () => {
+        stalled = true
         audioStop()
         playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
@@ -92,10 +94,12 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     };
     const pausedHandler = () => {
         audioStop()
-        playPauseButton.classList.remove('pause')
-        playPauseButton.classList.remove('loading');
-        playPauseButton.classList.add('play');
-        audio.src = ''
+        if (!stalled) {
+            playPauseButton.classList.remove('pause')
+            playPauseButton.classList.remove('loading');
+            playPauseButton.classList.add('play');
+            audio.src = ''
+        }
     }
     
     function audioStop() {
@@ -105,7 +109,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
         socket.emit('musicstop', id)
         try {
-            audio.removeEventListener("pause", pausedHandler);
+            // audio.removeEventListener("pause", pausedHandler);
             audio.removeEventListener("loadeddata", loadedDataHandler);
             audio.removeEventListener("error", errorHandler);
             audio.removeEventListener("stalled", stalledHandler);
@@ -115,6 +119,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         catch (err) {}
     }
     function audioStart(ignorePlayClass=false) {
+        stalled=false
         if(playPauseButton.classList.contains('play') && !ignorePlayClass) return
         if (!connectedToServer) {
             playPauseButton.classList.remove('play')

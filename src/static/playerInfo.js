@@ -2,6 +2,9 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     const currentlyPlayingTitle = document.getElementById('currently-playing-title');
     const currentlyPlayingAuthor = document.getElementById('currently-playing-author');
     const currentlyPlayingImage = document.getElementById('currently-playing-image');
+    currentlyPlayingTitle.innerHTML = '...'
+    currentlyPlayingAuthor.innerHTML = '...'
+    currentlyPlayingImage.src = '/static/radio.ico' 
 
     socket.on('trackChange', args => {
         console.log(args)

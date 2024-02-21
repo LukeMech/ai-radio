@@ -1,14 +1,16 @@
-from curses import nonl
 from flask import Flask, Response, render_template, request, send_from_directory, abort
 from flask_socketio import SocketIO
-import subprocess, time, threading, json, random, os, shutil, string, requests
+import subprocess, time, threading, random, os, shutil, string, requests, json
 from helpers import youtube
 
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
-with open('ytlist.url', 'r') as file:
-    ytlist_url = file.read().strip()
+local_ytlist = False
+
+if not local_ytlist:
+    with open('ytlist.url', 'r') as file:
+        ytlist_url = file.read().strip()
 
 ffmpeg_opts = [
     '-c:a', 'libmp3lame',           # Audio codec
@@ -86,7 +88,7 @@ def handle_disconnect():
 def handle_music_stop(session_id):
     if session_id in radio["ffmpeg_processes"]:
         for process in radio['ffmpeg_processes'][session_id]:
-            if process != 'terminated':
+            if isinstance(process, dict) and "file" in process and "process" in process:
                 print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...", flush=True)
                 process["process"].terminate()
         radio["ffmpeg_processes"][session_id] = 'terminated'
@@ -170,7 +172,10 @@ def ai_radio_streamer():
     global queue, radio, fallbackQueue, ytUrlList
     duration = 0; waiting = False; downloadReqSent = False; waitingFORCE = False; firstLaunchReady = False;
     def on_dwnld_completed(t, a, fp, ext, thunb, ERR):
-        if(ERR): return print("Failed to download track " + t + ", error: " + ERR, flush=True)
+        if(ERR): 
+            print("Failed to download track, error: ", flush=True)
+            print(ERR, flush=True)
+            return
         queue[0]["fpath"] = fp + '.' + ext
         queue[0]["title"] = t
         queue[0]["author"] = a
@@ -178,15 +183,21 @@ def ai_radio_streamer():
         else: queue[0]["thunbnail"] = None
         queue[0]["fetched"] = True
         print("Downloaded and set to queue track " + t + ", id: " + fp, flush=True)
-        nonlocal firstLaunchReady; firstLaunchReady = True;
+        nonlocal firstLaunchReady; firstLaunchReady = True
+
     def addToQueue():
-        response = requests.get(ytlist_url)
-        if response.ok:
-            # Assign the fetched data to ytUrlList
-            ytUrlList = response.json()
-        else:
-            # Fallback urls
-            ytUrlList = ["https://www.youtube.com/watch?v=d8OI9FllKfg"]
+        if not local_ytlist:
+            response = requests.get(ytlist_url)
+            if response.ok:
+                # Assign the fetched data to ytUrlList
+                ytUrlList = response.json()
+            else:
+                # Fallback urls
+                ytUrlList = ["https://www.youtube.com/watch?v=d8OI9FllKfg"]
+        else: 
+            with open('ytlist.json', 'r') as file:
+                ytUrlList = json.load(file)
+
         queue.append({"url": random.choice(ytUrlList)})
 
     addToQueue()
