@@ -255,8 +255,8 @@ def ai_radio_streamer():
         # Increment time by 0.1 second
         radio["time"] += 0.1
 
-        # Fetch next track when 0.5min to end of track
-        if radio["time"] > radio["duration"]-30 and radio["time"] < radio["duration"]-2 and not downloadReqSent:
+        # Fetch next track when 1.5min to end of the track
+        if radio["time"] > radio["duration"]-90 and not downloadReqSent:
             duration = 0
             downloadReqSent = True
 
