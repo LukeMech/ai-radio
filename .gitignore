@@ -1,5 +1,5 @@
 .vscode
-.vercel
+src/tmp
 *.log
 *.pyc
 __pycache__
@@ -11,4 +11,4 @@ env/
 venv/ 
 ENV/ 
 env.bak/ 
-venv.bak/ 
+venv.bak/
