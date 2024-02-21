@@ -178,18 +178,28 @@ body {
   }
 }
 
-.player-info {
-  font-size: 25px;
-  margin-top: -10px;
-  margin-bottom: 30px;
-  text-align: center;
-  color: var(--text-color-nowplaying);
-}
 .player-info-box {
+  display: flex;
+  align-items: center;
   font-size: 20px;
-  text-align: center;
+  text-align: left;
+  max-width: 80vw;
   color: var(--text-color);
 }
-.player-info-box p {
-  margin-top: -15px;
+
+.player-info-box img {
+  max-width: 100px; 
+  max-height: 150px;
+  margin-right: 15px;
+}
+
+.text-info {
+  display: flex;
+  flex-direction: column;
+}
+.text-info p {
+  margin: 0;
+}
+.text-info #currently-playing-author {
+  font-size: 15px;
 }
