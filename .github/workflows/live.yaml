@@ -2,7 +2,7 @@ name: Live server / ngrok
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 1h
+    - cron: '*/30 * * * *'  # 30min
 
   push:
     branches:
@@ -43,4 +43,4 @@ jobs:
           gunicorn -k eventlet index:app &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
-          sleep 3600 # 1h -> 60secs*60
+          sleep 1800 # 0.5h -> 60secs*30
