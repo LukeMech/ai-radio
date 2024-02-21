@@ -273,4 +273,4 @@ time_thread = threading.Thread(target=ai_radio_streamer)
 time_thread.daemon = True
 time_thread.start()
 if __name__ == '__main__':
-    socketio.run(app, use_reloader=False, debug=False, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
+    socketio.run(app, use_reloader=False, debug=False, host='0.0.0.0', port=8000, allow_unsafe_werkzeug=True)
