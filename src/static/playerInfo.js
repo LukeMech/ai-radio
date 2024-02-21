@@ -7,7 +7,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     currentlyPlayingImage.src = '/static/radio.ico' 
 
     socket.on('trackChange', args => {
-        console.log(args)
         currentlyPlayingTitle.innerHTML = args.title
         currentlyPlayingAuthor.innerHTML = args.author
         currentlyPlayingImage.src = args.thunbnail

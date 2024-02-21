@@ -7,7 +7,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const isFirefox = navigator.userAgent.includes("Firefox");
     const useMediaButtons = ('mediaSession' in navigator)
-    let connectedToServer=false, stalled=false
+    let serverLOADED
     let audio={paused:true}
     
     function generateid() {
@@ -60,11 +60,18 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         connectedToServer = true
     });
     socket.on('disconnect', () => {
+        serverLOADED=false
         console.log('Disconnected from server');
         // playPauseButton.classList.add('play-loading')
         sessionIDText.innerHTML = languageStrings.connecting
-        connectedToServer = false
     });
+    // Handle first load when just connected
+    socket.on('trackChange', () => {
+        serverLOADED=true
+        if(playPauseButton.classList.contains('loading')) {
+            audioStart() 
+        }
+    })
     
     const loadedDataHandler = () => {
         if (audio.readyState >= 2) {
@@ -83,23 +90,36 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         audioErr('Loading audio failed', err)
     };
     const stalledHandler = () => {
-        stalled = true
         audioStop()
         playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
         setTimeout(() => {
             audioStart()
-        }, 2000);
+        }, 500);
     };
-    const pausedHandler = () => {
+    const pausedAndWaitingHandler = async () => {
+        playPauseButton.classList.remove('pause')
+        playPauseButton.classList.add('loading')
         audioStop()
-        if (!stalled) {
-            playPauseButton.classList.remove('pause')
-            playPauseButton.classList.remove('loading');
-            playPauseButton.classList.add('play');
-            audio.src = ''
-        }
+
+        const waitForPlay = () => {
+            return new Promise(resolve => {
+                const checkPaused = () => {
+                    if (!audio.paused) {
+                        resolve(); // Resolve the promise when audio.paused becomes true
+                    } else {
+                        setTimeout(checkPaused, 500);
+                    }
+                };
+                checkPaused(); // Start checking immediately
+            });
+        };
+
+        await waitForPlay();
+
+        // Aaaaand exec function
+        stalledHandler()
     }
     
     function audioStop() {
@@ -107,9 +127,9 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             navigator.mediaSession.metadata = mediaStoppedMetadata
             navigator.mediaSession.playbackState = 'paused'
         }
-        socket.emit('musicstop', id)
         try {
-            // audio.removeEventListener("pause", pausedHandler);
+            socket.emit('musicstop', id)
+            audio.removeEventListener("pause", pausedAndWaitingHandler);
             audio.removeEventListener("loadeddata", loadedDataHandler);
             audio.removeEventListener("error", errorHandler);
             audio.removeEventListener("stalled", stalledHandler);
@@ -118,10 +138,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
         catch (err) {}
     }
-    function audioStart(ignorePlayClass=false) {
-        stalled=false
-        if(playPauseButton.classList.contains('play') && !ignorePlayClass) return
-        if (!connectedToServer) {
+    function audioStart() {
+        if (!serverLOADED) {
             playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
             playPauseButton.classList.add('loading')
@@ -129,10 +147,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
                 navigator.mediaSession.metadata = connectingMetadata
                 navigator.mediaSession.playbackState = 'playing'
             }
-    
-            setTimeout(() => {
-                audioStart()
-            }, 2000);
             return
         }
         playPauseButton.classList.remove('play')
@@ -143,7 +157,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         if (!audio.canPlayType('audio/mpeg')) {
             return audioErr('Type not currently supported', '', false)
         }
-    
         if(useMediaButtons) {
             navigator.mediaSession.metadata = loadingMetadata
             navigator.mediaSession.playbackState = 'playing'
@@ -151,7 +164,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         audio.addEventListener("loadeddata", loadedDataHandler);
         audio.addEventListener('error', errorHandler);
         audio.addEventListener('stalled', stalledHandler);
-        audio.addEventListener('pause', pausedHandler);
+        audio.addEventListener('pause', pausedAndWaitingHandler);
         audio.addEventListener('ended', stalledHandler);
     }
     function audioErr(msg, err, repeat=true) {
@@ -168,8 +181,13 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             playPauseButton.classList.remove('loading');
             audioStop()
         } 
-        else if (!playPauseButton.classList.contains('loading')) {
+        else if (!playPauseButton.classList.contains('loading') && serverLOADED) {
             audioStart(true)
+        }
+        else if (!serverLOADED) {
+            playPauseButton.classList.remove('play')
+            playPauseButton.classList.remove('pause')
+            playPauseButton.classList.add('loading')
         }
     });
     

@@ -39,8 +39,8 @@ def downloadWavFromUrl(url, callback):
         filename = fpath + '.' + ext
         os.rename(filename, filename + '.' + 'tmp')
         subprocess.run([
-            'ffmpeg', '-i', filename + '.' + 'tmp', '-af',
-            'silenceremove=start_periods=1:start_duration=1:start_silence=0.05:start_threshold=0.01:stop_periods=1:stop_duration=1:stop_silence=0.05:stop_threshold=0.01', 
+            'ffmpeg', '-i', filename + '.' + 'tmp', 
+            '-af', 'silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:detection=peak,aformat=dblp,areverse', 
             filename
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         os.remove(filename + '.' + 'tmp')

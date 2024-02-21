@@ -92,8 +92,6 @@ def handle_music_stop(session_id):
                 print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...", flush=True)
                 process["process"].terminate()
         radio["ffmpeg_processes"][session_id] = 'terminated'
-    else:
-        print("No ffmpeg process found for session id: " + session_id, flush=True)
 
 def start_ffmpeg_process():
     global radio
@@ -155,9 +153,10 @@ def generate_audio(session_id):
         if not data:
             ffmpeg_process = restart(True)
             if not ffmpeg_process:
-                time.sleep(3)
-                break
-        else: 
+                time.sleep(1)
+                return
+
+        else:
             yield data
 
 def get_audio_duration(file_path):
@@ -274,4 +273,4 @@ time_thread = threading.Thread(target=ai_radio_streamer)
 time_thread.daemon = True
 time_thread.start()
 if __name__ == '__main__':
-    socketio.run(app, use_reloader=False, debug=False, host='0.0.0.0', port=8000, allow_unsafe_werkzeug=True)
+    socketio.run(app, use_reloader=False, debug=False, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
