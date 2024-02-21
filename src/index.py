@@ -6,7 +6,7 @@ from helpers import youtube
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
-local_ytlist = True
+local_ytlist = False
 
 if not local_ytlist:
     with open('ytlist.url', 'r') as file:
@@ -191,7 +191,6 @@ def ai_radio_streamer():
         else: 
             with open('ytlist.min.json', 'r') as file:
                 tracksList = json.load(file)
-        print(tracksList)
         urls = [entry[0] for entry in tracksList]
         multipliers = [entry[1] for entry in tracksList]
         weighted_choices = []
