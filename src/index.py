@@ -52,7 +52,6 @@ def listen():
     
     return add_no_cache_headers(Response(generate_audio(session_id), mimetype='audio/mpeg'))
 
-
 @app.route('/tmp/<path:filename>')
 def serve_file(filename):
     # Assuming the files are stored in the 'tmp' folder
@@ -129,7 +128,7 @@ def generate_audio(session_id):
             radio["ffmpeg_processes"][session_id] = []
 
         if not terminate and isinstance(radio["fpath"], str):
-            print("Starting new ffmpeg process for " + radio["fpath"] + " for id " + session_id + "...", flush=True)
+            print("Starting new ffmpeg process for id '" + session_id + "' for media '" + radio["fpath"] + "'...", flush=True)       
             ffmpeg_process = start_ffmpeg_process()
             process_json = {
                 "process": ffmpeg_process, 
@@ -222,8 +221,9 @@ def ai_radio_streamer():
                 # Remove ytdl downloaded file
                 if len(toRemove) > 0: 
                     for el in toRemove:
-                        os.remove(el)
-                        print("Removed file: " + el, flush=True)
+                        if(os.path.exists(el)): 
+                            os.remove(el)
+                            print("Removed file: " + el, flush=True)
                 waitingFORCE = False
                 waiting = False
                 downloadReqSent = False

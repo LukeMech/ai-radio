@@ -55,6 +55,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     });
     socket.on('connect', () => {
         console.log('Authorized via websocket');
+        playPauseButton.classList.remove('play-loading')
         sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
         connectedToServer = true
     });
@@ -178,9 +179,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             playPauseButton.classList.add('play')
         });
     }
-
-    playPauseButton.classList.remove('play-loading')
-    playPauseButton.classList.add('play')
 
     document.querySelector('body').dispatchEvent(new Event('mainLoaded'));
 });
