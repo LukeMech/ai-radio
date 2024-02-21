@@ -1,12 +1,9 @@
 name: Live server / ngrok
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '*/30 * * * *'  # 30min
-
-  push:
-    branches:
-      - main
 
 concurrency:
   group: ${{ github.workflow }}

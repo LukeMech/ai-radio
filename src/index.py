@@ -1,14 +1,14 @@
 from curses import nonl
 from flask import Flask, Response, render_template, request, send_from_directory, abort
 from flask_socketio import SocketIO
-import subprocess, time, threading, json, random, os, shutil, string
+import subprocess, time, threading, json, random, os, shutil, string, requests
 from helpers import youtube
 
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
-with open('ytlist.json', 'r') as file:
-    ytUrlList = json.load(file)
+with open('ytlist.url', 'r') as file:
+    ytlist_url = file.read().strip()
 
 ffmpeg_opts = [
     '-c:a', 'libmp3lame',           # Audio codec
@@ -169,7 +169,8 @@ def get_audio_duration(file_path):
 def ai_radio_streamer():
     global queue, radio, fallbackQueue, ytUrlList
     duration = 0; waiting = False; downloadReqSent = False; waitingFORCE = False; firstLaunchReady = False;
-    def on_dwnld_completed(t, a, fp, ext, thunb):
+    def on_dwnld_completed(t, a, fp, ext, thunb, ERR):
+        if(ERR): return print("Failed to download track " + t + ", error: " + ERR, flush=True)
         queue[0]["fpath"] = fp + '.' + ext
         queue[0]["title"] = t
         queue[0]["author"] = a
@@ -230,6 +231,13 @@ def ai_radio_streamer():
                 downloadReqSent = False
 
         if len(queue) < 1:
+            response = requests.get(ytlist_url)
+            if response.status_code == 200:
+                # Assign the fetched data to ytUrlList
+                ytUrlList = response.json()
+            else:
+                # Fallback urls
+                ytUrlList = ["https://www.youtube.com/watch?v=d8OI9FllKfg"]
             queue.append({"url": random.choice(ytUrlList)})
 
         # Increment time by 0.1 second
