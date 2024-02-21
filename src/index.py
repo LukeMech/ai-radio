@@ -181,7 +181,7 @@ def ai_radio_streamer():
         nonlocal firstLaunchReady; firstLaunchReady = True;
     def addToQueue():
         response = requests.get(ytlist_url)
-        if response.status_code == 200:
+        if response.ok:
             # Assign the fetched data to ytUrlList
             ytUrlList = response.json()
         else:
