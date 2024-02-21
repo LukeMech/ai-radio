@@ -193,6 +193,12 @@ body {
   margin-right: 15px;
   border-radius: 10px;
 }
+.player-info-box #currently-playing-image-wait {
+  max-height: 80px;
+}
+.player-info-box .hidden {
+  display: none;
+}
 
 .player-info-box .text-info {
   display: flex;
