@@ -45,5 +45,14 @@ def downloadWavFromUrl(url, callback):
         artist = info_dict.get('uploader', None)
         title = info_dict.get('title', None)
         
+    if(os.path.exists(fpath + '.' + 'webp')):
+        thunb = 'webp'
+    elif(os.path.exists(fpath + '.' + 'jpg')):
+        thunb = 'jpg'
+    elif(os.path.exists(fpath + '.' + 'png')):
+        thunb = 'png'
+    else:
+        thunb = None
+
     # Title, author, filepath, extension, thumbnail
-    callback(title, artist, fpath, ext, 'webp')
+    callback(title, artist, fpath, ext, thunb)

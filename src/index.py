@@ -173,7 +173,8 @@ def ai_radio_streamer():
         queue[0]["fpath"] = fp + '.' + ext
         queue[0]["title"] = t
         queue[0]["author"] = a
-        queue[0]["thunbnail"] = fp + '.' + thunb
+        if(thunb): queue[0]["thunbnail"] = fp + '.' + thunb
+        else: queue[0]["thunbnail"] = None
         queue[0]["fetched"] = True
         print("Downloaded and set to queue track " + t + ", id: " + fp, flush=True)
         nonlocal firstLaunchReady; firstLaunchReady = True;
