@@ -6,7 +6,7 @@ from helpers import youtube
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
-local_ytlist = False
+local_ytlist = True
 
 if not local_ytlist:
     with open('ytlist.url', 'r') as file:
@@ -21,7 +21,7 @@ ffmpeg_opts = [
     '-f', 'mp3',                    # Output format MP3,
 ]
 
-fallbackQueue = {"fpath": "lalalove.wav", "title": "La La Love", "author": "C-Bool, SkyTech, GiangPham"}, 
+fallbackQueue = {"fpath": "fallback/lalalove.wav", "title": "La La Love", "author": "C-Bool, SkyTech, GiangPham"}
 
 queue = []
 radio = {
@@ -168,7 +168,6 @@ def get_audio_duration(file_path):
     return duration
 
 def ai_radio_streamer():
-    global queue, radio, fallbackQueue, ytUrlList
     duration = 0; waiting = False; downloadReqSent = False; waitingFORCE = False; firstLaunchReady = False;
     def on_dwnld_completed(t, a, fp, ext, thunb, ERR):
         if(ERR): 
@@ -180,7 +179,6 @@ def ai_radio_streamer():
         queue[0]["author"] = a
         if(thunb): queue[0]["thunbnail"] = fp + '.' + thunb
         else: queue[0]["thunbnail"] = None
-        queue[0]["fetched"] = True
         print("Downloaded and set to queue track " + t + ", id: " + fp, flush=True)
         nonlocal firstLaunchReady; firstLaunchReady = True
 
@@ -188,24 +186,34 @@ def ai_radio_streamer():
         if not local_ytlist:
             response = requests.get(ytlist_url)
             if response.ok:
-                # Assign the fetched data to ytUrlList
-                ytUrlList = response.json()
-            else:
-                # Fallback urls
-                ytUrlList = ["https://www.youtube.com/watch?v=d8OI9FllKfg"]
+                tracksList = response.json()
+            else: return
         else: 
-            with open('ytlist.json', 'r') as file:
-                ytUrlList = json.load(file)
+            with open('ytlist.min.json', 'r') as file:
+                tracksList = json.load(file)
+        print(tracksList)
+        urls = [entry[0] for entry in tracksList]
+        multipliers = [entry[1] for entry in tracksList]
+        weighted_choices = []
+        for url, multiplier in zip(urls, multipliers):
+            weighted_choices.extend([url] * multiplier) 
 
-        queue.append({"url": random.choice(ytUrlList)})
+        if len(weighted_choices) < 1: return
+        else:
+            random.shuffle(weighted_choices)
+            queue.append({"url": random.choice(weighted_choices)})
 
     addToQueue()
-    youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed)
+    if len(queue) < 1: queue.append({})
+    if("url" in queue[0]): 
+        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed)
+    else: 
+        firstLaunchReady = True
 
     while firstLaunchReady:
 
         if not duration and ((not waiting and downloadReqSent) or waitingFORCE):
-            if queue[0]['url'] and not waitingFORCE:
+            if 'url' in queue[0] and not waitingFORCE:
                 waiting = True
                 dwnld = threading.Thread(target=youtube.downloadWavFromUrl, args=(queue[0]['url'], on_dwnld_completed))
                 dwnld.daemon = True
@@ -219,10 +227,11 @@ def ai_radio_streamer():
                         toRemove.append(radio["thunbnail"])
 
                 radio["NOTREMOVE"] = False
-                if (not "fpath" in queue[0] or not "fetched" in queue[0]) and waitingFORCE:
+                if (not "fpath" in queue[0]) and waitingFORCE:
                     print("Using track from fallback queue...", flush=True)
                     queue.pop(0)
-                    queue.insert(0, *fallbackQueue)
+                    if(len(queue) < 1): queue.append({})
+                    queue.insert(0, fallbackQueue)
                     radio["NOTREMOVE"] = True
                 
                 duration = get_audio_duration(queue[0]["fpath"])
