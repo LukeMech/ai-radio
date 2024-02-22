@@ -3,14 +3,13 @@ from subprocess import run
 
 log_path = "tmp/localhost.run.log"
 # Regular expression pattern to search for
-pattern = r'authenticated as anonymous user\n\n(.*?\.life)'
+pattern = r'https?:\/\/(.*?\.life)'
 
 # Function to fetch the file and search for the pattern
 def search_local_file():
     try:
         with open(log_path, "r") as file:
             content = file.read()
-            print(content, flush=True)
         matches = re.findall(pattern, content)
         if matches:
             return matches[0]
