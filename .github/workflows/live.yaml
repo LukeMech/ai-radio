@@ -35,7 +35,6 @@ jobs:
 
       - name: Start and expose server
         run: |
-            ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
             cd src
             export NONLOCAL=true
             git config --global user.email "github-actions@users.noreply.github.com"
