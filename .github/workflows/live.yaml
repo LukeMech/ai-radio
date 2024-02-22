@@ -42,11 +42,12 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Start and expose server
-        uses: nick-fields/retry@v3 
-        with: 
-          timeout_minutes: 30000
-          max_attempts: 8
-          command: |
+   #     uses: nick-fields/retry@v3 
+   #     with: 
+   #       timeout_minutes: 30000
+   #       max_attempts: 8
+   #       command: |
+        run: |
             ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
 
             cd src
