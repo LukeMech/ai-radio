@@ -34,7 +34,6 @@ def git_add_commit_push():
     run("cd .. && git add src/website.url", shell=True)
     run("cd .. && git commit -m 'Update website URL'", shell=True)
     run("cd .. && git push", shell=True)
-    run('ls', shell=True)
     print("URL update successfull.", flush=True)
 
 if __name__ == "__main__":
