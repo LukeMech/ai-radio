@@ -43,5 +43,5 @@ jobs:
             ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
 
             gunicorn -w 1 --threads 100 index:app &
-            python ../.github/workflows/localhost.run.py &
+            python actions/localhost.run.py &
             ssh -o StrictHostKeyChecking=no -R 80:localhost:8000 localhost.run > tmp/localhost.run.log
