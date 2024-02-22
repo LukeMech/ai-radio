@@ -12,6 +12,7 @@ concurrency:
 jobs:
   server:
     runs-on: ubuntu-latest
+    timeout-minutes: 28800 # 8h
 
     steps:              
       - name: Clone repository
@@ -41,7 +42,8 @@ jobs:
         run: |
             ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
             cd src
-            python index.py &
+            export NONLOCAL=true
+            waitress-serve --host 0.0.0.0 --port 8000 index:app &
             ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
             echo "Server started, ngrok exposure initiated."
             sleep 28800 # 8h

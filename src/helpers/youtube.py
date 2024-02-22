@@ -3,7 +3,7 @@ from youtube_title_parse import get_artist_title
 
 # Somehow using aria2 prevents github actions from stopping...? 
 # So, let's use it even though its slower (slows at the dwnld end)
-def downloadWavFromUrl(url, callback, i, faster=False):
+def downloadWavFromUrl(url, callback, i):
     ERR=None; title=None; artist=None; fpath=None; ext=None; thunb=None
     try:
         ext = 'wav'
@@ -36,10 +36,6 @@ def downloadWavFromUrl(url, callback, i, faster=False):
             'merge_output_format': ext,  # Merge into .wav file
         }
 
-        if not faster:
-            ydl_opts['external_downloader'] = 'aria2c'
-            ydl_opts['external_downloader_args'] = ['-x16', '-s16', '-j16', '-k1M']
-
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
         
@@ -50,10 +46,10 @@ def downloadWavFromUrl(url, callback, i, faster=False):
         os.remove(filename + '.' + 'tmp')
 
         try:
-            artist, title = get_artist_title(info_dict.get('title', None))
+            artist, title = get_artist_title(info_dict.get('title', None)) # type: ignore
         except:
-            artist = info_dict.get('uploader', None)
-            title = info_dict.get('title', None)
+            artist = info_dict.get('uploader', None) # type: ignore
+            title = info_dict.get('title', None) # type: ignore
             
         if(os.path.exists(fpath + '.' + 'webp')):
             thunb = 'webp'

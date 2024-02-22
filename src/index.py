@@ -6,7 +6,9 @@ from helpers import youtube
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
-local_ytlist = False
+# Set to false when pushing
+if os.environ.get("NONLOCAL"): local_ytlist = False
+else: local_ytlist = False
 
 if not local_ytlist:
     with open('ytlist.url', 'r') as file:
@@ -73,14 +75,15 @@ def serve_file(filename):
 @socketio.on('connect')
 def handle_connect():
     global radio
-    session_id = request.headers.get('id')
+    session_id = request.headers.get('id') or ''
     print("Client connected with session id: " + session_id, flush=True)
-    radio["active_connections"][session_id] = request.sid
-    if(radio["fpath"] != 0): socketio.emit('trackChange', create_track_change_args(radio), to=request.sid)
+    # type: ignore
+    radio["active_connections"][session_id] = request.sid # type: ignore
+    if(radio["fpath"] != 0): socketio.emit('trackChange', create_track_change_args(radio), to=request.sid) # type: ignore
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    session_id = request.headers.get('id')
+    session_id = request.headers.get('id') or ''
     global radio
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
     if session_id in radio["ffmpeg_processes"]:
@@ -154,7 +157,7 @@ def generate_audio(session_id):
             currentlyplaying = radio["playID"]
             restart()
 
-        try: data = ffmpeg_process.stdout.read(128)
+        try: data = ffmpeg_process.stdout.read(128) # type: ignore
         except:pass
 
         if not data:
@@ -227,7 +230,7 @@ def ai_radio_streamer():
     addToQueue()
     if len(queue) < 1: queue.append({})
     if("url" in queue[0]): 
-        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0, True)
+        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0)
     else: 
         firstLaunchReady = True
 
@@ -265,7 +268,7 @@ def ai_radio_streamer():
                 radio["additional"] = {}
             duration = get_audio_duration(queue[0]["fpath"])
             radio["duration"] = duration
-            radio["time"] = 0   # Change to duration-10 for debugging
+            radio["time"] = duration-15 # Change to duration-10 for debugging
             radio["fpath"] = queue[0]["fpath"]
             radio["title"] = queue[0]["title"]
             radio["author"] = queue[0]["author"]
@@ -296,4 +299,4 @@ if os.path.exists('./tmp'):
     
 threading.Thread(target=ai_radio_streamer,daemon=True).start()
 if __name__ == '__main__':
-    socketio.run(app, use_reloader=False, debug=False, host='0.0.0.0', port=8000, allow_unsafe_werkzeug=True)
+    socketio.run(app, use_reloader=False, host='0.0.0.0', port=8000, allow_unsafe_werkzeug=True) # type: ignore
