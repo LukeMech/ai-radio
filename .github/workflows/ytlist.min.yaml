@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'src/ytlist.json'
+      - 'ytlist.json'
       - '.github/workflows/ytlist.min.yaml'
 
 jobs:
