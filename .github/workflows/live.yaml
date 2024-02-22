@@ -3,7 +3,7 @@ name: Live server / localhost.run
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */7 * * *'  # 7h
+    - cron: '0 */5 * * *'  # 5h
 
 concurrency:
   group: ${{ github.workflow }}
@@ -11,8 +11,8 @@ concurrency:
 
 jobs:
   server:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 28800 # 8h
+    runs-on: ubuntu-latest
+    timeout-minutes: 21600 # 6h
 
     steps:              
       - name: Clone repository
