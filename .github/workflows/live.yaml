@@ -45,5 +45,3 @@ jobs:
             gunicorn -w 1 --threads 100 index:app &
             python ../.github/workflows/localhost.run.py &
             ssh -tt -o StrictHostKeyChecking=no -R 80:localhost:8000 localhost.run > tmp/localhost.run.log
-            echo "Server started, localhost.run exposure initiated."
-            sleep 28800 # 8h

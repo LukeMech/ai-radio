@@ -295,9 +295,6 @@ def ai_radio_streamer():
             forceChange = True
 
         time.sleep(0.1)
-
-if os.path.exists('./tmp'):
-    shutil.rmtree('./tmp')
     
 threading.Thread(target=ai_radio_streamer,daemon=True).start()
 if __name__ == '__main__':
