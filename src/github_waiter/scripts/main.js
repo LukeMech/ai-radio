@@ -76,10 +76,25 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
     })
 
-    fetch(socketUrlLink).then(response => response.text()).then(socketUrl => {
-        socket.io.uri = socketUrl
-        socket.disconnect().connect()
-    })
+    function connectWithRetry(url) {
+        fetch(url)
+            .then(response => response.text())
+            .then(socketUrl => {
+                socket.io.uri = socketUrl;
+                socket.disconnect().connect();
+            })
+            .catch(error => {
+                console.error('Retrying socket fetch: ', error);
+                setTimeout(() => connectWithRetry(url), 5000);
+            });
+    }
+    
+    socket.on('connect_error', (error) => {
+        console.log('Connection error: ', error);
+        connectWithRetry(socketUrlLink); // Retry connection
+    });
+
+    connectWithRetry(socketUrlLink);
 
     const loadedDataHandler = () => {
         if (audio.readyState >= 2) {
