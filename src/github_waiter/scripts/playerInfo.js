@@ -1,4 +1,4 @@
-document.querySelector('body').addEventListener('mainLoaded', () => {
+document.querySelector('body').addEventListener('socketLoaded', () => {
     const currentlyPlayingTitle = document.getElementById('currently-playing-title');
     const currentlyPlayingAuthor = document.getElementById('currently-playing-author');
     const currentlyPlayingImageWait = document.getElementById('currently-playing-image-wait');
@@ -39,7 +39,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         }
         else additional.classList.add('hidden')
         currentlyPlayingImage.src = args.thumbnail
-        if(!args.thumbnail) currentlyPlayingImage.src = '/radio.ico' 
         currentlyPlayingImageWait.classList.add('hidden')
         currentlyPlayingImage.classList.remove('hidden')
         

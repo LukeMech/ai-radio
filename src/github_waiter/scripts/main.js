@@ -1,4 +1,5 @@
 var socket
+const socketUrlLink = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/main/src/website.url'
 document.querySelector('body').addEventListener('languagesLoaded', () => {
     const sessionIDText = document.getElementById('session-id');
     sessionIDText.innerHTML = languageStrings.connecting
@@ -21,57 +22,60 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             title: 'AI Radio | 2024',
             artist: 'LukeMech',
             artwork: [
-                { src: "/radio.ico" }
+                { src: "./radio.ico" }
             ]
         });
         mediaStoppedMetadata = new MediaMetadata({
             title: languageStrings.stopped,
             artist: 'LukeMech | AI Radio | 2024',
             artwork: [
-                { src: "/radio.ico" }
+                { src: "./radio.ico" }
             ]
         });
         loadingMetadata = new MediaMetadata({
             title: languageStrings.loading,
             artist: 'LukeMech | AI Radio | 2024',
             artwork: [
-                { src: "/radio.ico" }
+                { src: "./radio.ico" }
             ]
         })
         connectingMetadata = new MediaMetadata({
             title: languageStrings.connecting,
             artist: 'LukeMech | AI Radio | 2024',
             artwork: [
-                { src: "/radio.ico" }
+                { src: "./radio.ico" }
             ]
         })
     }
     
     // Connect to WebSocket
-    socket = io({
-        extraHeaders: {
-            "id": id,
-        }
-    });
-    socket.io.uri = "https://0580e65b789aa7.lhr.life";
-    socket.on('connect', () => {
-        console.log('Authorized via websocket');
-        playPauseButton.classList.remove('play-loading')
-        sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
-        connectedToServer = true
-    });
-    socket.on('disconnect', () => {
-        serverLOADED=false
-        console.log('Disconnected from server');
-        // playPauseButton.classList.add('play-loading')
-        sessionIDText.innerHTML = languageStrings.connecting
-    });
-    // Handle first load when just connected
-    socket.on('trackChange', () => {
-        serverLOADED=true
-        if(playPauseButton.classList.contains('loading')) {
-            audioStart() 
-        }
+    fetch(socketUrlLink).then(response => response.text()).then(socketUrl => {
+        socket.io.uri = socketUrl
+        socket = io({
+            extraHeaders: {
+                "id": id,
+            }
+        });
+        socket.on('connect', () => {
+            console.log('Authorized via websocket');
+            playPauseButton.classList.remove('play-loading')
+            sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
+            connectedToServer = true
+        });
+        socket.on('disconnect', () => {
+            serverLOADED=false
+            console.log('Disconnected from server');
+            // playPauseButton.classList.add('play-loading')
+            sessionIDText.innerHTML = languageStrings.connecting
+        });
+        // Handle first load when just connected
+        socket.on('trackChange', () => {
+            serverLOADED=true
+            if(playPauseButton.classList.contains('loading')) {
+                audioStart() 
+            }
+        })
+        document.querySelector('body').dispatchEvent(new Event('socketLoaded'));
     })
     
     const loadedDataHandler = () => {
@@ -203,6 +207,4 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             playPauseButton.classList.add('play')
         });
     }
-
-    document.querySelector('body').dispatchEvent(new Event('mainLoaded'));
 });
