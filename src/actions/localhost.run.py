@@ -3,7 +3,7 @@ from subprocess import run
 
 log_path = "tmp/localhost.run.log"
 # Regular expression pattern to search for
-pattern = r'https?:\/\/(.*?\.life)'
+pattern = r'(https?:\/\/.*?\.life)'
 
 # Function to fetch the file and search for the pattern
 def search_local_file():
