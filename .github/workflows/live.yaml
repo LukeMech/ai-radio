@@ -42,11 +42,15 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Start and expose server
-        run: |
-          ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
+        uses: nick-fields/retry@v3 
+        with: 
+          timeout_minutes: 30000
+          max_attempts: 8
+          command: |
+            ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
 
-          cd src
-          python index.py &
-          ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
-          echo "Server started, ngrok exposure initiated."
-          sleep 28800 # 8h
+            cd src
+            python index.py &
+            ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
+            echo "Server started, ngrok exposure initiated."
+            sleep 28800 # 8h
