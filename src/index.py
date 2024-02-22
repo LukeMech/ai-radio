@@ -1,10 +1,10 @@
 from flask import Flask, Response, render_template, request, send_from_directory, abort
 from flask_socketio import SocketIO
-import subprocess, time, threading, random, os, shutil, string, requests, json
+import subprocess, time, threading, random, os, string, requests, json
 from helpers import youtube
 
 app = Flask(__name__)
-socketio = SocketIO(app)    
+socketio = SocketIO(app, cors_allowed_origins="https://lukemech.github.io")    
 
 # Set to false when pushing
 if os.environ.get("NONLOCAL"): local_ytlist = False
