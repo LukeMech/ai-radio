@@ -45,7 +45,7 @@ jobs:
 
             mkdir tmp
             gunicorn -w 1 --threads 100 index:app &
-            ssh -R 80:localhost:8000 localhost.run >> tmp/localhost.run.log &
+            ssh -R 80:localhost:8000 localhost.run > tmp/localhost.run.log &
             python ../.github/workflows/localhost.run.py
             echo "Server started, localhost.run exposure initiated."
             sleep 28800 # 8h
