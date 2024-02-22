@@ -19,15 +19,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
-      - name: Setup ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v3
-
-      - name: Setup ngrok
+      - name: Setup ngrok & ffmpeg
         uses: crazy-max/ghaction-chocolatey@v3 
         with: 
-          args: install ngrok
+          args: install ngrok ffmpeg
 
       - name: Install python dependencies
         run: pip install -r requirements.txt
