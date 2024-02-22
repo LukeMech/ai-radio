@@ -1,4 +1,3 @@
-from sympy import true
 from flask import Flask, Response, render_template, request, send_from_directory, abort
 from flask_socketio import SocketIO
 import subprocess, time, threading, random, os, shutil, string, requests, json
