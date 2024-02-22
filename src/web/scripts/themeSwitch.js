@@ -1,33 +1,46 @@
 //determines if the user has a set theme
-function detectColorScheme(){
-    var theme="dark";    //default to dark
+var theme="dark";    //default to dark
 
+//identify the toggle switch HTML element
+const toggleSwitch = document.querySelector('#theme-switch input[type="checkbox"]');
+
+let prefersLightMode
+if(window.matchMedia) {
+    prefersLightMode = window.matchMedia("(prefers-color-scheme: light)");
+}
+
+function detectColorScheme(){
     if(!window.matchMedia) {
         //matchMedia method not supported
         //local storage is used to override OS theme settings
         if(localStorage.getItem("theme")){
             if(localStorage.getItem("theme") == "light"){
-                var theme = "light";
+                theme = "light";
+            }
+            else {
+                theme = "dark";
             }
         }
-    } else if(window.matchMedia("(prefers-color-scheme: light)").matches) {
+    } else if(prefersLightMode.matches) {
         //OS theme setting detected as light
-        var theme = "light";
+        theme = "light";
     }
-
+    else theme = "dark";
     //light theme preferred, set document with a `data-theme` attribute
     if (theme=="light") {
          document.documentElement.setAttribute("data-theme", "light");
+         toggleSwitch.checked = true; 
+    }
+    else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        toggleSwitch.checked = true; 
     }
 }
 detectColorScheme();
 
-//identify the toggle switch HTML element
-const toggleSwitch = document.querySelector('#theme-switch input[type="checkbox"]');
-
 //function that changes the theme, and sets a localStorage variable to track the theme between page loads
-function switchTheme(e) {
-    if (e.target.checked) {
+function switchTheme() {
+    if (theme == "light") {
         localStorage.setItem('theme', 'dark');
         document.documentElement.setAttribute('data-theme', 'dark');
         toggleSwitch.checked = true;
@@ -35,13 +48,10 @@ function switchTheme(e) {
         localStorage.setItem('theme', 'light');
         document.documentElement.setAttribute('data-theme', 'light');
         toggleSwitch.checked = false;
-    }    
+    }
 }
 
 //listener for changing themes
-toggleSwitch.addEventListener('change', switchTheme, false);
+toggleSwitch.addEventListener('change', switchTheme);
 
-//pre-check the dark-theme checkbox if dark-theme is set
-if (document.documentElement.getAttribute("data-theme") == "dark"){
-    toggleSwitch.checked = true;
-}
+prefersLightMode.addEventListener('change', detectColorScheme);
