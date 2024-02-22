@@ -49,35 +49,38 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     }
     
     // Connect to WebSocket
+    
+    socket = io({
+        extraHeaders: {
+            "id": id,
+        }
+    });
+    
+    socket.on('connect', () => {
+        console.log('Authorized via websocket');
+        playPauseButton.classList.remove('play-loading')
+        sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
+        connectedToServer = true
+    });
+    socket.on('disconnect', () => {
+        serverLOADED=false
+        console.log('Disconnected from server');
+        // playPauseButton.classList.add('play-loading')
+        sessionIDText.innerHTML = languageStrings.connecting
+    });
+    // Handle first load when just connected
+    socket.on('trackChange', () => {
+        serverLOADED=true
+        if(playPauseButton.classList.contains('loading')) {
+            audioStart() 
+        }
+    })
+
     fetch(socketUrlLink).then(response => response.text()).then(socketUrl => {
         socket.io.uri = socketUrl
-        socket = io({
-            extraHeaders: {
-                "id": id,
-            }
-        });
-        socket.on('connect', () => {
-            console.log('Authorized via websocket');
-            playPauseButton.classList.remove('play-loading')
-            sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
-            connectedToServer = true
-        });
-        socket.on('disconnect', () => {
-            serverLOADED=false
-            console.log('Disconnected from server');
-            // playPauseButton.classList.add('play-loading')
-            sessionIDText.innerHTML = languageStrings.connecting
-        });
-        // Handle first load when just connected
-        socket.on('trackChange', () => {
-            serverLOADED=true
-            if(playPauseButton.classList.contains('loading')) {
-                audioStart() 
-            }
-        })
-        document.querySelector('body').dispatchEvent(new Event('socketLoaded'));
+        socket.disconnect().connect()
     })
-    
+
     const loadedDataHandler = () => {
         if (audio.readyState >= 2) {
             audio.play();
@@ -207,4 +210,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             playPauseButton.classList.add('play')
         });
     }
+
+    document.querySelector('body').dispatchEvent(new Event('mainLoaded'));
 });

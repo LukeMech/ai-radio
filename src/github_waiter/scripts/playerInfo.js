@@ -1,4 +1,4 @@
-document.querySelector('body').addEventListener('socketLoaded', () => {
+document.querySelector('body').addEventListener('mainLoaded', () => {
     const currentlyPlayingTitle = document.getElementById('currently-playing-title');
     const currentlyPlayingAuthor = document.getElementById('currently-playing-author');
     const currentlyPlayingImageWait = document.getElementById('currently-playing-image-wait');
