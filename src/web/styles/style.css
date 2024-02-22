@@ -14,6 +14,7 @@
 }
 
 :root {
+  --WARN: red;
   --background-color: #1e1e1e; /* Dark gray */
   --text-color: #ffffff; /* White */
   --btn-border: rgb(114, 113, 229) 3px solid;
@@ -26,6 +27,7 @@
   --player-info-border: #0bff89 1px solid;
 }
 [data-theme="light"] {
+  --WARN: red;
   --background-color: #fff;
   --text-color: #222;
   --btn-border: rgb(15, 60, 242) 3px solid;
@@ -43,6 +45,19 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   transition: all 0.3s ease-in-out;
+}
+
+#WARN {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 20px;
+  color: var(--WARN);
+}
+@media (min-width: 768px) {
+  #WARN {
+    margin-top: 30px;
+    font-size: 30px;
+  }
 }
 
 .hidden {
@@ -80,7 +95,7 @@ body {
 
 .btn {
   scale: 4;
-  margin-top: 100px;
+  margin-top: 70px;
   margin-bottom: 100px;
   width: 40px;
   height: 40px;
