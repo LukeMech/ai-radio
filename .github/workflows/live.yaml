@@ -18,13 +18,20 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Setup ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v3
+        continue-on-error: true
+        id: ffmpeg
+        
+      - name: Setup ffmpeg fallback			 
+        if: steps.ffmpeg.outcome == 'failure'
+        run: |
+          sudo apt update && sudo apt install ffmpeg -y
 
       - name: Setup ngrok
         run: |
