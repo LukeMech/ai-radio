@@ -1,6 +1,4 @@
-import os
 import re, time
-import subprocess
 from subprocess import run
 
 log_path = "tmp/localhost.run.log"
@@ -12,12 +10,13 @@ def search_local_file():
     try:
         with open(log_path, "r") as file:
             content = file.read()
-            print(content)
+            print(content, flush=True)
         matches = re.findall(pattern, content)
         if matches:
             return matches[0]
     except:
-        pass
+        run("ls", shell=True)
+        run("ls tmp", shell=True)
     return None
 
 # Function to periodically fetch the file until the pattern is found
