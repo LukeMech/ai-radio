@@ -41,6 +41,5 @@ def git_add_commit_push():
 if __name__ == "__main__":
     result = fetch_until_pattern_found()
     if result:
-        print("URL found: ", result)   
         save_url_to_file(result)
         git_add_commit_push()
