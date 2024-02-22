@@ -3,7 +3,7 @@ name: Live server / ngrok (windows)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'  # 30min
+    - cron: '0 */5 * * *'  # every 5h
 
 concurrency:
   group: ${{ github.workflow }}
@@ -25,14 +25,9 @@ jobs:
         uses: FedericoCarboni/setup-ffmpeg@v3
 
       - name: Setup ngrok
-        run: |
-          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip
-          Add-Type -AssemblyName System.IO.Compression.FileSystem 
-          function Unzip { 
-            param([string]$zipfile, [string]$outpath)
-            [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath) 
-          } 
-          Unzip ".\ngrok-v3-stable-windows-amd64.zip" ".\ngrok"
+        uses: crazy-max/ghaction-chocolatey@v3 
+        with: 
+          args: install ngrok
 
       - name: Install python dependencies
         run: pip install -r requirements.txt
@@ -45,4 +40,4 @@ jobs:
           python index.py &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
-          sleep 3600 # 1h -> 60secs*60
+          sleep 21600 # 6h -> 60secs*60*6
