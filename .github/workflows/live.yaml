@@ -43,7 +43,7 @@ jobs:
             ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
 
             gunicorn -w 1 --threads 100 index:app &
-            ssh -R 80:127.0.0.1:8000 localhost.run 2>&1 | tee tmp/localhost.run.log &
-            python ../.github/workflows/localhost.run.py
+            python ../.github/workflows/localhost.run.py &
+            ssh -o StrictHostKeyChecking=no -R 80:127.0.0.1:8000 localhost.run > tmp/localhost.run.log
             echo "Server started, localhost.run exposure initiated."
             sleep 28800 # 8h

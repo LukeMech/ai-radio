@@ -1,22 +1,23 @@
+import os
 import re, time
 import subprocess
 from subprocess import run
 
 log_path = "tmp/localhost.run.log"
 # Regular expression pattern to search for
-pattern = r'authenticated as anonymous user\n(.*?\.life)'
+pattern = r'authenticated as anonymous user\n\n(.*?\.life)'
 
 # Function to fetch the file and search for the pattern
 def search_local_file():
     try:
         with open(log_path, "r") as file:
             content = file.read()
-            print(content, flush=True)
+            print(content)
         matches = re.findall(pattern, content)
         if matches:
             return matches[0]
     except:
-        print("Error reading log file.", flush=True)
+        pass
     return None
 
 # Function to periodically fetch the file until the pattern is found
@@ -25,13 +26,13 @@ def fetch_until_pattern_found():
         result = search_local_file()
         if result:
             return result
-        print("URL pattern not found. Retrying in 5 seconds...", flush=True)
-        time.sleep(5)
+        print("URL pattern not found. Retrying in 0.2 seconds...", flush=True)
+        time.sleep(0.2)
 
 def save_url_to_file(url):
     with open("website.url", "w") as file:
         file.write(url)
-        print("URL saved to 'website.url' file.", flush=True)
+        print(f"{url} saved to 'website.url' file.", flush=True)
 
 def git_add_commit_push():
     run("cd .. && git add website.url", shell=True)
