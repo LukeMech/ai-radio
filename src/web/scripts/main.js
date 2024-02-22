@@ -77,21 +77,26 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     })
 
     function connectWithRetry(url) {
-        fetch(url)
+        // Ensure no cache is hold
+        const headers = new Headers();
+        headers.append('pragma', 'no-cache');
+        headers.append('cache-control', 'no-cache');
+        const ms = Date.now();
+        const request = new Request(url+"?dummy="+ms)
+        
+        fetch(request, {method: 'GET', headers: headers})
             .then(response => response.text())
             .then(socketUrl => {
                 serverUrl = socketUrl
                 socket.io.uri = socketUrl;
                 socket.disconnect().connect();
             })
-            .catch(error => {
-                console.error('Retrying socket fetch: ', error);
+            .catch(() => {
                 setTimeout(() => connectWithRetry(url), 5000);
             });
     }
     
-    socket.on('connect_error', (error) => {
-        console.log('Connection error: ', error);
+    socket.on('connect_error', () => {
         setTimeout(() => connectWithRetry(serverLink), 5000);
     });
 

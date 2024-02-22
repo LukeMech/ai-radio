@@ -48,11 +48,6 @@ def add_no_cache_headers(response):
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
-
-@app.route('/')
-def index():
-    response = add_no_cache_headers(Response(render_template('index.html')))
-    return response
     
 @app.route('/listen')
 def listen():
