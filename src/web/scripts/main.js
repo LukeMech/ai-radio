@@ -78,13 +78,9 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
 
     function connectWithRetry(url) {
         // Ensure no cache is hold
-        const headers = new Headers();
-        headers.append('pragma', 'no-cache');
-        headers.append('cache-control', 'no-cache');
         const ms = Date.now();
-        const request = new Request(url+"?dummy="+ms)
         
-        fetch(request, {method: 'GET', headers: headers})
+        fetch(url+"?dummy="+ms)
             .then(response => response.text())
             .then(socketUrl => {
                 serverUrl = socketUrl
