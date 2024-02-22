@@ -27,12 +27,12 @@ jobs:
         run: |
           # FFmpeg
           wget https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
-          sudo tar --strip-components=2 -xf ffmpeg-master-latest-linux64-gpl.tar.xz ffmpeg-master-latest-linux64-gpl/bin -C /usr/local/bin
+          sudo tar xf ffmpeg-master-latest-linux64-gpl.tar.xz -C /usr/local/bin --strip-components=2 ffmpeg-master-latest-linux64-gpl/bin
           rm -rf ffmpeg-master-latest-linux64-gpl.tar.xz
 
           # Ngrok
           wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-          sudo tar -xzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
+          sudo tar xzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
           rm -rf ngrok-v3-stable-linux-amd64.tgz
 
           # Python dependencies
