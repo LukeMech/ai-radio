@@ -92,7 +92,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     
     socket.on('connect_error', (error) => {
         console.log('Connection error: ', error);
-        setTimeout(() => connectWithRetry(url), 5000);
+        setTimeout(() => connectWithRetry(serverLink), 5000);
     });
 
     connectWithRetry(serverLink);
