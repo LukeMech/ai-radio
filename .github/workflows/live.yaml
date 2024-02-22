@@ -21,25 +21,22 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
-      - name: Setup ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v3
-        continue-on-error: true
-        id: ffmpeg
-        
-      - name: Setup ffmpeg fallback			 
-        if: steps.ffmpeg.outcome == 'failure'
+      - name: Setup dependencies
         run: |
-          sudo apt update && sudo apt install ffmpeg -y
+          # FFmpeg
+          wget https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
+          sudo tar xf ffmpeg-master-latest-linux64-gpl.tar.xz -C /usr/local/bin
+          rm -rf ffmpeg-master-latest-linux64-gpl.tar.xz
 
-      - name: Setup ngrok
-        run: |
+          # Ngrok
           wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-          sudo tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
+          sudo tar xzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
+          rm -rf ngrok-v3-stable-linux-amd64.tgz
 
-      - name: Install python dependencies
-        run: pip install -r requirements.txt
+          # Python dependencies
+          pip install -r requirements.txt
 
       - name: Start and expose server
         run: |

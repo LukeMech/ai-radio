@@ -9,6 +9,7 @@ def downloadWavFromUrl(url, callback):
 
         ydl_opts = {
             'format': 'bestaudio/best',
+            'external_downloader' : 'aria2c',
             'outtmpl': fpath,  # Save with the title as filename
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
