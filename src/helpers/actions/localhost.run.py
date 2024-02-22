@@ -1,4 +1,4 @@
-import re, time
+import re, time, os
 from subprocess import run
 
 log_path = "tmp/localhost.run.log"
@@ -22,22 +22,23 @@ def fetch_until_pattern_found():
         result = search_local_file()
         if result:
             return result
-        print("URL pattern not found. Retrying in 2 seconds...", flush=True)
         time.sleep(2)
 
 def save_url_to_file(url):
     with open("website.url", "w") as file:
         file.write(url)
-        print(f"{url} saved to 'website.url' file.", flush=True)
+    print(f"{url} saved to 'website.url' file.", flush=True)
+    if(os.path.exists(log_path)): os.remove(log_path) 
 
 def git_add_commit_push():
     run("cd .. && git add src/website.url", shell=True)
     run("cd .. && git commit -m 'Update website URL'", shell=True)
     run("cd .. && git push", shell=True)
-    print("URL update successfull.", flush=True)
+    print("URL updated successfully.", flush=True)
 
 if __name__ == "__main__":
-    result = fetch_until_pattern_found()
-    if result:
-        save_url_to_file(result)
-        git_add_commit_push()
+    while True:
+        result = fetch_until_pattern_found()
+        if result:
+            save_url_to_file(result)
+            git_add_commit_push()
