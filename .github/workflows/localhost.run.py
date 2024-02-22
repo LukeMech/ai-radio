@@ -26,8 +26,8 @@ def fetch_until_pattern_found():
         result = search_local_file()
         if result:
             return result
-        print("URL pattern not found. Retrying in 0.2 seconds...", flush=True)
-        time.sleep(0.2)
+        print("URL pattern not found. Retrying in 2 seconds...", flush=True)
+        time.sleep(2)
 
 def save_url_to_file(url):
     with open("website.url", "w") as file:
