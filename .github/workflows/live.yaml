@@ -43,7 +43,7 @@ jobs:
             ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
             cd src
             export NONLOCAL=true
-            python index.py &
+            gunicorn -w 1 --threads 100 index:app &
             ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
             echo "Server started, ngrok exposure initiated."
             sleep 28800 # 8h
