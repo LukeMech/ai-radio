@@ -1,9 +1,9 @@
-name: Live server / ngrok
+name: Live server / ngrok (windows)
 
 on:
   workflow_dispatch:
- # schedule:
-  #  - cron: '*/30 * * * *'  # 30min
+  schedule:
+    - cron: '*/30 * * * *'  # 30min
 
 concurrency:
   group: ${{ github.workflow }}
@@ -26,7 +26,7 @@ jobs:
 
       - name: Setup ngrok
         run: |
-          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
+          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip
           sudo tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
 
       - name: Install python dependencies
