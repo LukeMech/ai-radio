@@ -27,7 +27,12 @@ jobs:
       - name: Setup ngrok
         run: |
           wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip
-          sudo tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
+          Add-Type -AssemblyName System.IO.Compression.FileSystem 
+          function Unzip { 
+            param([string]$zipfile, [string]$outpath)
+            [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath) 
+          } 
+          Unzip ".\ngrok-v3-stable-windows-amd64.zip" ".\ngrok"
 
       - name: Install python dependencies
         run: pip install -r requirements.txt
