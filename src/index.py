@@ -201,9 +201,9 @@ def ai_radio_streamer():
         else: 
             with open('ytlist.min.json', 'r') as file:
                 tracksList = json.load(file)
-        urls = [entry[0] for entry in tracksList]
-        multipliers = [entry[1]["m"] for entry in tracksList]
-        settings = [{key: value for key, value in entry[1].items() if key != "m"} for entry in tracksList]
+        urls = [entry if isinstance(entry, str) else entry[0] for entry in tracksList]
+        multipliers = [entry[1].get("m", 1) if isinstance(entry, list) and len(entry) > 1 else 1 for entry in tracksList]        
+        settings = [None if isinstance(entry, str) or len(entry) < 2 else {key: value for key, value in entry[1].items() if key != "m"} for entry in tracksList]
         weighted_choices = []
         for url, multiplier, setting in zip(urls, multipliers, settings):
             weighted_choices.extend([(url, setting)] * multiplier) 
@@ -214,6 +214,7 @@ def ai_radio_streamer():
             def shuffle():
                 random.shuffle(weighted_choices)
                 chosen_url, setting = random.choice(weighted_choices)
+                if not setting: setting = {}
                 return chosen_url, setting
            
             chosen_url, setting = shuffle()
@@ -226,7 +227,7 @@ def ai_radio_streamer():
     addToQueue()
     if len(queue) < 1: queue.append({})
     if("url" in queue[0]): 
-        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0)
+        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0, True)
     else: 
         firstLaunchReady = True
 
@@ -261,18 +262,16 @@ def ai_radio_streamer():
                 if(len(queue) < 1): queue.append({})
                 queue.insert(0, fallbackQueue)
                 radio["NOTREMOVE"] = True
+                radio["additional"] = {}
             duration = get_audio_duration(queue[0]["fpath"])
             radio["duration"] = duration
-            radio["time"] = 0
+            radio["time"] = 0   # Change to duration-10 for debugging
             radio["fpath"] = queue[0]["fpath"]
             radio["title"] = queue[0]["title"]
             radio["author"] = queue[0]["author"]
-            radio["additional"] = queue[0]["additional"]
+            radio["additional"] = queue[0].get("additional", {})
             radio["playID"] = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-            if("thumbnail" in queue[0]):
-                radio["thumbnail"] = queue[0]["thumbnail"]
-            # Falback to default icon
-            else: radio["thumbnail"] = None
+            radio["thumbnail"] = queue[0].get("thumbnail", None)
             queue.pop(0)
             indexChanged += 1
             socketio.emit('trackChange', create_track_change_args(radio))

@@ -7,6 +7,7 @@ on:
     paths:
       - 'ytlist.json'
       - '.github/workflows/ytlist.min.yaml'
+      - 'src/ytlist.min.py'
 
 jobs:
     process_changes:
