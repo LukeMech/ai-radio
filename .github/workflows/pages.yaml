@@ -7,7 +7,7 @@ on:
     branches:
       - main
     paths:
-      - 'src/github_waiter/**/*'
+      - 'src/web/**/*'
       - '.github/workflows/pages.yaml'
   workflow_dispatch:
 
@@ -38,8 +38,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+
           # Upload the content
-          path: 'src/github_waiter/'
+          path: 'src/web/'
+     
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

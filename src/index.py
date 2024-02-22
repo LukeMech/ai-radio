@@ -23,7 +23,7 @@ ffmpeg_opts = [
     '-f', 'mp3',                    # Output format MP3,
 ]
 
-fallbackQueue = {"fpath": "fallback/lalalove.wav", "title": "La La Love", "author": "C-Bool, SkyTech, GiangPham", "additional": {}}
+fallbackQueue = {"fpath": "helpers/lalalove.wav", "title": "La La Love", "author": "C-Bool, SkyTech, GiangPham", "additional": {}}
 
 queue = []
 alreadyPlayed = []
