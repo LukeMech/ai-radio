@@ -21,10 +21,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Setup ngrok & ffmpeg
+      - name: Setup ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v3
+
+      - name: Setup ngrok
         uses: crazy-max/ghaction-chocolatey@v3 
         with: 
-          args: install ngrok ffmpeg
+          args: install ngrok
 
       - name: Install python dependencies
         run: pip install -r requirements.txt
