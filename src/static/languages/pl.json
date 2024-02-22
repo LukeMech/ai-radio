@@ -1,6 +1,9 @@
 {
+    "no": "Norwegia", "pl": "Polska",
     "stopped": "Zatrzymano",
     "loading": "Ładowanie...",
     "connecting": "Łączenie...",
-    "sessionID": "ID sesji"
+    "sessionID": "ID sesji",
+    "eurovision": "Eurowizja",
+    "new": "Nowość"
 }

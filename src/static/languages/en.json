@@ -1,6 +1,9 @@
 {
+    "no": "Norway", "pl": "Poland",
     "stopped": "Stopped",
     "loading": "Loading...",
     "connecting": "Connecting...",
-    "sessionID": "Session ID"
+    "sessionID": "Session ID",
+    "eurovision": "Eurovision",
+    "new": "New"
 }

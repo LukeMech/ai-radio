@@ -6,7 +6,7 @@ from helpers import youtube
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
-local_ytlist = False
+local_ytlist = True
 
 if not local_ytlist:
     with open('ytlist.url', 'r') as file:
@@ -25,13 +25,19 @@ fallbackQueue = {"fpath": "fallback/lalalove.wav", "title": "La La Love", "autho
 
 queue = []
 radio = {
-    "ffmpeg_processes": {},
-    "active_connections": {},
-    "fpath": 0, "title": '', "author": '', "duration": 0, "thunbnail": 0,
-    "time": 0,
-    "NOTREMOVE": True,
-    "playID": 0
+    "ffmpeg_processes": {}, "active_connections": {},
+    "title": '', "author": '', "duration": 0, "thumbnail": 0, "additional": {},
+    "fpath": 0, "time": 0, "NOTREMOVE": True, "playID": 0
 }
+def create_track_change_args(radio):
+    return {
+        'title': radio.get("title", ""),
+        'author': radio.get("author", ""),
+        'duration': radio.get("duration", ""),
+        'thumbnail': radio.get("thumbnail", ""),
+        'additional': radio.get("additional", "")
+    }
+
 
 def add_no_cache_headers(response):
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'  # Prevent caching by the browser
@@ -69,7 +75,7 @@ def handle_connect():
     session_id = request.headers.get('id')
     print("Client connected with session id: " + session_id, flush=True)
     radio["active_connections"][session_id] = request.sid
-    if(radio["fpath"] != 0): socketio.emit('trackChange', {'file': radio["fpath"], 'title': radio["title"], 'author': radio["author"], 'duration': radio["duration"], 'time': radio["time"], 'thunbnail': radio["thunbnail"]}, to=request.sid)
+    if(radio["fpath"] != 0): socketio.emit('trackChange', create_track_change_args(radio), to=request.sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -177,8 +183,8 @@ def ai_radio_streamer():
         queue[0]["fpath"] = fp + '.' + ext
         queue[0]["title"] = t
         queue[0]["author"] = a
-        if(thunb): queue[0]["thunbnail"] = fp + '.' + thunb
-        else: queue[0]["thunbnail"] = None
+        if(thunb): queue[0]["thumbnail"] = fp + '.' + thunb
+        else: queue[0]["thumbnail"] = None
         print("Downloaded and set to queue track " + t + ", id: " + fp, flush=True)
         nonlocal firstLaunchReady; firstLaunchReady = True
 
@@ -192,15 +198,18 @@ def ai_radio_streamer():
             with open('ytlist.min.json', 'r') as file:
                 tracksList = json.load(file)
         urls = [entry[0] for entry in tracksList]
-        multipliers = [entry[1] for entry in tracksList]
+        multipliers = [entry[1]["m"] for entry in tracksList]
+        settings = [{key: value for key, value in entry[1].items() if key != "m"} for entry in tracksList]
         weighted_choices = []
-        for url, multiplier in zip(urls, multipliers):
-            weighted_choices.extend([url] * multiplier) 
+        for url, multiplier, setting in zip(urls, multipliers, settings):
+            weighted_choices.extend([(url, setting)] * multiplier) 
 
         if len(weighted_choices) < 1: return
         else:
             random.shuffle(weighted_choices)
-            queue.append({"url": random.choice(weighted_choices)})
+            chosen_url, setting = random.choice(weighted_choices)
+            queue.append({"url": chosen_url})
+            queue[0]["additional"] = setting
 
     addToQueue()
     if len(queue) < 1: queue.append({})
@@ -222,8 +231,8 @@ def ai_radio_streamer():
                 toRemove = []
                 if not radio["NOTREMOVE"]: 
                     toRemove = [radio["fpath"]]
-                    if('thunbnail' in radio):
-                        toRemove.append(radio["thunbnail"])
+                    if('thumbnail' in radio):
+                        toRemove.append(radio["thumbnail"])
 
                 radio["NOTREMOVE"] = False
                 if (not "fpath" in queue[0]) and waitingFORCE:
@@ -239,14 +248,15 @@ def ai_radio_streamer():
                 radio["fpath"] = queue[0]["fpath"]
                 radio["title"] = queue[0]["title"]
                 radio["author"] = queue[0]["author"]
+                radio["additional"] = queue[0]["additional"]
                 radio["playID"] = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-                if("thunbnail" in queue[0]):
-                    radio["thunbnail"] = queue[0]["thunbnail"]
+                if("thumbnail" in queue[0]):
+                    radio["thumbnail"] = queue[0]["thumbnail"]
                 # Falback to default icon
-                else: radio["thunbnail"] = None
+                else: radio["thumbnail"] = None
 
                 queue.pop(0)
-                socketio.emit('trackChange', {'file': radio["fpath"], 'title': radio["title"], 'author': radio["author"], 'duration': radio["duration"], 'thunbnail': radio["thunbnail"], 'time': 0})
+                socketio.emit('trackChange', create_track_change_args(radio))
                 # Remove ytdl downloaded file
                 if len(toRemove) > 0: 
                     for el in toRemove:
