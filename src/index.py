@@ -6,7 +6,7 @@ from helpers import youtube
 app = Flask(__name__)
 socketio = SocketIO(app)    
 
-local_ytlist = True
+local_ytlist = False
 
 if not local_ytlist:
     with open('ytlist.url', 'r') as file:
@@ -24,6 +24,7 @@ ffmpeg_opts = [
 fallbackQueue = {"fpath": "fallback/lalalove.wav", "title": "La La Love", "author": "C-Bool, SkyTech, GiangPham"}
 
 queue = []
+alreadyPlayed = []
 radio = {
     "ffmpeg_processes": {}, "active_connections": {},
     "title": '', "author": '', "duration": 0, "thumbnail": 0, "additional": {},
@@ -209,9 +210,18 @@ def ai_radio_streamer():
 
         if len(weighted_choices) < 1: return
         else:
-            random.shuffle(weighted_choices)
-            chosen_url, setting = random.choice(weighted_choices)
+            if(len(alreadyPlayed) > len(urls)/3): alreadyPlayed.pop(0)
+            def shuffle():
+                random.shuffle(weighted_choices)
+                chosen_url, setting = random.choice(weighted_choices)
+                return chosen_url, setting
+           
+            chosen_url, setting = shuffle()
+            while chosen_url in alreadyPlayed: 
+                chosen_url, setting = shuffle()
+
             queue.append({"url": chosen_url, "additional": setting})
+            alreadyPlayed.append(chosen_url)
 
     addToQueue()
     if len(queue) < 1: queue.append({})
