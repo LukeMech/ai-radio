@@ -44,7 +44,6 @@ jobs:
       - name: Start and expose server
         run: |
             ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
-
             cd src
             python index.py &
             ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
