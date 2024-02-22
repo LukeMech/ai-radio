@@ -174,19 +174,22 @@ def get_audio_duration(file_path):
     return duration
 
 def ai_radio_streamer():
-    duration = 0; waiting = False; downloadReqSent = False; waitingFORCE = False; firstLaunchReady = False;
-    def on_dwnld_completed(t, a, fp, ext, thunb, ERR):
+    forceChange = False; firstLaunchReady = False; downloadErr = None; downloading = False; indexChanged = 0;
+    def on_dwnld_completed(t, a, fp, ext, thunb, ERR, i):
+        nonlocal indexChanged, downloadErr, firstLaunchReady, downloading
+        if(indexChanged): i = i - indexChanged
         if(ERR): 
             print("Failed to download track, error: ", flush=True)
             print(ERR, flush=True)
+            downloadErr = i
             return
-        queue[0]["fpath"] = fp + '.' + ext
-        queue[0]["title"] = t
-        queue[0]["author"] = a
-        if(thunb): queue[0]["thumbnail"] = fp + '.' + thunb
-        else: queue[0]["thumbnail"] = None
-        print("Downloaded and set to queue track " + t + ", id: " + fp, flush=True)
-        nonlocal firstLaunchReady; firstLaunchReady = True
+        queue[i]["fpath"] = fp + '.' + ext
+        queue[i]["title"] = t
+        queue[i]["author"] = a
+        if(thunb): queue[i]["thumbnail"] = fp + '.' + thunb
+        else: queue[i]["thumbnail"] = None
+        print("Downloaded and added to queue track " + t + ", id: " + fp, flush=True)
+        firstLaunchReady = True; downloading = False
 
     def addToQueue():
         if not local_ytlist:
@@ -208,87 +211,80 @@ def ai_radio_streamer():
         else:
             random.shuffle(weighted_choices)
             chosen_url, setting = random.choice(weighted_choices)
-            queue.append({"url": chosen_url})
-            queue[0]["additional"] = setting
+            queue.append({"url": chosen_url, "additional": setting})
 
     addToQueue()
     if len(queue) < 1: queue.append({})
     if("url" in queue[0]): 
-        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed)
+        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0)
     else: 
         firstLaunchReady = True
 
     while firstLaunchReady:
-
-        if not duration and ((not waiting and downloadReqSent) or waitingFORCE):
-            if 'url' in queue[0] and not waitingFORCE:
-                waiting = True
-                dwnld = threading.Thread(target=youtube.downloadWavFromUrl, args=(queue[0]['url'], on_dwnld_completed))
-                dwnld.daemon = True
-                dwnld.start()
-    
-            if waitingFORCE:
-                toRemove = []
-                if not radio["NOTREMOVE"]: 
-                    toRemove = [radio["fpath"]]
-                    if('thumbnail' in radio):
-                        toRemove.append(radio["thumbnail"])
-
-                radio["NOTREMOVE"] = False
-                if (not "fpath" in queue[0]) and waitingFORCE:
-                    print("Using track from fallback queue...", flush=True)
-                    queue.pop(0)
-                    if(len(queue) < 1): queue.append({})
-                    queue.insert(0, fallbackQueue)
-                    radio["NOTREMOVE"] = True
-                
-                duration = get_audio_duration(queue[0]["fpath"])
-                radio["duration"] = duration
-                radio["time"] = 0
-                radio["fpath"] = queue[0]["fpath"]
-                radio["title"] = queue[0]["title"]
-                radio["author"] = queue[0]["author"]
-                radio["additional"] = queue[0]["additional"]
-                radio["playID"] = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-                if("thumbnail" in queue[0]):
-                    radio["thumbnail"] = queue[0]["thumbnail"]
-                # Falback to default icon
-                else: radio["thumbnail"] = None
-
-                queue.pop(0)
-                socketio.emit('trackChange', create_track_change_args(radio))
-                # Remove ytdl downloaded file
-                if len(toRemove) > 0: 
-                    for el in toRemove:
-                        if(os.path.exists(el)): 
-                            os.remove(el)
-                            print("Removed file: " + el, flush=True)
-                waitingFORCE = False
-                waiting = False
-                downloadReqSent = False
-
-        if len(queue) < 1:
+        if len(queue) < 3:
             addToQueue()
+
+        # Error downloading
+        if isinstance(downloadErr, int):
+            queue.pop(downloadErr)
+            downloadErr = None
+
+        # Request download
+        for track in queue:
+            if not downloading and "url" in track and not "fpath" in track:
+                indexChanged = 0
+                downloading = True
+                threading.Thread(target=youtube.downloadWavFromUrl,daemon=True,args=(track['url'], on_dwnld_completed, queue.index(track))).start()
+
+        # Change radio playing title
+        if forceChange:
+            forceChange = False
+            toRemove = []
+            if not radio["NOTREMOVE"]: 
+                toRemove = [radio["fpath"]]
+                if('thumbnail' in radio):
+                    toRemove.append(radio["thumbnail"])
+            radio["NOTREMOVE"] = False
+            if (not "fpath" in queue[0]):
+                print("Using track from fallback queue...", flush=True)
+                queue.pop(0)
+                if(len(queue) < 1): queue.append({})
+                queue.insert(0, fallbackQueue)
+                radio["NOTREMOVE"] = True
+            duration = get_audio_duration(queue[0]["fpath"])
+            radio["duration"] = duration
+            radio["time"] = 0
+            radio["fpath"] = queue[0]["fpath"]
+            radio["title"] = queue[0]["title"]
+            radio["author"] = queue[0]["author"]
+            radio["additional"] = queue[0]["additional"]
+            radio["playID"] = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+            if("thumbnail" in queue[0]):
+                radio["thumbnail"] = queue[0]["thumbnail"]
+            # Falback to default icon
+            else: radio["thumbnail"] = None
+            queue.pop(0)
+            indexChanged += 1
+            socketio.emit('trackChange', create_track_change_args(radio))
+            # Remove ytdl downloaded file
+            if len(toRemove) > 0: 
+                for el in toRemove:
+                    if(os.path.exists(el)): 
+                        os.remove(el)
+                        print("Removed file: " + el, flush=True)
 
         # Increment time by 0.1 second
         radio["time"] += 0.1
 
-        # Fetch next track when 1.5min to end of the track
-        if radio["time"] > radio["duration"]-90 and not downloadReqSent:
-            duration = 0
-            downloadReqSent = True
-
         # Send force signal to ensure audio playback
-        if radio["time"] > radio["duration"]-2 and not waitingFORCE:
-            waitingFORCE = True
+        if radio["time"] >= radio["duration"]-0.1 and not forceChange:
+            forceChange = True
 
         time.sleep(0.1)
 
 if os.path.exists('./tmp'):
     shutil.rmtree('./tmp')
     
-time_thread = threading.Thread(target=ai_radio_streamer)
-time_thread.daemon = True
-time_thread.start()
+threading.Thread(target=ai_radio_streamer,daemon=True).start()
 if __name__ == '__main__':
     socketio.run(app, use_reloader=False, debug=False, host='0.0.0.0', port=8000, allow_unsafe_werkzeug=True)

@@ -1,7 +1,7 @@
 import yt_dlp, random, string, subprocess, os
 from youtube_title_parse import get_artist_title
 
-def downloadWavFromUrl(url, callback):
+def downloadWavFromUrl(url, callback, i):
     ERR=None; title=None; artist=None; fpath=None; ext=None; thunb=None
     try:
         ext = 'wav'
@@ -9,7 +9,6 @@ def downloadWavFromUrl(url, callback):
 
         ydl_opts = {
             'format': 'bestaudio/best',
-            'external_downloader' : 'aria2c',
             'outtmpl': fpath,  # Save with the title as filename
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
@@ -65,4 +64,4 @@ def downloadWavFromUrl(url, callback):
         ERR = e
 
     # Title, author, filepath, extension, thumbnail
-    callback(title, artist, fpath, ext, thunb, ERR)
+    callback(title, artist, fpath, ext, thunb, ERR, i)

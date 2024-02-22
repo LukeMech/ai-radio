@@ -1,5 +1,5 @@
 [
-    ["Freed from Desire", "https://www.youtube.com/watch?v=6b6FBneAENQ", {"new": false}],
+    ["Freed from Desire", "https://www.youtube.com/watch?v=6b6FBneAENQ"],
     ["(I Just) Died In Your Arms", "https://www.youtube.com/watch?v=d8OI9FllKfg"],
     ["Bad Piggies Theme", "https://www.youtube.com/watch?v=EgAOqt8I5ac"],
     ["Shape of you", "https://www.youtube.com/watch?v=JGwWNGJdvx8"],
@@ -8,9 +8,9 @@
     ["Don't Start Now", "https://www.youtube.com/watch?v=oygrmJFKYZY"],
     ["Give Me Everything", "https://www.youtube.com/watch?v=EPo5wWmKEaI"],
     ["Lean on", "https://www.youtube.com/watch?v=rn9AQoI7mYU"],
-    ["TOY", "https://www.youtube.com/watch?v=CziHrYYSyPc"],
+    ["Toy", "https://www.youtube.com/watch?v=PctzQsrVkPs", {"eurovision": "2018;il"}],
     ["The Tower", "https://www.youtube.com/watch?v=mzCmNU3q8ZU", {"multiplier": 2, "eurovision": "2024;pl"}],
-    ["ICH KÜNDIGE", "https://www.youtube.com/watch?v=dCWCo4S1-to", {"multiplier": 2}],
+    ["ICH KÜNDIGE", "https://www.youtube.com/watch?v=dCWCo4S1-to", {"multiplier": 2, "new": true}],
     ["Queen of Kings", "https://www.youtube.com/watch?v=2VS9kqpm0D0", {"eurovision": "2023;no"} ],
     ["Timber", "https://www.youtube.com/watch?v=hHUbLv4ThOo"],
     ["Starships", "https://www.youtube.com/watch?v=SeIJmciN8mo"],

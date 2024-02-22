@@ -21,7 +21,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Run script
-              run: cd src && python helpers/ytlist.min.py
+              run: cd src && python ytlist.min.py
 
             - name: Commit and push changes
               run: |

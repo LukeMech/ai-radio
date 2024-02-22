@@ -1,6 +1,6 @@
 import json
 
-with open('ytlist.json', 'r') as file:
+with open('../ytlist.json', 'r') as file:
     ytlist = json.load(file)
 
 formatted_data = []
