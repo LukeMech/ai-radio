@@ -38,6 +38,7 @@ def create_track_change_args(radio):
         'author': radio.get("author", ""),
         'duration': radio.get("duration", ""),
         'thumbnail': radio.get("thumbnail", ""),
+        "time": radio.get("time", 0),
         'additional': radio.get("additional", "")
     }
 
@@ -235,7 +236,8 @@ def ai_radio_streamer():
         firstLaunchReady = True
 
     while firstLaunchReady:
-        if len(queue) < 3:
+        # Pre-adding & fetching next songs
+        if len(queue) < 2:
             addToQueue()
 
         # Error downloading

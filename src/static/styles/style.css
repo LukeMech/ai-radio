@@ -243,6 +243,12 @@ body {
 .text-info #currently-playing-author {
   font-size: 15px;
 }
+#currently-playing-timer {
+  font-size: 15px;
+  margin: 10px 0 2px;
+  color: var(--text-color);
+  text-align: center;
+}
 @media (min-width: 768px) {
   .player-info-box-top {
     scale: 1.5;
