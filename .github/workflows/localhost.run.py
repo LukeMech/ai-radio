@@ -15,9 +15,7 @@ def search_local_file():
         if matches:
             return matches[0]
     except:
-        run("ls", shell=True)
-        run("ls tmp", shell=True)
-    return None
+        return None
 
 # Function to periodically fetch the file until the pattern is found
 def fetch_until_pattern_found():
