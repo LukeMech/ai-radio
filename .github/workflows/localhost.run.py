@@ -7,11 +7,14 @@ pattern = r'authenticated as anonymous user\n(.*?\.life)'
 
 # Function to fetch the file and search for the pattern
 def search_local_file():
-    with open(log_path, "r") as file:
-        content = file.read()
+    try:
+        with open(log_path, "r") as file:
+            content = file.read()
         matches = re.findall(pattern, content)
         if matches:
             return matches[0]
+    except:
+        pass
     return None
 
 # Function to periodically fetch the file until the pattern is found
@@ -29,9 +32,10 @@ def save_url_to_file(url):
         print("URL saved to 'website.url' file.", flush=True)
 
 def git_add_commit_push():
-    run("git add website.url", shell=True)
-    run("git commit -m 'Update website URL'", shell=True)
-    run("git push", shell=True)
+    run("cd .. && git add website.url", shell=True)
+    run("cd .. && git commit -m 'Update website URL'", shell=True)
+    run("cd .. && git push", shell=True)
+    run('ls', shell=True)
     print("URL update successfull.", flush=True)
 
 if __name__ == "__main__":
