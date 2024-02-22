@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: Setup ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v3
@@ -35,9 +35,8 @@ jobs:
       - name: Start and expose server
         run: |
           ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
-
           cd src
-          python index.py &
+          python index.py 2>&1 | ForEach-Object { Write-Output $_ } &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
-          sleep 21600 # 6h -> 60secs*60*6
+          sleep 21600
