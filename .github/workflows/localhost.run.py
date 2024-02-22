@@ -10,11 +10,12 @@ def search_local_file():
     try:
         with open(log_path, "r") as file:
             content = file.read()
+            print(content, flush=True)
         matches = re.findall(pattern, content)
         if matches:
             return matches[0]
     except:
-        pass
+        print("Error reading log file.", flush=True)
     return None
 
 # Function to periodically fetch the file until the pattern is found
