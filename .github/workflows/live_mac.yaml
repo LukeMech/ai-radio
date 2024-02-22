@@ -2,8 +2,8 @@ name: Live server / ngrok (macos)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 */5 * * *'  # 5h
+ # schedule:
+ #   - cron: '0 */5 * * *'  # 5h
 
 concurrency:
   group: ${{ github.workflow }}
