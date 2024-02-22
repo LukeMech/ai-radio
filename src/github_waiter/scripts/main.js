@@ -22,28 +22,28 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             title: 'AI Radio | 2024',
             artist: 'LukeMech',
             artwork: [
-                { src: "./radio.ico" }
+                { src: "radio.ico" }
             ]
         });
         mediaStoppedMetadata = new MediaMetadata({
             title: languageStrings.stopped,
             artist: 'LukeMech | AI Radio | 2024',
             artwork: [
-                { src: "./radio.ico" }
+                { src: "radio.ico" }
             ]
         });
         loadingMetadata = new MediaMetadata({
             title: languageStrings.loading,
             artist: 'LukeMech | AI Radio | 2024',
             artwork: [
-                { src: "./radio.ico" }
+                { src: "radio.ico" }
             ]
         })
         connectingMetadata = new MediaMetadata({
             title: languageStrings.connecting,
             artist: 'LukeMech | AI Radio | 2024',
             artwork: [
-                { src: "./radio.ico" }
+                { src: "radio.ico" }
             ]
         })
     }
