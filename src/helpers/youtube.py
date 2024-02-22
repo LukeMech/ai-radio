@@ -1,8 +1,7 @@
 import yt_dlp, random, string, subprocess, os
 from youtube_title_parse import get_artist_title
 
-# Not using faster, native download method to keep github action running ;p
-def downloadWavFromUrl(url, callback, i, faster=False):
+def downloadWavFromUrl(url, callback, i):
     ERR=None; title=None; artist=None; fpath=None; ext=None; thunb=None
     try:
         ext = 'wav'
@@ -10,6 +9,7 @@ def downloadWavFromUrl(url, callback, i, faster=False):
 
         ydl_opts = {
             'format': 'bestaudio/best',
+            'external_downloader': 'ffmpeg',
             'outtmpl': fpath,  # Save with the title as filename
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
@@ -34,19 +34,13 @@ def downloadWavFromUrl(url, callback, i, faster=False):
             'merge_output_format': ext,  # Merge into .wav file
         }
 
-        if not faster:
-            ydl_opts['external_downloader'] = 'aria2c'
-
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
         
         filename = fpath + '.' + ext
         os.rename(filename, filename + '.' + 'tmp')
-        subprocess.run([
-            'ffmpeg', '-i', filename + '.' + 'tmp', 
-            '-af', 'silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:detection=peak,aformat=dblp,areverse', 
-            filename
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print("[info] Running silence cutter...", flush=True)
+        subprocess.run(f'ffmpeg -hide_banner -loglevel error -i {filename + "." + "tmp"} -af silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:detection=peak,aformat=dblp,areverse,silenceremove=start_periods=1:start_duration=1:start_threshold=-60dB:detection=peak,aformat=dblp,areverse {filename}', shell=True)
         os.remove(filename + '.' + 'tmp')
 
         try:

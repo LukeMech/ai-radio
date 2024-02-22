@@ -21,7 +21,7 @@ ffmpeg_opts = [
     '-f', 'mp3',                    # Output format MP3,
 ]
 
-fallbackQueue = {"fpath": "fallback/lalalove.wav", "title": "La La Love", "author": "C-Bool, SkyTech, GiangPham"}
+fallbackQueue = {"fpath": "fallback/lalalove.wav", "title": "La La Love", "author": "C-Bool, SkyTech, GiangPham", "additional": {}}
 
 queue = []
 alreadyPlayed = []
@@ -226,7 +226,7 @@ def ai_radio_streamer():
     addToQueue()
     if len(queue) < 1: queue.append({})
     if("url" in queue[0]): 
-        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0, True)
+        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0)
     else: 
         firstLaunchReady = True
 
@@ -263,7 +263,7 @@ def ai_radio_streamer():
                 radio["NOTREMOVE"] = True
             duration = get_audio_duration(queue[0]["fpath"])
             radio["duration"] = duration
-            radio["time"] = 0
+            radio["time"] = duration-10
             radio["fpath"] = queue[0]["fpath"]
             radio["title"] = queue[0]["title"]
             radio["author"] = queue[0]["author"]
