@@ -3,7 +3,7 @@ name: Live server / ngrok
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'  # 30min
+    - cron: '0 */7 * * *'  # 7h
 
 concurrency:
   group: ${{ github.workflow }}
@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   server:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20
     steps:              
       - name: Clone repository
         uses: actions/checkout@v4
@@ -40,4 +40,4 @@ jobs:
           python index.py &
           ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
           echo "Server started, ngrok exposure initiated."
-          sleep 3600 # 1h -> 60secs*60
+          sleep 28800 # 8h
