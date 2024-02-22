@@ -21,12 +21,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Setup FFmpeg
-        uses: federicocarboni/setup-ffmpeg@v3.1
       
       - name: Setup dependencies
         run: |
+          # FFmpeg
+          brew install ffmpeg
+          
           # Ngrok
           wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-darwin-arm64.zip
           sudo unzip ~/Downloads/ngrok-v3-stable-darwin-arm64.zip -d /usr/local/bin
