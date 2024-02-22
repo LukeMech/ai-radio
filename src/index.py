@@ -263,7 +263,7 @@ def ai_radio_streamer():
                 radio["NOTREMOVE"] = True
             duration = get_audio_duration(queue[0]["fpath"])
             radio["duration"] = duration
-            radio["time"] = duration-10
+            radio["time"] = 0
             radio["fpath"] = queue[0]["fpath"]
             radio["title"] = queue[0]["title"]
             radio["author"] = queue[0]["author"]
