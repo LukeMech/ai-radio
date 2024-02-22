@@ -1,6 +1,8 @@
 import yt_dlp, random, string, subprocess, os
 from youtube_title_parse import get_artist_title
 
+# Somehow using aria2 prevents github actions from stopping...? 
+# So, let's use it even though its slower (slows at the dwnld end)
 def downloadWavFromUrl(url, callback, i, faster=False):
     ERR=None; title=None; artist=None; fpath=None; ext=None; thunb=None
     try:
