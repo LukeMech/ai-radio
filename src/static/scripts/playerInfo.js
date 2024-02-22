@@ -9,7 +9,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     currentlyPlayingTitle.innerHTML = '...'
     currentlyPlayingAuthor.innerHTML = '...'
     timerElement.innerHTML = '...'
-    let duration = -1, playtime = -1;
+    let duration = -1, playtime = -1, currentUpdateInterval;
 
     function formatDuration(durationInSeconds) {
         durationInSeconds = Math.floor(durationInSeconds);
@@ -17,23 +17,13 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         const seconds = durationInSeconds % 60;
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }   
-    function updateTimer(intervalId) {
-        if (duration > playtime || duration == -1) {
-            clearInterval(intervalId);
-            timerElement.textContent = "...";
-        }
-        timerElement.textContent = formatDuration(playtime) + ' / ' + duration;
+    function updateTimer() {
+        timerElement.textContent = languageStrings.nexttrackin + ': '+ formatDuration(duration - playtime);
         playtime++;
     }
 
-    function updateTimerInterval() {
-        updateTimer(null)
-        const intervalId = setInterval(function() {
-            updateTimer(intervalId);
-        }, 1000);
-    }
-
     socket.on('trackChange', args => {
+        clearInterval(currentUpdateInterval);
         currentlyPlayingTitle.innerHTML = args.title
         currentlyPlayingAuthor.innerHTML = args.author
         // Eurovision song detected
@@ -53,16 +43,18 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         currentlyPlayingImageWait.classList.add('hidden')
         currentlyPlayingImage.classList.remove('hidden')
         
-        duration = formatDuration(args.duration)
+        duration = args.duration
         playtime = args.time
-        updateTimerInterval()
+        updateTimer()
+        currentUpdateInterval = setInterval(updateTimer, 1000);
     });
+
     socket.on('disconnect', () => {
         currentlyPlayingTitle.innerHTML = '...'
         currentlyPlayingAuthor.innerHTML = '...'
         currentlyPlayingImage.classList.add('hidden')
         currentlyPlayingImageWait.classList.remove('hidden')
         additional.innerHTML = ''
-        duration = -1
+        clearInterval(currentUpdateInterval)
     });
 })

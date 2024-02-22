@@ -1,4 +1,4 @@
-name: Live server / ngrok
+name: Live server / localhost.run
 
 on:
   workflow_dispatch:
@@ -30,11 +30,6 @@ jobs:
           sudo tar xf ffmpeg-master-latest-linux64-gpl.tar.xz -C /usr/local/bin --strip-components=2 ffmpeg-master-latest-linux64-gpl/bin
           rm -rf ffmpeg-master-latest-linux64-gpl.tar.xz
 
-          # Ngrok
-          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-          sudo tar xzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
-          rm -rf ngrok-v3-stable-linux-amd64.tgz
-
           # Python dependencies
           pip install -r requirements.txt
 
@@ -43,7 +38,11 @@ jobs:
             ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
             cd src
             export NONLOCAL=true
+            git config --global user.email "github-actions@users.noreply.github.com"
+            git config --global user.name "website.url"
+
             gunicorn -w 1 --threads 100 index:app &
-            ngrok http --domain=${{ secrets.NGROK_DOMAIN }} http://localhost:8000 --log=stdout > ngrok.log 2>&1 &
-            echo "Server started, ngrok exposure initiated."
+            ssh -R 80:localhost:8000 localhost.run >> tmp/localhost.run.log &
+            python ../.github/workflows/localhost.run.py
+            echo "Server started, localhost.run exposure initiated."
             sleep 28800 # 8h
