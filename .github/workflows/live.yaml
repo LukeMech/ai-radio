@@ -12,7 +12,6 @@ concurrency:
 jobs:
   server:
     runs-on: ubuntu-latest
-    timeout-minutes: 28800 # 8h
 
     steps:              
       - name: Clone repository
