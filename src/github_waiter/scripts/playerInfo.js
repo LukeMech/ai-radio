@@ -38,7 +38,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
             additional.innerHTML = languageStrings.new
         }
         else additional.classList.add('hidden')
-        currentlyPlayingImage.src = args.thumbnail
+        currentlyPlayingImage.src = serverUrl + '/' + args.thumbnail
         currentlyPlayingImageWait.classList.add('hidden')
         currentlyPlayingImage.classList.remove('hidden')
         

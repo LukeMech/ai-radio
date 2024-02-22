@@ -1,5 +1,5 @@
-var socket
-const socketUrlLink = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/main/src/website.url'
+var socket, serverLink = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/main/src/website.url', serverUrl
+
 document.querySelector('body').addEventListener('languagesLoaded', () => {
     const sessionIDText = document.getElementById('session-id');
     sessionIDText.innerHTML = languageStrings.connecting
@@ -80,6 +80,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         fetch(url)
             .then(response => response.text())
             .then(socketUrl => {
+                serverUrl = socketUrl
                 socket.io.uri = socketUrl;
                 socket.disconnect().connect();
             })
@@ -91,10 +92,10 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     
     socket.on('connect_error', (error) => {
         console.log('Connection error: ', error);
-        connectWithRetry(socketUrlLink); // Retry connection
+        connectWithRetry(serverLink); // Retry connection
     });
 
-    connectWithRetry(socketUrlLink);
+    connectWithRetry(serverLink);
 
     const loadedDataHandler = () => {
         if (audio.readyState >= 2) {
@@ -176,7 +177,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
         if(!isMobile || isFirefox) audio.src = ''
-        audio = new Audio('/listen?id=' + id);
+        audio = new Audio(serverUrl + '/listen?id=' + id);
         if (!audio.canPlayType('audio/mpeg')) {
             return audioErr('Type not currently supported', '', false)
         }
