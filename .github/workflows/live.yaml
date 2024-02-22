@@ -33,6 +33,9 @@ jobs:
           # Python dependencies
           pip install -r requirements.txt
 
+          # Server
+          ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
+
       - name: Start and expose server
         run: |
             cd src
