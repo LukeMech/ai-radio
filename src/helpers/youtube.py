@@ -1,7 +1,8 @@
 import yt_dlp, random, string, subprocess, os
 from youtube_title_parse import get_artist_title
 
-def downloadWavFromUrl(url, callback, i):
+# Not using faster, native download method to keep github action running ;p
+def downloadWavFromUrl(url, callback, i, faster=False):
     ERR=None; title=None; artist=None; fpath=None; ext=None; thunb=None
     try:
         ext = 'wav'
@@ -9,7 +10,6 @@ def downloadWavFromUrl(url, callback, i):
 
         ydl_opts = {
             'format': 'bestaudio/best',
-            'external_downloader' : 'aria2c',
             'outtmpl': fpath,  # Save with the title as filename
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
@@ -33,6 +33,9 @@ def downloadWavFromUrl(url, callback, i):
             'writethumbnail': True,  # Write thumbnail
             'merge_output_format': ext,  # Merge into .wav file
         }
+
+        if not faster:
+            ydl_opts['external_downloader'] = 'aria2c'
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)

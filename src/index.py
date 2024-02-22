@@ -1,3 +1,4 @@
+from sympy import true
 from flask import Flask, Response, render_template, request, send_from_directory, abort
 from flask_socketio import SocketIO
 import subprocess, time, threading, random, os, shutil, string, requests, json
@@ -216,7 +217,7 @@ def ai_radio_streamer():
     addToQueue()
     if len(queue) < 1: queue.append({})
     if("url" in queue[0]): 
-        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0)
+        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0, True)
     else: 
         firstLaunchReady = True
 
