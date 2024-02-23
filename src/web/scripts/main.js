@@ -77,15 +77,18 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
 
     function connectWithRetry(url) { 
         fetch(url)
-            .then(response => {
+            .then(async response => {
                 if (!response.ok) {
-                    throw new Error("Can't fetch link from AWS");
+                    console.error("Can't fetch link from AWS");
+                    return;
                 }
-                return response.text();
+                else return await response.text();
             })
             .then(data => {
+                if(!data) return retrying_connection = false;
                 serverUrl = data;
                 socket.io.uri = data;
+                retrying_connection = false;
             })
             .catch(() => {
                 console.error("Can't fetch link from AWS");
@@ -93,7 +96,9 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     }
     
     socket.on('connect_error', () => {
+        if(retrying_connection) return;
         setTimeout(() => connectWithRetry(awsApi), 30000);
+        retrying_connection = true
     });
 
     const loadedDataHandler = () => {
