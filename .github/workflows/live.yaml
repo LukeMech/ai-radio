@@ -40,6 +40,8 @@ jobs:
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
   
       - name: Start and expose server
+        env:
+          AWS_TOKEN: ${{ secrets.AWS_TOKEN }}
         run: |
             cd src
             mkdir tmp
