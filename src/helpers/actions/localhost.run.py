@@ -54,6 +54,7 @@ def save_url_to_file(url):
     print(f"{url} saved to 'website.url' file.", flush=True)
 
 def git_add_commit_push():
+    run("cd .. && git pull", shell=True)
     run("cd .. && git add .", shell=True)
     run("cd .. && git commit -m 'Update website URL'", shell=True)
     run("cd .. && git push", shell=True)
