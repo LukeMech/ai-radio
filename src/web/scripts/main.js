@@ -80,8 +80,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         const myHeaders = new Headers();
         myHeaders.append('pragma', 'no-cache');
         myHeaders.append('cache-control', 'no-cache');
-
-        
+  
         fetch(url+"?dummy="+ms, myHeaders)
             .then(response => response.text())
             .then(socketUrl => {
@@ -89,6 +88,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
                 socket.io.uri = socketUrl;
             })
             .catch(() => {
+                console.log('Failed to connect to fetch connection url');
                 setTimeout(() => connectWithRetry(url), 5000);
             });
     }
