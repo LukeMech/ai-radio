@@ -59,7 +59,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     socket.on('connect', () => {
         serverLOADED=true
         console.log('Authorized via websocket');
-        playPauseButton.classList.remove('play-loading')
         sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
     });
     socket.on('disconnect', () => {
@@ -69,6 +68,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     });
     // Handle first load when just connected
     socket.on('trackChange', () => {
+        serverLOADED=true
         if(playPauseButton.classList.contains('loading')) {
             audioStart() 
         }

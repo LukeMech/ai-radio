@@ -5,6 +5,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     const currentlyPlayingImage = document.getElementById('currently-playing-image');
     const additional = document.getElementById('currently-playing-ev');
     const timerElement = document.getElementById("currently-playing-timer");
+    const playPauseButton = document.getElementById('play-pause-button');
 
     currentlyPlayingTitle.innerHTML = '...'
     currentlyPlayingAuthor.innerHTML = '...'
@@ -56,4 +57,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         additional.innerHTML = ''
         clearInterval(currentUpdateInterval)
     });
+
+    playPauseButton.classList.remove('loading')
+    playPauseButton.classList.add('play')
 })
