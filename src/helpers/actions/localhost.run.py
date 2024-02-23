@@ -46,7 +46,7 @@ def save_url_to_file(url):
     global num
     with open(f"website.{num}.url", "w") as file:
         file.write(url)
-    
+    if num>9: num = 0;
     if num==0: delnum = 9
     else: delnum = num-1
     if(os.path.exists(f"website.{delnum}.url")): os.remove(f"website.{delnum}.url")
