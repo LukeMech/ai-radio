@@ -62,10 +62,10 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     });
 
     const handleDisconnect = () => {
-        setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 20000);
+        setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
 
         serverLOADED=false
-        console.log('Disconnected from server, retrying in 20secs...');
+        console.log('Disconnected from server, retrying in 10secs...');
         sessionIDText.innerHTML = languageStrings.connecting
         return
     }
@@ -99,8 +99,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         let response = {ok: false}
         try {response = await fetch(url, {cache: 'reload'})} catch (e) {}
         if (!response.ok) {
-            setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 20000); // Retry in 20s
-            return console.error("Can't fetch link from AWS, retrying in 20secs...");
+            setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000); // Retry in 20s
+            return console.error("Can't fetch link from AWS, retrying in 10secs...");
         }
         const data = await response.text();
         // const data = 'https://7c518bb813a8db.lhr.life'
@@ -113,7 +113,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         if(!check.ok) {
             setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000); // Retry in 10s
             n+=1
-            return console.log('Server offline, retrying in 20secs...')
+            return console.log('Server offline, retrying in 10secs...')
         }
 
         socket.io.uri = data;

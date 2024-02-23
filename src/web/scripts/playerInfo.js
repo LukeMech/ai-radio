@@ -6,9 +6,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     const additional = document.getElementById('currently-playing-ev');
     const timerElement = document.getElementById("currently-playing-timer");
     const playPauseButton = document.getElementById('play-pause-button');
-
-    currentlyPlayingTitle.innerHTML = '...'
-    currentlyPlayingAuthor.innerHTML = '...'
     let duration = -1, playtime = -1, currentUpdateInterval;
 
     function formatDuration(durationInSeconds) {
@@ -42,8 +39,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         else additional.classList.add('hidden')
         currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail
         currentlyPlayingImageWait.classList.add('hidden')
-        currentlyPlayingImage.classList.remove('hidden')
-        
         duration = args.duration
         playtime = args.time
         updateTimer()
@@ -52,12 +47,15 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
 
     socket.on('disconnect', () => {
         clearInterval(currentUpdateInterval)
+        currentlyPlayingTitle.innerHTML = ''
+        currentlyPlayingAuthor.innerHTML = ''
         currentlyPlayingTitle.classList.add('hidden')
         currentlyPlayingAuthor.classList.add('hidden')
-        currentlyPlayingImage.classList.add('hidden')
-        currentlyPlayingImageWait.classList.remove('hidden')
-        additional.classList.add('hidden')
+        currentlyPlayingImage.src = ''
+        additional.innerHTML = languageStrings.connecting
+        additional.classList.remove('hidden')
         timerElement.textContent = ''
+        currentlyPlayingImageWait.classList.remove('hidden')
     });
 
     const shouldLoad = localStorage.getItem('settings')
