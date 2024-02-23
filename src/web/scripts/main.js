@@ -8,7 +8,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const isFirefox = navigator.userAgent.includes("Firefox");
     const useMediaButtons = ('mediaSession' in navigator)
-    let serverLOADED
+    let serverLOADED, stalled, paused
     let audio={paused:true}
     
     function generateid() {
@@ -65,7 +65,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     socket.on('disconnect', () => {
         serverLOADED=false
         console.log('Disconnected from server');
-        // playPauseButton.classList.add('play-loading')
         sessionIDText.innerHTML = languageStrings.connecting
     });
     // Handle first load when just connected
@@ -84,7 +83,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             .then(socketUrl => {
                 serverUrl = socketUrl
                 socket.io.uri = socketUrl;
-                socket.disconnect().connect();
             })
             .catch(() => {
                 setTimeout(() => connectWithRetry(url), 5000);
@@ -114,15 +112,20 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         audioErr('Loading audio failed', err)
     };
     const stalledHandler = () => {
+        if(paused) return
+        stalled = true
         audioStop()
         playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
         setTimeout(() => {
+            stalled = false
             audioStart()
         }, 500);
     };
     const pausedAndWaitingHandler = async () => {
+        if(stalled) return
+        paused = true
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
         audioStop()
@@ -131,7 +134,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             return new Promise(resolve => {
                 const checkPaused = () => {
                     if (!audio.paused) {
-                        resolve(); // Resolve the promise when audio.paused becomes true
+                        resolve(); // Resolve the promise when audio.paused becomes false
                     } else {
                         setTimeout(checkPaused, 500);
                     }
@@ -143,6 +146,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         await waitForPlay();
 
         // Aaaaand exec function
+        paused = false
         stalledHandler()
     }
     
@@ -163,6 +167,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         catch (err) {}
     }
     function audioStart() {
+        console.log('StartingMusic')
         if (!serverLOADED) {
             playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
