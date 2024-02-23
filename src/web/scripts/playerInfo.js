@@ -38,7 +38,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
             additional.innerHTML = languageStrings.new
         }
         else additional.classList.add('hidden')
-        currentlyPlayingImage.src = serverUrl + '/' + args.thumbnail
+        currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail
         currentlyPlayingImageWait.classList.add('hidden')
         currentlyPlayingImage.classList.remove('hidden')
         
@@ -50,14 +50,23 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
 
     socket.on('disconnect', () => {
         clearInterval(currentUpdateInterval)
-        currentlyPlayingTitle.innerHTML = ''
-        currentlyPlayingAuthor.innerHTML = ''
+        currentlyPlayingTitle.innerHTML = '...'
+        currentlyPlayingAuthor.innerHTML = '...'
         currentlyPlayingImage.classList.add('hidden')
         currentlyPlayingImageWait.classList.remove('hidden')
-        additional.innerHTML = '...'
+        additional.classList.add('hidden')
         timerElement.textContent = ''
     });
 
-    playPauseButton.classList.remove('loading')
-    playPauseButton.classList.add('play')
+    const shouldLoad = localStorage.getItem('settings')
+
+    if(!shouldLoad) {
+        playPauseButton.classList.remove('loading')
+        playPauseButton.classList.add('play')    
+    }
+    else {
+        if(document.documentElement.getAttribute('data-theme') != localStorage.getItem("theme")) {
+            switchTheme()
+        }
+    } localStorage.removeItem('settings')
 })

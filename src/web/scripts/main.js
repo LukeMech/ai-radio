@@ -52,21 +52,29 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     // Connect to WebSocket
     
     socket = io({
+        reconnection: false,
+        autoConnect: false,
         extraHeaders: {
-            "id": id,
+            "id": id
         }
     });
+
+    const handleDisconnect = () => {
+        setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 20000);
+
+        serverLOADED=false
+        console.log('Disconnected from server, retrying in 20secs...');
+        sessionIDText.innerHTML = languageStrings.connecting
+        return
+    }
     
     socket.on('connect', () => {
         serverLOADED=true
         console.log('Authorized via websocket');
         sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
     });
-    socket.on('disconnect', () => {
-        serverLOADED=false
-        console.log('Disconnected from server');
-        sessionIDText.innerHTML = languageStrings.connecting
-    });
+    socket.on('disconnect', handleDisconnect);
+    socket.on('connect_error', handleDisconnect);
     // Handle first load when just connected
     socket.on('trackChange', () => {
         serverLOADED=true
@@ -76,35 +84,40 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     })
 
     async function getApiLink(url) {
-        const response = await fetch(url)
-        if (!response.ok) {
-            console.error("Can't fetch link to AWS");
-            return;
-        }
+        let response = {ok: false}
+        try {response = await fetch(url, {cache: 'reload'})} catch (e) {}
+        if (!response.ok) return console.error("Can't fetch link to AWS");
         return await response.text();
     }
-    let retrying_connection = true;
+
+    let n=0;
     async function connectWithRetry(url) { 
-        const response = await fetch(url)
-        if (!response.ok) {
-            console.error("Can't fetch link from AWS");
-            return retrying_connection = false;
-        }
+
         
+        let response = {ok: false}
+        try {response = await fetch(url, {cache: 'reload'})} catch (e) {}
+        if (!response.ok) {
+            setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 20000); // Retry in 20s
+            return console.error("Can't fetch link from AWS, retrying in 20secs...");
+        }
         const data = await response.text();
-    
+        // const data = 'https://7c518bb813a8db.lhr.life'
+
+        // Be sure server is online (without it, cors will start block and boom, whole page needs reload)
         console.log(data)
-        serverUrl = data;
+        let check = {ok: false}
+
+        try {check = await fetch(data + '/' + n, {cache: 'no-store'})} catch(e) {}
+        if(!check.ok) {
+            setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000); // Retry in 10s
+            n+=1
+            return console.log('Server offline, retrying in 20secs...')
+        }
+
         socket.io.uri = data;
-        retrying_connection = false;
+        socket.connect()
     }
     
-    socket.on('connect_error', () => {
-        if(retrying_connection) return;
-        setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 30000);
-        retrying_connection = true
-    });
-
     getApiLink(awsApiLink).then(resp => connectWithRetry(resp))
 
     const loadedDataHandler = () => {
@@ -120,8 +133,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             playPauseButton.classList.add('pause');
         }
     };
-    const errorHandler = err => {
-        audioErr('Loading audio failed', err)
+    const errorHandler = () => {
+        audioErr('Loading audio failed')
     };
     const stalledHandler = () => {
         if(paused) return
@@ -193,7 +206,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
         if(!isMobile || isFirefox) audio.src = ''
-        audio = new Audio(serverUrl + '/listen?id=' + id);
+        audio = new Audio(socket.io.uri + '/listen?id=' + id);
         if (!audio.canPlayType('audio/mpeg')) {
             return audioErr('Type not currently supported', '', false)
         }
@@ -202,7 +215,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             navigator.mediaSession.playbackState = 'playing'
         }
         audio.addEventListener("loadeddata", loadedDataHandler);
-        audio.addEventListener('error', errorHandler);
         audio.addEventListener('stalled', stalledHandler);
         audio.addEventListener('pause', pausedAndWaitingHandler);
         audio.addEventListener('ended', stalledHandler);

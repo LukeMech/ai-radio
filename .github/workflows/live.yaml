@@ -32,12 +32,6 @@ jobs:
 
           # Python dependencies
           pip install -r requirements.txt
-
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_KEY }}
-          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
   
       - name: Start and expose server
         env:
@@ -48,7 +42,8 @@ jobs:
             export NONLOCAL=true
             git config --global user.email "github-actions@users.noreply.github.com"
             git config --global user.name "website.url"
+            ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
             gunicorn -w 1 --threads 100 index:app &
             python helpers/actions/localhost.run.py &
-            ssh -o StrictHostKeyChecking=no -R 80:127.0.0.1:8000 plan@localhost.run > tmp/localhost.run.log
+            ssh -o StrictHostKeyChecking=no -R 80:127.0.0.1:8000 localhost.run > tmp/localhost.run.log

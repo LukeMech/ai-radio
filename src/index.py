@@ -1,9 +1,11 @@
-from flask import Flask, Response, render_template, request, send_from_directory, abort
+from flask import Flask, Response, request, send_from_directory, abort
+from flask_cors import CORS
 from flask_socketio import SocketIO
 import subprocess, time, threading, random, os, string, requests, json
 from helpers import youtube
 
 app = Flask(__name__)
+CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")    
 
 # Set to false when pushing
@@ -58,6 +60,10 @@ def listen():
         return "Not connected to websocket, not authorized", 403  # Return forbidden status if user is not connected via WebSocket
     
     return add_no_cache_headers(Response(generate_audio(session_id), mimetype='audio/mpeg'))
+
+@app.route('/<path:num>')
+def main(num):
+    return add_no_cache_headers(Response("Online, reached /" + num))
 
 @app.route('/tmp/<path:filename>')
 def serve_file(filename):
