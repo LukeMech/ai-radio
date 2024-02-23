@@ -13,7 +13,7 @@ def search_local_file():
             content = file.read()
         # Do not use same url again
         for inUse in used:
-            content.replace(inUse, "")
+            content = content.replace(inUse, "")
         matches = re.findall(pattern, content)
         if matches:
             used.append(matches[0])
