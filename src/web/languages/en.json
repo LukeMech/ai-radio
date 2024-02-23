@@ -1,5 +1,5 @@
 {
-    "currentWarning": "This is the alpha version.<br>Connection will not work frequently.",
+    "currentWarning": "<i class=\"fa-solid fa-wifi\"></i> <br> Using new connection method, temporary problems may appear.",
     "no": "Norway", "pl": "Poland", "il": "Israel",
     "stopped": "Stopped",
     "loading": "Loading...",
