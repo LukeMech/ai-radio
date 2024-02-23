@@ -11,7 +11,7 @@ files = os.listdir('.')
 weburlpattern = r'website\.(\d+)\.url'
 for filename in files:
     # Match the filename pattern
-    match = re.match(pattern, filename)
+    match = re.match(weburlpattern, filename)
     if match:
         # Extract the number from the filename
         number = match.group(1)
