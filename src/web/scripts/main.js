@@ -77,8 +77,12 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     function connectWithRetry(url) {
         // Ensure no cache is hold
         const ms = Date.now();
+        const myHeaders = new Headers();
+        myHeaders.append('pragma', 'no-cache');
+        myHeaders.append('cache-control', 'no-cache');
+
         
-        fetch(url+"?dummy="+ms)
+        fetch(url+"?dummy="+ms, myHeaders)
             .then(response => response.text())
             .then(socketUrl => {
                 serverUrl = socketUrl
@@ -167,7 +171,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         catch (err) {}
     }
     function audioStart() {
-        console.log('StartingMusic')
         if (!serverLOADED) {
             playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
