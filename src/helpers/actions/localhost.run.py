@@ -36,7 +36,7 @@ def push_to_aws(url):
         content = file.read()
     body_data = {'url': url}
     headers = {
-        'Authorization': f'Bearer {token}',
+        'authorization': f'Bearer {token}',
         'Content-Type': 'application/json'
     }
     r = requests.post(content + '/urlPush', headers=headers, data=json.dumps(body_data))
