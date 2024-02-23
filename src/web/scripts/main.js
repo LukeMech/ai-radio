@@ -3,7 +3,9 @@ const awsApiLink = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/mai
 
 document.querySelector('body').addEventListener('languagesLoaded', () => {
     const sessionIDText = document.getElementById('session-id');
+    const additional = document.getElementById('currently-playing-ev');
     sessionIDText.innerHTML = languageStrings.connecting
+    additional.innerHTML = languageStrings.connecting
 
     const playPauseButton = document.getElementById('play-pause-button');
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);

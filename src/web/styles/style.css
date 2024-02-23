@@ -31,7 +31,6 @@
   --theme-switcher-bg-color: #e2d561;
   --player-info-border: #0bff89 3px solid;
 }
-@media (prefers-color-scheme: dark) {}
 
 body {
   color-scheme: light dark;
@@ -41,15 +40,16 @@ body {
 }
 
 #WARN {
+  font-family: "Micro 5", sans-serif;
   text-align: center;
-  font-size: 18px;
+  font-size: 20px;
   margin-top: 20px;
   color: var(--WARN);
 }
 @media (min-width: 768px) {
   #WARN {
     margin-top: 30px;
-    font-size: 30px;
+    font-size: 40px;
   }
 }
 
@@ -57,23 +57,15 @@ body {
   display: none;
 }
 
-.session-id {
-  font-size: 15px;
-  text-align: center;
-}
-@media (min-width: 768px) {
-  .session-id {
-    font-size: 20px;
-  }
-}
-
 .version {
+  font-family: "Kode Mono", monospace;
   font-size: 30px;
   color: var(--version-font-color);
   text-align: center;
 }
 @media (min-width: 768px) {
   .version {
+    margin-top: -20px;
     font-size: 50px;
   }
 }
@@ -89,7 +81,7 @@ body {
 .btn {
   scale: 4;
   margin-top: 70px;
-  margin-bottom: 100px;
+  margin-bottom: 90px;
   width: 40px;
   height: 40px;
   border: var(--btn-border);
@@ -168,7 +160,7 @@ body {
   height: 40px;
   background-color: var(--theme-switcher-bg-color);
   border-radius: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 .theme-switch input[type="checkbox"] {
   display: none;
@@ -188,7 +180,7 @@ body {
   .btn {
     scale: 6;
     margin-top: 110px;
-    margin-bottom: 170px;
+    margin-bottom: 150px;
   }
   .theme-switch {
     scale: 1.5;
@@ -204,6 +196,7 @@ body {
   transition: all 0.1s ease-in-out;
 }
 #currently-playing-ev {
+  font-family: "Black Ops One", system-ui;
   font-size: 17px;
   text-align: center;
   margin: 3px;
@@ -236,20 +229,34 @@ body {
   overflow-x: auto;
 }
 .player-info-box .text-info p {
+  font-family: "Anta", sans-serif;
   margin: 0;
 }
 .text-info #currently-playing-author {
+  font-family: "Cinzel", serif;
   font-size: 15px;
 }
 #currently-playing-timer {
+  font-family: "Audiowide", sans-serif;
   font-size: 15px;
-  margin: 10px 0 2px;
+  margin: 5px 0 2px;
   color: var(--text-color);
   text-align: center;
 }
 @media (min-width: 768px) {
   .player-info-box-top {
     scale: 1.5;
-    margin: 50px 0;
+    margin: 25px 0 40px;
+  }
+}
+
+.session-id {
+  font-family: "Kdam Thmor Pro", sans-serif;
+  font-size: 15px;
+  text-align: center;
+}
+@media (min-width: 768px) {
+  .session-id {
+    font-size: 20px;
   }
 }

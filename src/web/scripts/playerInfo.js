@@ -18,7 +18,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }   
     function updateTimer() {
-        timerElement.textContent = languageStrings.nexttrackin + ': '+ formatDuration(duration - playtime);
+        timerElement.textContent = formatDuration(duration - playtime);
         playtime++;
     }
 
@@ -26,6 +26,8 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         clearInterval(currentUpdateInterval);
         currentlyPlayingTitle.innerHTML = args.title
         currentlyPlayingAuthor.innerHTML = args.author
+        currentlyPlayingTitle.classList.remove('hidden')
+        currentlyPlayingAuthor.classList.remove('hidden')
         // Eurovision song detected
         additional.classList.remove('hidden')
         if(args.additional.ev) {
@@ -50,8 +52,8 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
 
     socket.on('disconnect', () => {
         clearInterval(currentUpdateInterval)
-        currentlyPlayingTitle.innerHTML = '...'
-        currentlyPlayingAuthor.innerHTML = '...'
+        currentlyPlayingTitle.classList.add('hidden')
+        currentlyPlayingAuthor.classList.add('hidden')
         currentlyPlayingImage.classList.add('hidden')
         currentlyPlayingImageWait.classList.remove('hidden')
         additional.classList.add('hidden')
@@ -59,7 +61,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     });
 
     const shouldLoad = localStorage.getItem('settings')
-
     if(!shouldLoad) {
         playPauseButton.classList.remove('loading')
         playPauseButton.classList.add('play')    
@@ -68,5 +69,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         if(document.documentElement.getAttribute('data-theme') != localStorage.getItem("theme")) {
             switchTheme()
         }
-    } localStorage.removeItem('settings')
+        localStorage.removeItem('settings')
+    }
 })
