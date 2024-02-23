@@ -74,14 +74,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
     })
 
-    function connectWithRetry(url) {
-        // Ensure no cache is hold
-        const ms = Date.now();
-        const myHeaders = new Headers();
-        myHeaders.append('pragma', 'no-cache');
-        myHeaders.append('cache-control', 'no-cache');
-  
-        fetch(url+"?dummy="+ms, myHeaders)
+    function connectWithRetry(url) {  
+        fetch(url, {cache: "no-store"})
             .then(response => response.text())
             .then(socketUrl => {
                 serverUrl = socketUrl
