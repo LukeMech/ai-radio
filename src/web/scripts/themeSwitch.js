@@ -1,6 +1,3 @@
-//determines if the user has a set theme
-var theme="dark";    //default to dark
-
 //identify the toggle switch HTML element
 const toggleSwitch = document.querySelector('#theme-switch input[type="checkbox"]');
 
@@ -10,6 +7,7 @@ if(window.matchMedia) {
 }
 
 function detectColorScheme(){
+    let theme
     if(!window.matchMedia) {
         //matchMedia method not supported
         //local storage is used to override OS theme settings
@@ -40,7 +38,7 @@ detectColorScheme();
 
 //function that changes the theme, and sets a localStorage variable to track the theme between page loads
 function switchTheme() {
-    if (theme == "light") {
+    if (document.documentElement.getAttribute('data-theme') == "light") {
         localStorage.setItem('theme', 'dark');
         document.documentElement.setAttribute('data-theme', 'dark');
         toggleSwitch.checked = true;
