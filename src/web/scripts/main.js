@@ -74,26 +74,39 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
     })
 
+    let waitingForFetch = false
     function connectWithRetry(url) { 
         if (linkNum == 9) linkNum = -1
-        for (let i = linkNum+1; i < 10; i++) {
-            fetch(url.replace('.url', `.${i}.url`))
-            .then(response => response.text())
-            .then(socketUrl => {
-                serverUrl = socketUrl
-                linkNum = i
-                socket.io.uri = socketUrl;
-                return;
-            })
-            .catch();
+        let promiseChain = Promise.resolve(); // Start with a resolved promise
+        for (let i = linkNum + 1; i < 10; i++) {
+            promiseChain = promiseChain.then(() => {
+                if (!waitingForFetch) return Promise.resolve(); // If we're not waiting for fetch, resolve with undefined
+
+                return fetch(url.replace('.url', `.${i}.url`))
+                    .then(response => { 
+                        if(response.ok) return response.text(); 
+                        else return;
+                    })
+                    .then(socketUrl => {
+                        if(socketUrl) {
+                            serverUrl = socketUrl;
+                            linkNum = i;
+                            socket.io.uri = socketUrl;
+                            waitingForFetch = false
+                        }
+                        else if (i == 9) waitingForFetch = false
+                        else return
+                    })
+                    .catch()
+            });
         }
     }
     
     socket.on('connect_error', () => {
-        setTimeout(() => connectWithRetry(serverLink), 5000);
+        if (waitingForFetch) return
+        setTimeout(() => connectWithRetry(serverLink), 1000);
+        waitingForFetch = true
     });
-
-    connectWithRetry(serverLink);
 
     const loadedDataHandler = () => {
         if (audio.readyState >= 2) {
