@@ -1,10 +1,22 @@
-import re, time
+import re, time, os
 from subprocess import run
 
 log_path = "tmp/localhost.run.log"
 # Regular expression pattern to search for
 pattern = r'(https?:\/\/.*?\.life)'
 used = []
+
+num = 0
+files = os.listdir('.')
+weburlpattern = r'website\.(\d+)\.url'
+for filename in files:
+    # Match the filename pattern
+    match = re.match(pattern, filename)
+    if match:
+        # Extract the number from the filename
+        number = match.group(1)
+        print("Previous file number: ", number)
+        num = int(number)
 
 # Function to fetch the file and search for the pattern
 def search_local_file():
@@ -30,12 +42,18 @@ def fetch_until_pattern_found():
         time.sleep(2)
 
 def save_url_to_file(url):
-    with open("website.url", "w") as file:
+    global num
+    with open(f"website.{num}.url", "w") as file:
         file.write(url)
+    
+    if num==0: delnum = 9
+    else: delnum = num-1
+    if(os.path.exists(f"website.{delnum}.url")): os.remove(f"website.{delnum}.url")
+    num+=1
     print(f"{url} saved to 'website.url' file.", flush=True)
 
 def git_add_commit_push():
-    run("cd .. && git add src/website.url", shell=True)
+    run("cd .. && git add .", shell=True)
     run("cd .. && git commit -m 'Update website URL'", shell=True)
     run("cd .. && git push", shell=True)
     print("URL updated successfully.", flush=True)

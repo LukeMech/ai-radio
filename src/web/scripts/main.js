@@ -8,7 +8,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const isFirefox = navigator.userAgent.includes("Firefox");
     const useMediaButtons = ('mediaSession' in navigator)
-    let serverLOADED, stalled, paused
+    let serverLOADED, stalled, paused, linkNum = -1
     let audio={paused:true}
     
     function generateid() {
@@ -74,17 +74,19 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
     })
 
-    function connectWithRetry(url) {  
-        fetch(url, {headers: {}})
+    function connectWithRetry(url) { 
+        if (linkNum == 9) linkNum = -1
+        for (let i = linkNum+1; i < 10; i++) {
+            fetch(url.replace('.url', `.${i}.url`))
             .then(response => response.text())
             .then(socketUrl => {
                 serverUrl = socketUrl
+                linkNum = i
                 socket.io.uri = socketUrl;
+                return;
             })
-            .catch(() => {
-                console.log('Failed to connect to fetch connection url');
-                setTimeout(() => connectWithRetry(url), 5000);
-            });
+            .catch();
+        }
     }
     
     socket.on('connect_error', () => {
