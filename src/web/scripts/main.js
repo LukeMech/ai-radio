@@ -1,4 +1,5 @@
-var socket, serverLink = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/main/src/website.url', serverUrl
+var socket;
+const awsApi = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/main/src/awsfun.url';
 
 document.querySelector('body').addEventListener('languagesLoaded', () => {
     const sessionIDText = document.getElementById('session-id');
@@ -74,38 +75,25 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
     })
 
-    let waitingForFetch = false
     function connectWithRetry(url) { 
-        if (linkNum == 9) linkNum = -1
-        let promiseChain = Promise.resolve(); // Start with a resolved promise
-        for (let i = linkNum + 1; i < 10; i++) {
-            promiseChain = promiseChain.then(() => {
-                if (!waitingForFetch) return Promise.resolve(); // If we're not waiting for fetch, resolve with undefined
-
-                return fetch(url.replace('.url', `.${i}.url`))
-                    .then(response => { 
-                        if(response.ok) return response.text(); 
-                        else return;
-                    })
-                    .then(socketUrl => {
-                        if(socketUrl) {
-                            serverUrl = socketUrl;
-                            linkNum = i;
-                            socket.io.uri = socketUrl;
-                            waitingForFetch = false
-                        }
-                        else if (i == 9) waitingForFetch = false
-                        else return
-                    })
-                    .catch()
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Can't fetch link from AWS");
+                }
+                return response.text();
+            })
+            .then(data => {
+                serverUrl = data;
+                socket.io.uri = data;
+            })
+            .catch(() => {
+                console.error("Can't fetch link from AWS");
             });
-        }
     }
     
     socket.on('connect_error', () => {
-        if (waitingForFetch) return
-        setTimeout(() => connectWithRetry(serverLink), 1000);
-        waitingForFetch = true
+        setTimeout(() => connectWithRetry(awsApi), 1000);
     });
 
     const loadedDataHandler = () => {
