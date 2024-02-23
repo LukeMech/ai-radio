@@ -1,5 +1,5 @@
 var socket;
-const awsApi = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/main/src/awsfun.url';
+const awsApiLink = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/main/src/awsfun.url';
 
 document.querySelector('body').addEventListener('languagesLoaded', () => {
     const sessionIDText = document.getElementById('session-id');
@@ -9,7 +9,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const isFirefox = navigator.userAgent.includes("Firefox");
     const useMediaButtons = ('mediaSession' in navigator)
-    let serverLOADED, stalled, paused, linkNum = -1
+    let serverLOADED, stalled, paused
     let audio={paused:true}
     
     function generateid() {
@@ -75,31 +75,37 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
     })
 
-    function connectWithRetry(url) { 
-        fetch(url)
-            .then(async response => {
-                if (!response.ok) {
-                    console.error("Can't fetch link from AWS");
-                    return;
-                }
-                else return await response.text();
-            })
-            .then(data => {
-                if(!data) return retrying_connection = false;
-                serverUrl = data;
-                socket.io.uri = data;
-                retrying_connection = false;
-            })
-            .catch(() => {
-                console.error("Can't fetch link from AWS");
-            });
+    async function getApiLink(url) {
+        const response = await fetch(url)
+        if (!response.ok) {
+            console.error("Can't fetch link to AWS");
+            return;
+        }
+        return await response.text();
+    }
+    let retrying_connection = true;
+    async function connectWithRetry(url) { 
+        const response = await fetch(url)
+        if (!response.ok) {
+            console.error("Can't fetch link from AWS");
+            return retrying_connection = false;
+        }
+        
+        const data = await response.text();
+    
+        console.log(data)
+        serverUrl = data;
+        socket.io.uri = data;
+        retrying_connection = false;
     }
     
     socket.on('connect_error', () => {
         if(retrying_connection) return;
-        setTimeout(() => connectWithRetry(awsApi), 30000);
+        setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 30000);
         retrying_connection = true
     });
+
+    getApiLink(awsApiLink).then(resp => connectWithRetry(resp))
 
     const loadedDataHandler = () => {
         if (audio.readyState >= 2) {
