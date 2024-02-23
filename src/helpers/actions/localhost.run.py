@@ -1,17 +1,22 @@
-import re, time, os
+import re, time
 from subprocess import run
 
 log_path = "tmp/localhost.run.log"
 # Regular expression pattern to search for
 pattern = r'(https?:\/\/.*?\.life)'
+used = []
 
 # Function to fetch the file and search for the pattern
 def search_local_file():
     try:
         with open(log_path, "r") as file:
             content = file.read()
+        # Do not use same url again
+        for inUse in used:
+            content.replace(inUse, "")
         matches = re.findall(pattern, content)
         if matches:
+            used.append(matches[0])
             return matches[0]
     except:
         return None
@@ -28,7 +33,6 @@ def save_url_to_file(url):
     with open("website.url", "w") as file:
         file.write(url)
     print(f"{url} saved to 'website.url' file.", flush=True)
-    if(os.path.exists(log_path)): os.remove(log_path) 
 
 def git_add_commit_push():
     run("cd .. && git add src/website.url", shell=True)
