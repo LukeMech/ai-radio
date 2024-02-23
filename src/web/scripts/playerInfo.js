@@ -50,12 +50,13 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     });
 
     socket.on('disconnect', () => {
-        currentlyPlayingTitle.innerHTML = '...'
-        currentlyPlayingAuthor.innerHTML = '...'
+        clearInterval(currentUpdateInterval)
+        currentlyPlayingTitle.innerHTML = ''
+        currentlyPlayingAuthor.innerHTML = ''
         currentlyPlayingImage.classList.add('hidden')
         currentlyPlayingImageWait.classList.remove('hidden')
-        additional.innerHTML = ''
-        clearInterval(currentUpdateInterval)
+        additional.innerHTML = '...'
+        timerElement.textContent = ''
     });
 
     playPauseButton.classList.remove('loading')
