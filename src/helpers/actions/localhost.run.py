@@ -16,8 +16,9 @@ for filename in files:
         # Extract the number from the filename
         number = match.group(1)
         print("Previous file number: ", number)
-        num = int(number)
-
+        num = int(number) + 1
+        if(num > 9): num = 0
+        
 # Function to fetch the file and search for the pattern
 def search_local_file():
     try:
