@@ -1,9 +1,8 @@
 import re, time, os, json, requests
-from subprocess import run
 
 log_path = "tmp/localhost.run.log"
 aws_urlPath = "awsfun.url"
-token = os.environ.get('AWS_TOKEN')
+token = os.environ['AWS_TOKEN']
 # Regular expression pattern to search for
 pattern = r'(https?:\/\/.*?\.life)'
 used = []
