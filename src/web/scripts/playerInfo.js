@@ -9,7 +9,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
 
     currentlyPlayingTitle.innerHTML = '...'
     currentlyPlayingAuthor.innerHTML = '...'
-    timerElement.innerHTML = '...'
     let duration = -1, playtime = -1, currentUpdateInterval;
 
     function formatDuration(durationInSeconds) {
