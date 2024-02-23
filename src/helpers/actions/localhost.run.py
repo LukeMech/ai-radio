@@ -39,7 +39,7 @@ def push_to_aws(url):
         'Authorization': f'Bearer {token}',
         'Content-Type': 'application/json'
     }
-    r = requests.post(content, headers=headers, data=json.dumps(body_data))
+    r = requests.post(content + '/urlPush', headers=headers, data=json.dumps(body_data))
     if r.ok: print(f"Successfully pushed {url} to AWS", flush=True)
     else: print(f"Failed to push {url} to AWS", flush=True)
 
