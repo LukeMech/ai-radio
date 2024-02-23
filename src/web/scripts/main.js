@@ -93,7 +93,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     }
     
     socket.on('connect_error', () => {
-        setTimeout(() => connectWithRetry(awsApi), 20000);
+        setTimeout(() => connectWithRetry(awsApi), 30000);
     });
 
     const loadedDataHandler = () => {
