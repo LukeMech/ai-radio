@@ -238,7 +238,6 @@ body {
   text-align: left;
   max-width: 80vw;
   color: var(--text-color);
-  overflow: hidden;
 }
 .player-info-box img {
   max-width: 100px; 
@@ -253,6 +252,7 @@ body {
   white-space: nowrap;
   display: flex;
   flex-direction: column;
+  overflow-x: auto;
 }
 .player-info-box .text-info p {
   margin: 0;

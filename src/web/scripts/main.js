@@ -75,7 +75,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     })
 
     function connectWithRetry(url) {  
-        fetch(url, {cache: "no-store"})
+        fetch(url, {headers: {}})
             .then(response => response.text())
             .then(socketUrl => {
                 serverUrl = socketUrl
