@@ -87,7 +87,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
                 setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
             }
             try {
-                const status = await fetch(socket.io.uri +'/' + generateid())
+                const status = await fetch(socket.io.uri +'/' + generateid(), { method: 'HEAD' })
                 if(!status.ok) return offline()
                 else {
                     connStatus.classList.remove('problem')
