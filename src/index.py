@@ -90,7 +90,7 @@ def handle_disconnect():
     radio["active_connections"].pop(session_id, None)  # Remove user from active connections
     if session_id in radio["ffmpeg_processes"]:
         for process in radio['ffmpeg_processes'][session_id]:
-            if process != 'terminated':
+            if process != 'terminated' and isinstance(process, dict) and "file" in process and "process" in process:
                 print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...", flush=True)
                 process["process"].terminate()
         radio["ffmpeg_processes"][session_id] = 'terminated'
