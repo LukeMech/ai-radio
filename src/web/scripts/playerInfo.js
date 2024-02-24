@@ -21,7 +21,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
 
     socket.on('trackChange', args => {
         clearInterval(currentUpdateInterval);
-        currentlyPlayingImage.src = ''
+        currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail
         currentlyPlayingTitle.innerHTML = args.title
         currentlyPlayingAuthor.innerHTML = args.author
         currentlyPlayingTitle.classList.remove('hidden')
@@ -43,7 +43,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         playtime = args.time
         updateTimer()
         currentUpdateInterval = setInterval(updateTimer, 1000);
-        currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail
     });
 
     socket.on('disconnect', () => {

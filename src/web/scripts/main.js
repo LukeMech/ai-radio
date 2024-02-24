@@ -87,7 +87,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
                 setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
             }
             try {
-                const status = await fetch(socket.io.uri +'/' + generateid(), { method: 'HEAD' })
+                const currentlyPlayingImage = document.getElementById('currently-playing-image');
+                const status = await fetch(currentlyPlayingImage.src, { method: 'HEAD' })
                 if(!status.ok) return offline()
                 else {
                     connStatus.classList.remove('problem')
@@ -119,7 +120,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
 
     let n=0;
     async function connectWithRetry(url) { 
-
         let response = {ok: false}
         try {response = await fetch(url, {cache: 'reload'})} catch (e) {}
         if (!response.ok) {
@@ -127,10 +127,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             return console.error("Can't fetch link from AWS, retrying in 10secs...");
         }
         const data = await response.text();
-        // const data = 'https://7c518bb813a8db.lhr.life'
-
+        
         // Be sure server is online (without it, cors can start block and boom, whole page needs reload)
-        console.log(data)
         let check = {ok: false}
 
         try {check = await fetch(data + '/' + n, {cache: 'no-store'})} catch(e) {}
