@@ -43,7 +43,17 @@ def create_track_change_args(radio):
         'duration': radio.get("duration", ""),
         'thumbnail': radio.get("thumbnail", ""),
         "time": radio.get("time", 0),
-        'additional': radio.get("additional", "")
+        'additional': radio.get("additional", ""),
+        "queue": [
+            {
+                'title': track.get("title", ""),
+                'author': track.get("author", ""),
+                'duration': track.get("duration", ""),
+                'thumbnail': track.get("thumbnail", "")
+            }
+            for track in queue
+            if track.get("title") and track.get("author")       
+        ]
     }
 
 

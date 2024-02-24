@@ -2,11 +2,26 @@
 document.querySelector('body').addEventListener('mainLoaded', () => {
     const currentlyPlayingTitle = document.getElementById('currently-playing-title');
     const currentlyPlayingAuthor = document.getElementById('currently-playing-author');
-    const currentlyPlayingImageWait = document.getElementById('currently-playing-image-wait');
+    const imagesWait = document.getElementsByClassName('image-wait');
     const currentlyPlayingImage = document.getElementById('currently-playing-image');
-    const additional = document.getElementById('currently-playing-ev');
+    const additional = document.getElementById('currently-playing-additional');
     const timerElement = document.getElementById("currently-playing-timer");
-    const playPauseButton = document.getElementById('play-pause-button');
+    const nextInQueue = document.getElementById('next-in-queue');
+    nextInQueue.innerHTML = languageStrings.nextInQueue + ':'
+    const queueBox = document.getElementById('queue-box');
+    const queueDiv = document.getElementById('queue-elements');
+    const queueElementConstructor = `
+        <div class="player-info">
+            <div class="images">
+                <img src={img}>
+            </div>
+            <div class="text-info">
+                <b><p class="title">{title}</p></b>
+                <p class="author">{author}</p>
+            </div>
+        </div>
+        <p class="timer">{duration}</p>
+    `;
     let duration = -1, playtime = -1, currentUpdateInterval;
 
     // Function for changing from seconds to pretty format
@@ -26,7 +41,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     socket.on('trackChange', async args => {
         clearInterval(currentUpdateInterval); // Stop timer
         currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail // Set image
-        currentlyPlayingImageWait.classList.add('hidden')
+        imagesWait[0].classList.add('hidden')
         currentlyPlayingTitle.innerHTML = args.title
         currentlyPlayingAuthor.innerHTML = args.author
         currentlyPlayingTitle.classList.remove('hidden')
@@ -50,10 +65,18 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         updateTimer()
         currentUpdateInterval = setInterval(updateTimer, 1000)
 
-        // Check connection status by fetching image
-        let status = {ok: false}
-        try {status = await fetch(currentlyPlayingImage.src, { method: 'HEAD' })} catch (e) {}
-        if(!status.ok) return socket.disconnect() // Disconnect if url proabably changed
+        queueBox.innerHTML = ""
+        queueBox.classList.add('hidden')
+        if(!args.queue) return
+        args.queue.forEach(el => {
+            const construct = queueElementConstructor
+                                .replace('{img}', el.thumbnail)
+                                .replace('{title}', el.title)
+                                .replace('{author}', el.author)
+                                .replace('{duration}', formatDuration(el.duration));
+            queueDiv.appendChild(construct)
+        });
+        queueBox.classList.remove('hidden')
     });
 
     // When disconnected
@@ -65,8 +88,9 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         currentlyPlayingTitle.classList.add('hidden')
         currentlyPlayingAuthor.classList.add('hidden')
         currentlyPlayingImage.src = ''
-        currentlyPlayingImageWait.classList.remove('hidden')
+        imagesWait[0].classList.add('hidden')
         additional.classList.add('hidden')
+        queueBox.classList.add('hidden')
     });
 
     document.querySelector('body').dispatchEvent(new Event('allLoaded'));  // Everything loaded!

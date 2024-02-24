@@ -1,9 +1,9 @@
-var currentLanguage, languageStrings // Declare global variables
+var currentLanguage, languageStrings, version // Declare global variables
 // Fetch strings based on language
 async function fetchStrings(language) {
     currentLanguage = language
-    languageStrings = await fetch(`languages/${language}.json`).then(response => response.json())
-
+    languageStrings = await fetch(`languages/${language}.json`, {cache: 'no-store'}).then(response => response.json())
+    version = await fetch('web.version.txt', {cache: 'no-store'}).then(response => response.text())
     // Loaded!
     document.querySelector('body').dispatchEvent(new Event('languagesLoaded'));
 }

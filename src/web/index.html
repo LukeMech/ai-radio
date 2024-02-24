@@ -24,7 +24,7 @@
     <div class="main">
         <div id="connStatus" class="conn problem"><i class="fa-solid fa-wifi"></i></div>
 
-        <div class="title">
+        <div class="main-title">
             <p> AI Radio</p>
         </div>
 
@@ -37,18 +37,26 @@
             <input type="checkbox" id="checkbox_theme">
         </label>
         
-        <div class="player-info-box-top">
-            <p id="currently-playing-ev" class="font-effect-anaglyph hidden"></p>
-            <div class="player-info-box">
-                <img id="currently-playing-image" src="">
-                <img id="currently-playing-image-wait" src="radio.ico" preload>
-                <div class="text-info">
-                    <b><p id="currently-playing-title" class="hidden"></p></b>
-                    <p id="currently-playing-author" class="hidden"></p>
+        <div class="player-queue-box">
+            <div class="player-info-box-top">
+                <p id="currently-playing-additional" class="additional font-effect-anaglyph hidden"></p>
+                <div class="player-info">
+                    <div class="images">
+                        <img id="currently-playing-image" src="">
+                        <img class="image-wait" src="radio.ico" preload>    
+                    </div>
+                    <div class="text-info">
+                        <b><p id="currently-playing-title" class="title hidden"></p></b>
+                        <p id="currently-playing-author" class="author hidden"></p>
+                    </div>
                 </div>
+                <p id="currently-playing-timer" class="timer"></p>
             </div>
-            
-            <p id="currently-playing-timer"></p>
+
+            <div id="queue-box" class="queue-box hidden">
+                <p id="next-in-queue"></p>
+                <div id="queue-elements"></div>
+            </div>
         </div>
 
         <div class="session-id">

@@ -21,6 +21,7 @@
   --theme-switcher-color: #ffff00;
   --theme-switcher-font: var(--fa-font-solid);
   --theme-switcher-bg-color: #343232;
+  --player-queue-border: rgb(167, 36, 36) 1px solid;
   --player-info-border: #0bff89 1px solid;
   --connProblem: red;
   --connEstablished: green;
@@ -35,6 +36,7 @@
   --theme-switcher-color: #222;
   --theme-switcher-font: var(--fa-font-regular);
   --theme-switcher-bg-color: #e2d561;
+  --player-queue-border: rgb(167, 36, 36) 3px solid;
   --player-info-border: #0bff89 3px solid;
 }
 
@@ -69,14 +71,14 @@ body {
   display: none;
 }
 
-.title {
+.main-title {
   font-family: "Kode Mono", monospace;
   font-size: 30px;
   color: var(--version-font-color);
   text-align: center;
 }
 @media (min-width: 768px) {
-  .title {
+  .main-title {
     margin-top: -20px;
     font-size: 50px;
   }
@@ -200,15 +202,29 @@ body {
   }
 }
 
-.player-info-box-top {
+.player-queue-box {
+  margin: 8px 0 30px;
   border-radius: 10px;
-  margin-top: 10px;
-  margin-bottom: 20px;
+  outline: var(--player-queue-border)
+}
+.player-info-box-top {
+  outline: var(--player-info-border);
+  border-radius: 10px;
   padding: 10px;
-  border: var(--player-info-border);
   transition: all 0.1s ease-in-out;
 }
-#currently-playing-ev {
+.queue-box {
+  margin: 0 5px 0;
+}
+.player-queue-box .player-info {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  text-align: left;
+  max-width: 80vw;
+  color: var(--text-color);
+}
+.player-queue-box .additional {
   font-family: "Black Ops One", system-ui;
   font-size: 17px;
   text-align: center;
@@ -217,48 +233,46 @@ body {
   font-style: italic;
   color: var(--text-color);
 }
-.player-info-box {
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  text-align: left;
-  max-width: 80vw;
-  color: var(--text-color);
+.player-info .images {
+  display: block;
+  margin: 0 auto 0 auto;
 }
-.player-info-box img {
+.player-info .images img {
   max-width: 100px; 
   max-height: 150px;
-  margin-right: 15px;
   border-radius: 10px;
+  margin: 0 15px 0 0;
 }
-.player-info-box #currently-playing-image-wait {
+.player-queue-box .image-wait {
   max-height: 80px;
 }
-.player-info-box .text-info {
+
+.player-queue-box .text-info {
   white-space: nowrap;
   display: flex;
   flex-direction: column;
   overflow-x: auto;
 }
-.player-info-box .text-info p {
-  font-family: "Anta";
+.text-info p {
+  font-family: "Anta", sans-serif;
   margin: 0;
 }
-.text-info #currently-playing-author {
+.text-info .author {
   font-family: "Cinzel", serif;
   font-size: 15px;
 }
-#currently-playing-timer {
+.timer {
   font-family: "Audiowide", sans-serif;
   font-size: 15px;
-  margin: 8px 0 0;
+  margin: 0;
   color: var(--text-color);
   text-align: center;
 }
+
 @media (min-width: 768px) {
-  .player-info-box-top {
+  .player-queue-box {
     scale: 1.5;
-    margin: 25px 0 40px;
+    margin: 50px 0 50px;
   }
 }
 

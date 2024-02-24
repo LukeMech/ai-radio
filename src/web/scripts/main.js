@@ -12,6 +12,7 @@ document.querySelector('body').addEventListener('allLoaded', () => {
 // When languages loaded
 document.querySelector('body').addEventListener('languagesLoaded', () => {
     const sessionIDText = document.getElementById('session-id');
+    sessionIDText.innerHTML = "Web"+": "+version
     const connStatus = document.getElementById('connStatus');
     const playPauseButton = document.getElementById('play-pause-button');
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -76,7 +77,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         connStatus.classList.add('problem')
         serverLOADED=false
         console.log('Disconnected from server, retrying in 10secs...');
-        sessionIDText.innerHTML = languageStrings.connecting
+        sessionIDText.innerHTML = "Web"+": "+version
 
         if(!audio.paused || starting) stalledHandler()  // If audio wants to be loaded, abort
 
@@ -91,9 +92,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         serverLOADED=true
         console.log('Authorized via websocket')
     });
-    socket.on('serverVersion', async ver => {
-        const v = await (await fetch('web.version.txt')).text()
-        sessionIDText.innerHTML = languageStrings.sessionID+": "+id+"<br>" + "Web"+": "+v+" | " + "Backend"+": "+ver
+    socket.on('serverVersion', v => {
+        sessionIDText.innerHTML = "Web"+": "+version+" | " + "Backend"+": "+v + "<br>" + languageStrings.sessionID+": "+id
     })
 
     // Disconnection handlers
@@ -107,8 +107,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         serverLOADED=true
 
         if(playPauseButton.classList.contains('loading')) audioStart() // If audio wants to be played, play it!
-
-        // Look to playerinfo.js to see how it it checking connection
     })
 
     socket.on('urlChanged', url => connectWithRetry(url, true))
