@@ -77,12 +77,23 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         serverLOADED=true
         console.log('Authorized via websocket');
         sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
+    });
+    socket.on('disconnect', handleDisconnect);
+    socket.on('connect_error', handleDisconnect);
 
+    socket.on('trackChange', () => {
+        serverLOADED=true
+        if(playPauseButton.classList.contains('loading')) {
+            audioStart() 
+        }
+
+        try {clearInterval(checkConnection)} catch (e) {}
         checkConnection = setInterval(async () => {
             function offline() {
                 connStatus.classList.remove('established')
                 connStatus.classList.add('problem')
                 socket.disconnect()
+                console.log('Disconnected from server, retrying in 10secs...');
                 audioStop()
                 setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
             }
@@ -99,16 +110,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
                 offline()
             }
         }, 1000);
-
-    });
-    socket.on('disconnect', handleDisconnect);
-    socket.on('connect_error', handleDisconnect);
-    // Handle first load when just connected
-    socket.on('trackChange', () => {
-        serverLOADED=true
-        if(playPauseButton.classList.contains('loading')) {
-            audioStart() 
-        }
     })
 
     async function getApiLink(url) {
