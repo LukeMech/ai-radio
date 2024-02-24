@@ -66,8 +66,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         currentlyPlayingAuthor.classList.add('hidden')
         currentlyPlayingImage.src = ''
         currentlyPlayingImageWait.classList.remove('hidden')
-        additional.innerHTML = languageStrings.connecting
-        additional.classList.remove('hidden')
+        additional.classList.add('hidden')
     });
 
     document.querySelector('body').dispatchEvent(new Event('allLoaded'));  // Everything loaded!

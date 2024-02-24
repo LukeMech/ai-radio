@@ -11,12 +11,7 @@ document.querySelector('body').addEventListener('allLoaded', () => {
 
 // When languages loaded
 document.querySelector('body').addEventListener('languagesLoaded', () => {
-    // Set to connecting status
     const sessionIDText = document.getElementById('session-id');
-    const additional = document.getElementById('currently-playing-ev');
-    sessionIDText.innerHTML = languageStrings.connecting
-    additional.innerHTML = languageStrings.connecting
-
     const connStatus = document.getElementById('connStatus');
     const playPauseButton = document.getElementById('play-pause-button');
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -94,9 +89,12 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         connStatus.classList.remove('problem')
         connStatus.classList.add('established')
         serverLOADED=true
-        console.log('Authorized via websocket');
-        sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
+        console.log('Authorized via websocket')
     });
+    socket.on('serverVersion', async ver => {
+        const v = (await fetch('web.version.txt')).text()
+        sessionIDText.innerHTML = languageStrings.sessionID+": "+id+"<br>" + "Web"+": "+v+" | " + "Backend"+": "+ver
+    })
 
     // Disconnection handlers
     socket.on('disconnect', handleDisconnect);
@@ -175,10 +173,10 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
 
     // If audio have problem loading, retry connection
     const stalledHandler = () => {
-        audioStop()
+        playPauseButton.classList.add('loading')
         playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
-        playPauseButton.classList.add('loading')
+        audioStop()
         setTimeout(() => {
             if(paused) return
             audioStart()
@@ -237,7 +235,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
 
-        // If server not connected, stop execution (it will be resumed on connection, look up to socket.on('connect)
+        // If server not connected, stop execution (it will be resumed on connection, look up to socket.on('trackChange')
         if (!serverLOADED) {
             if(useMediaButtons) {
                 navigator.mediaSession.metadata = connectingMetadata

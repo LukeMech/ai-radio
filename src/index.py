@@ -84,6 +84,8 @@ def handle_connect():
     print("Client connected with session id: " + session_id, flush=True)
     # type: ignore
     radio["active_connections"][session_id] = request.sid # type: ignore
+    with open('server.version.txt', 'r') as file:
+        socketio.emit('serverVersion', file.read(), to=request.sid)
     if(radio["fpath"] != 0): socketio.emit('trackChange', create_track_change_args(radio), to=request.sid) # type: ignore
 
 @socketio.on('disconnect')
