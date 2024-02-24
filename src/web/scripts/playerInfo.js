@@ -64,17 +64,18 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         playtime = args.time
         updateTimer()
         currentUpdateInterval = setInterval(updateTimer, 1000)
+    });
 
-        queueBox.innerHTML = ""
+    socket.on('queueChange', args => {
+        queueDiv.innerHTML = ""
         queueBox.classList.add('hidden')
-        if(!args.queue) return
-        args.queue.forEach(el => {
+        args.forEach(el => {
             const construct = queueElementConstructor
-                                .replace('{img}', el.thumbnail)
+                                .replace('{img}', socket.io.uri + '/' + el.thumbnail)
                                 .replace('{title}', el.title)
                                 .replace('{author}', el.author)
                                 .replace('{duration}', formatDuration(el.duration));
-            queueDiv.appendChild(construct)
+            queueDiv.innerHTML += construct
         });
         queueBox.classList.remove('hidden')
     });
@@ -83,8 +84,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     socket.on('disconnect', () => {
         clearInterval(currentUpdateInterval) // Stop timer
         timerElement.textContent = ''
-        currentlyPlayingTitle.innerHTML = ''
-        currentlyPlayingAuthor.innerHTML = ''
         currentlyPlayingTitle.classList.add('hidden')
         currentlyPlayingAuthor.classList.add('hidden')
         currentlyPlayingImage.src = ''

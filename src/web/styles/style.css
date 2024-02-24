@@ -46,6 +46,13 @@ body {
   color: var(--text-color);
   transition: all 0.3s ease-in-out;
 }
+@media (min-width: 768px) {
+  body {
+    width: 58vw; /* 100/scale */
+    scale: 1.7;
+    transform-origin: 0 0;
+   }
+}
 
 .conn {
   text-align: center;
@@ -60,12 +67,6 @@ body {
     color: var(--connEstablished);
   }
 }
-@media (min-width: 768px) {
-  .conn {
-    margin-top: 30px;
-    font-size: 40px;
-  }
-}
 
 .hidden {
   display: none;
@@ -76,12 +77,6 @@ body {
   font-size: 30px;
   color: var(--version-font-color);
   text-align: center;
-}
-@media (min-width: 768px) {
-  .main-title {
-    margin-top: -20px;
-    font-size: 50px;
-  }
 }
 
 .main {
@@ -190,20 +185,9 @@ body {
   transform: translate(-50%, -50%);
   font-size: 22px;
 }
-@media (min-width: 768px) {
-  .btn {
-    scale: 6;
-    margin-top: 110px;
-    margin-bottom: 150px;
-  }
-  .theme-switch {
-    scale: 1.5;
-    margin-bottom: 50px;
-  }
-}
 
 .player-queue-box {
-  margin: 8px 0 30px;
+  margin: 8px 0 10px;
   border-radius: 10px;
   outline: var(--player-queue-border)
 }
@@ -213,15 +197,18 @@ body {
   padding: 10px;
   transition: all 0.1s ease-in-out;
 }
+.player-info-box-top p.timer {
+  margin: 0;
+}
 .queue-box {
-  margin: 0 5px 0;
+  margin: 0;
+  padding: 10px 10px 0;
 }
 .player-queue-box .player-info {
   display: flex;
   align-items: center;
   font-size: 18px;
   text-align: left;
-  max-width: 80vw;
   color: var(--text-color);
 }
 .player-queue-box .additional {
@@ -235,16 +222,13 @@ body {
 }
 .player-info .images {
   display: block;
-  margin: 0 auto 0 auto;
+  margin: 0;
 }
 .player-info .images img {
   max-width: 100px; 
   max-height: 150px;
   border-radius: 10px;
-  margin: 0 15px 0 0;
-}
-.player-queue-box .image-wait {
-  max-height: 80px;
+  margin: 0;
 }
 
 .player-queue-box .text-info {
@@ -252,37 +236,32 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: auto;
-}
-.text-info p {
-  font-family: "Anta", sans-serif;
-  margin: 0;
+  margin-left: 15px;
 }
 .text-info .author {
   font-family: "Cinzel", serif;
   font-size: 15px;
+  margin: 0;
 }
-.timer {
+.text-info .title {
+  font-family: "Anta", sans-serif;
+  margin: 0;
+}
+.queue-box p {
+  font-family: "Anta", sans-serif;
+  margin: 0 0 7px;
+}
+p.timer {
   font-family: "Audiowide", sans-serif;
   font-size: 15px;
-  margin: 0;
+  margin: 0 0 5px;
   color: var(--text-color);
   text-align: center;
-}
-
-@media (min-width: 768px) {
-  .player-queue-box {
-    scale: 1.5;
-    margin: 50px 0 50px;
-  }
 }
 
 .session-id {
   font-family: "Kdam Thmor Pro", sans-serif;
   font-size: 15px;
   text-align: center;
-}
-@media (min-width: 768px) {
-  .session-id {
-    font-size: 20px;
-  }
+  margin-top: 10px;
 }

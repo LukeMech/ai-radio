@@ -43,19 +43,22 @@ def create_track_change_args(radio):
         'duration': radio.get("duration", ""),
         'thumbnail': radio.get("thumbnail", ""),
         "time": radio.get("time", 0),
-        'additional': radio.get("additional", ""),
-        "queue": [
+        'additional': radio.get("additional", "")
+    }
+
+def create_queue_change_args(q): 
+    return {
+        [
             {
                 'title': track.get("title", ""),
                 'author': track.get("author", ""),
                 'duration': track.get("duration", ""),
                 'thumbnail': track.get("thumbnail", "")
             }
-            for track in queue
-            if track.get("title") and track.get("author")       
+            for track in q
+            if track.get("title") and track.get("author")     
         ]
     }
-
 
 def add_no_cache_headers(response):
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'  # Prevent caching by the browser
@@ -215,10 +218,12 @@ def ai_radio_streamer():
         queue[i]["fpath"] = fp + '.' + ext
         queue[i]["title"] = t
         queue[i]["author"] = a
+        queue[i]["duration"] = get_audio_duration(queue[i]["fpath"])
         if(thunb): queue[i]["thumbnail"] = fp + '.' + thunb
         else: queue[i]["thumbnail"] = None
         print("Downloaded and added to queue track " + t + ", id: " + fp, flush=True)
         firstLaunchReady = True; downloading = False
+        socketio.emit('queueChange', create_queue_change_args(queue))
 
     def addToQueue():
         if not local_ytlist:
@@ -292,8 +297,9 @@ def ai_radio_streamer():
                 queue.insert(0, fallbackQueue)
                 radio["NOTREMOVE"] = True
                 radio["additional"] = {}
-            duration = get_audio_duration(queue[0]["fpath"])
-            radio["duration"] = duration
+                duration = get_audio_duration(queue[0]["fpath"])
+
+            radio["duration"] = queue[0][duration]
             radio["time"] = 0 # Change to duration-10 for debugging
             radio["fpath"] = queue[0]["fpath"]
             radio["title"] = queue[0]["title"]
