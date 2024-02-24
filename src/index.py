@@ -1,3 +1,4 @@
+from re import S
 from flask import Flask, Response, request, send_from_directory, abort
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -112,8 +113,8 @@ def handle_url_changed(data):
     url = data['url']
     getToken = data['token']
     if(getToken == token):
-        print(f"URL changed to: {url}, Token: {token}")
         socketio.emit('urlChanged', url)
+        print(f"Send URL changed event to connected clients, url: {url}")
 
 def start_ffmpeg_process():
     global radio
