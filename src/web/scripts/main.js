@@ -92,7 +92,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         console.log('Authorized via websocket')
     });
     socket.on('serverVersion', async ver => {
-        const v = (await fetch('web.version.txt')).text()
+        const v = await (await fetch('web.version.txt')).text()
         sessionIDText.innerHTML = languageStrings.sessionID+": "+id+"<br>" + "Web"+": "+v+" | " + "Backend"+": "+ver
     })
 
