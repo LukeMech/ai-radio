@@ -2,6 +2,7 @@
 document.querySelector('body').addEventListener('mainLoaded', () => {
     const currentlyPlayingTitle = document.getElementById('currently-playing-title');
     const currentlyPlayingAuthor = document.getElementById('currently-playing-author');
+    const currentlyPlaying = document.getElementById('currently-playing-info');
     const imagesWait = document.getElementsByClassName('image-wait');
     const currentlyPlayingImage = document.getElementById('currently-playing-image');
     const additional = document.getElementById('currently-playing-additional');
@@ -41,11 +42,11 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     socket.on('trackChange', async args => {
         clearInterval(currentUpdateInterval); // Stop timer
         currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail // Set image
+        currentlyPlayingImage.classList.remove('hidden')
         imagesWait[0].classList.add('hidden')
         currentlyPlayingTitle.innerHTML = args.title
         currentlyPlayingAuthor.innerHTML = args.author
-        currentlyPlayingTitle.classList.remove('hidden')
-        currentlyPlayingAuthor.classList.remove('hidden')
+        currentlyPlaying.classList.remove('hidden')
 
         additional.classList.remove('hidden')
         // Eurovision song detected
@@ -67,6 +68,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     });
 
     socket.on('queueChange', args => {
+        console.log('working')
         queueDiv.innerHTML = ""
         queueBox.classList.add('hidden')
         args.forEach(el => {
@@ -84,9 +86,9 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     socket.on('disconnect', () => {
         clearInterval(currentUpdateInterval) // Stop timer
         timerElement.textContent = ''
-        currentlyPlayingTitle.classList.add('hidden')
-        currentlyPlayingAuthor.classList.add('hidden')
+        currentlyPlaying.classList.add('hidden')
         currentlyPlayingImage.src = ''
+        currentlyPlayingImage.classList.add('hidden')
         imagesWait[0].classList.remove('hidden')
         additional.classList.add('hidden')
         queueBox.classList.add('hidden')

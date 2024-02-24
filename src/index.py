@@ -99,6 +99,7 @@ def handle_connect():
     with open('server.version.txt', 'r') as file:
         socketio.emit('serverVersion', file.read(), to=request.sid)
     if(radio["fpath"] != 0): socketio.emit('trackChange', create_track_change_args(radio), to=request.sid) # type: ignore
+    if(len(queue) > 0): socketio.emit('queueChange', create_queue_change_args(queue), to=request.sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -315,10 +316,6 @@ def ai_radio_streamer():
                     if(os.path.exists(el)): 
                         os.remove(el)
                         print("Removed file: " + el, flush=True)
-
-        # Change index
-        if indexChanged > 0: 
-            socketio.emit('indexChange', indexChanged)
 
         # Increment time by 0.1 second
         radio["time"] += 0.1
