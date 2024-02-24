@@ -1,8 +1,10 @@
 // Link to file containing AWS link returning server link
 const awsApiLink = 'https://raw.githubusercontent.com/LukeMech/ai-radio-host/main/src/awsfun.url';
 
+var socket // Declare global variable
 // When everything loaded and site is ready
 document.querySelector('body').addEventListener('allLoaded', () => {
+    const playPauseButton = document.getElementById('play-pause-button');
     playPauseButton.classList.remove('loading')
     playPauseButton.classList.add('play')
 });
@@ -63,7 +65,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     }
 
     // Connect to WebSocket
-    var socket = io({
+    socket = io({
         reconnection: false,
         autoConnect: false,
         extraHeaders: {
