@@ -1,4 +1,5 @@
-import re, time, os, json, requests
+import re, time, os, json, requests, socketio
+sio = socketio.Client()
 
 log_path = "tmp/localhost.run.log"
 aws_urlPath = "awsfun.url"
@@ -6,7 +7,13 @@ token = os.environ['AWS_TOKEN']
 # Regular expression pattern to search for
 pattern = r'(https?:\/\/.*?\.life)'
 used = []
-        
+
+@sio.event
+def connect():
+    print('Localhost.run.py connected locally') 
+
+sio.connect('http://127.0.0.1:8000')
+
 # Function to fetch the file and search for the pattern
 def search_local_file():
     try:
@@ -30,6 +37,9 @@ def fetch_until_pattern_found():
             return result
         time.sleep(2)
 
+def push_to_connected_clients(url):
+    sio.emit('urlChanged', {'url': url, 'token': token})
+
 def push_to_aws(url):
     with open(aws_urlPath, "r") as file:
         content = file.read()
@@ -46,4 +56,5 @@ if __name__ == "__main__":
     while True:
         result = fetch_until_pattern_found()
         if result:
+            push_to_connected_clients(result)
             push_to_aws(result)

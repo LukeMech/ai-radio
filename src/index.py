@@ -7,6 +7,7 @@ from helpers import youtube
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")    
+token = os.environ['AWS_TOKEN']
 
 # Set to false when pushing
 if os.environ.get("NONLOCAL"): local_ytlist = False
@@ -104,6 +105,14 @@ def handle_music_stop(session_id):
                 print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...", flush=True)
                 process["process"].terminate()
         radio["ffmpeg_processes"][session_id] = 'terminated'
+
+@socketio.on('urlChanged')
+def handle_url_changed(data):
+    url = data['url']
+    getToken = data['token']
+    if(getToken == token):
+        print(f"URL changed to: {url}, Token: {token}")
+        socketio.emit('urlChanged', url, broadcast=True)
 
 def start_ffmpeg_process():
     global radio

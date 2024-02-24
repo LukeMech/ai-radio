@@ -62,6 +62,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     });
 
     const handleDisconnect = () => {
+        if(!serverLOADED) return;
         connStatus.classList.remove('established')
         connStatus.classList.add('problem')
 
@@ -69,7 +70,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         console.log('Disconnected from server, retrying in 10secs...');
         sessionIDText.innerHTML = languageStrings.connecting
         stalledHandler()
-        setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
+        setTimeout(() => getNextLink(awsApiLink).then(localhostlink => getNextLink(localhostlink).then(link => connectWithRetry(link))), 10000);
     }
     
     socket.on('connect', () => {
@@ -92,38 +93,37 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         // Look to playerinfo.js
     })
 
-    async function getApiLink(url) {
+    socket.on('urlChanged', url => connectWithRetry(url, true))
+
+    async function getNextLink(url) {
         let response = {ok: false}
         try {response = await fetch(url, {cache: 'reload'})} catch (e) {}
-        if (!response.ok) return console.error("Can't fetch link to AWS");
+        if (!response.ok) return console.error("Can't fetch link " + url);
         return await response.text();
     }
 
     let n=0;
-    async function connectWithRetry(url) { 
-        let response = {ok: false}
-        try {response = await fetch(url, {cache: 'reload'})} catch (e) {}
-        if (!response.ok) {
-            setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000); // Retry in 20s
-            return console.error("Can't fetch link from AWS, retrying in 10secs...");
-        }
-        const data = await response.text();
-        
+    async function connectWithRetry(url, firstDisconnect=false) { 
         // Be sure server is online (without it, cors can start block and boom, whole page needs reload)
         let check = {ok: false}
-
-        try {check = await fetch(data + '/' + n, {cache: 'no-store'})} catch(e) {}
+        try {check = await fetch(url + '/' + n, {cache: 'no-store'})} catch(e) {}
         if(!check.ok) {
-            setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000); // Retry in 10s
+            if(firstDisconnect) return socket.disconnect()
+            setTimeout(() => getNextLink(awsApiLink).then(localhostlink => getNextLink(localhostlink).then(link => connectWithRetry(link))), 10000); // Retry in 10s
             n+=1
             return console.log('Server offline, retrying in 10secs...')
         }
 
-        socket.io.uri = data;
+        if(firstDisconnect) {
+            serverLOADED=false 
+            socket.disconnect()
+            stalledHandler()
+        }
+        socket.io.uri = url;
         socket.connect()
     }
     
-    getApiLink(awsApiLink).then(resp => connectWithRetry(resp))
+    getNextLink(awsApiLink).then(localhostlink => getNextLink(localhostlink).then(link => connectWithRetry(link)))
 
     const loadedDataHandler = () => {
         if (audio.readyState >= 2) {
