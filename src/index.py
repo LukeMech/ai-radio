@@ -47,18 +47,17 @@ def create_track_change_args(radio):
     }
 
 def create_queue_change_args(q): 
-    return {
-        [
-            {
-                'title': track.get("title", ""),
-                'author': track.get("author", ""),
-                'duration': track.get("duration", ""),
-                'thumbnail': track.get("thumbnail", "")
-            }
-            for track in q
-            if track.get("title") and track.get("author")     
-        ]
-    }
+    return [
+        {
+            'title': track.get("title", ""),
+            'author': track.get("author", ""),
+            'duration': track.get("duration", ""),
+            'thumbnail': track.get("thumbnail", "")
+        }
+        for track in q
+        if track.get("title") and track.get("author")     
+    ]
+    
 
 def add_no_cache_headers(response):
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'  # Prevent caching by the browser
