@@ -69,14 +69,14 @@ body {
   display: none;
 }
 
-.version {
+.title {
   font-family: "Kode Mono", monospace;
   font-size: 30px;
   color: var(--version-font-color);
   text-align: center;
 }
 @media (min-width: 768px) {
-  .version {
+  .title {
     margin-top: -20px;
     font-size: 50px;
   }
@@ -241,7 +241,7 @@ body {
   overflow-x: auto;
 }
 .player-info-box .text-info p {
-  font-family: "Anta", sans-serif;
+  font-family: "Anta";
   margin: 0;
 }
 .text-info #currently-playing-author {
