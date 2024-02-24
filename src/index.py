@@ -78,7 +78,8 @@ def serve_file(filename):
 @socketio.on('connect')
 def handle_connect():
     global radio
-    session_id = request.headers.get('id') or ''
+    session_id = request.headers.get('id')
+    if not session_id: return
     print("Client connected with session id: " + session_id, flush=True)
     # type: ignore
     radio["active_connections"][session_id] = request.sid # type: ignore
@@ -112,7 +113,7 @@ def handle_url_changed(data):
     getToken = data['token']
     if(getToken == token):
         print(f"URL changed to: {url}, Token: {token}")
-        socketio.emit('urlChanged', url, broadcast=True)
+        socketio.emit('urlChanged', url)
 
 def start_ffmpeg_process():
     global radio
