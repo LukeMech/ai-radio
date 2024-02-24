@@ -88,7 +88,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         currentlyPlayingTitle.classList.add('hidden')
         currentlyPlayingAuthor.classList.add('hidden')
         currentlyPlayingImage.src = ''
-        imagesWait[0].classList.add('hidden')
+        imagesWait[0].classList.remove('hidden')
         additional.classList.add('hidden')
         queueBox.classList.add('hidden')
     });
