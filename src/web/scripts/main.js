@@ -7,6 +7,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     sessionIDText.innerHTML = languageStrings.connecting
     additional.innerHTML = languageStrings.connecting
 
+    const connStatus = document.getElementById('connStatus');
     const playPauseButton = document.getElementById('play-pause-button');
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const isFirefox = navigator.userAgent.includes("Firefox");
@@ -50,9 +51,9 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             ]
         })
     }
-    
+
+    let checkConnection
     // Connect to WebSocket
-    
     socket = io({
         reconnection: false,
         autoConnect: false,
@@ -62,7 +63,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     });
 
     const handleDisconnect = () => {
-        setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
+        clearInterval(checkConnection)
 
         serverLOADED=false
         console.log('Disconnected from server, retrying in 10secs...');
@@ -71,9 +72,33 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     }
     
     socket.on('connect', () => {
+        connStatus.classList.remove('problem')
+        connStatus.classList.add('established')
         serverLOADED=true
         console.log('Authorized via websocket');
         sessionIDText.innerHTML = languageStrings.sessionID + ": " + id
+
+        checkConnection = setInterval(async () => {
+            function offline() {
+                connStatus.classList.remove('established')
+                connStatus.classList.add('problem')
+                socket.disconnect()
+                audioStop()
+                setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
+            }
+            try {
+                const status = await fetch(socket.io.uri +'/' + generateid())
+                if(!status.ok) return offline()
+                else {
+                    connStatus.classList.remove('problem')
+                    connStatus.classList.add('established')
+                }
+            }
+            catch (e) {
+                offline()
+            }
+        }, 1000);
+
     });
     socket.on('disconnect', handleDisconnect);
     socket.on('connect_error', handleDisconnect);

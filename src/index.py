@@ -288,6 +288,10 @@ def ai_radio_streamer():
                         os.remove(el)
                         print("Removed file: " + el, flush=True)
 
+        # Change index
+        if indexChanged > 0: 
+            socketio.emit('indexChange', indexChanged)
+
         # Increment time by 0.1 second
         radio["time"] += 0.1
 

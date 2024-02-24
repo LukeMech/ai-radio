@@ -1,12 +1,9 @@
 var currentLanguage = '', languageStrings = '';
 
-const warn = document.getElementById('WARN');
 async function fetchStrings(language) {
     currentLanguage = language
     languageStrings = await fetch(`languages/${language}.json`).then(response => response.json())
 
-    warn.innerHTML = languageStrings.currentWarning
-    
     document.querySelector('body').dispatchEvent(new Event('languagesLoaded'));
 }
 
