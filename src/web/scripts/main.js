@@ -11,7 +11,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const isFirefox = navigator.userAgent.includes("Firefox");
     const useMediaButtons = ('mediaSession' in navigator)
-    let serverLOADED, stalled, paused
+    let serverLOADED, paused, stopping, starting
     let audio={paused:true}
     
     function generateid() {
@@ -95,7 +95,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     let n=0;
     async function connectWithRetry(url) { 
 
-        
         let response = {ok: false}
         try {response = await fetch(url, {cache: 'reload'})} catch (e) {}
         if (!response.ok) {
@@ -105,7 +104,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         const data = await response.text();
         // const data = 'https://7c518bb813a8db.lhr.life'
 
-        // Be sure server is online (without it, cors will start block and boom, whole page needs reload)
+        // Be sure server is online (without it, cors can start block and boom, whole page needs reload)
         console.log(data)
         let check = {ok: false}
 
@@ -127,6 +126,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             audio.play();
         }
         if (audio.readyState > 2) {
+            starting = false
             if(useMediaButtons) {
                 navigator.mediaSession.metadata = mediaPlayingMetadata
                 navigator.mediaSession.playbackState = 'playing'
@@ -139,45 +139,32 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         audioErr('Loading audio failed')
     };
     const stalledHandler = () => {
-        if(paused) return
-        stalled = true
         audioStop()
         playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
         setTimeout(() => {
-            stalled = false
+            if(paused) return
             audioStart()
         }, 500);
     };
     const pausedAndWaitingHandler = async () => {
-        if(stalled) return
         paused = true
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
-        audioStop()
-
-        const waitForPlay = () => {
-            return new Promise(resolve => {
-                const checkPaused = () => {
-                    if (!audio.paused) {
-                        resolve(); // Resolve the promise when audio.paused becomes false
-                    } else {
-                        setTimeout(checkPaused, 500);
-                    }
-                };
-                checkPaused(); // Start checking immediately
-            });
-        };
-
-        await waitForPlay();
-
-        // Aaaaand exec function
-        paused = false
-        stalledHandler()
+        const checkIfShouldResume = setInterval(() => {
+            if(!audio.paused) {
+                clearInterval(checkIfShouldResume)
+                audioStop()
+                paused = false
+                audioStart()
+            }
+        }, 200);
     }
     
     function audioStop() {
+        if(stopping) return
+        stopping = true
         if(useMediaButtons) {
             navigator.mediaSession.metadata = mediaStoppedMetadata
             navigator.mediaSession.playbackState = 'paused'
@@ -192,8 +179,13 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             audio.pause();
         }
         catch (err) {}
+        setTimeout(() => {
+            starting = false
+            stopping = false
+        }, 500);
     }
     function audioStart() {
+        if(starting) return
         if (!serverLOADED) {
             playPauseButton.classList.remove('play')
             playPauseButton.classList.remove('pause')
@@ -207,6 +199,12 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
+        if (stopping) {
+            return setTimeout(() => {
+                audioStart()
+            }, 500);
+        }
+        starting = true
         if(!isMobile || isFirefox) audio.src = ''
         audio = new Audio(socket.io.uri + '/listen?id=' + id);
         if (!audio.canPlayType('audio/mpeg')) {
@@ -236,7 +234,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             audioStop()
         } 
         else if (!playPauseButton.classList.contains('loading') && serverLOADED) {
-            audioStart(true)
+            audioStart()
         }
         else if (!serverLOADED) {
             playPauseButton.classList.remove('play')
@@ -247,7 +245,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     
     if(useMediaButtons) {
         navigator.mediaSession.setActionHandler('play', function() {
-            audioStart(true)
+            audioStart()
         });
         navigator.mediaSession.setActionHandler('pause', function() {
             audioStop()  

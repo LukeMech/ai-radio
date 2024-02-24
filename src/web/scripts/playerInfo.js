@@ -21,6 +21,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
 
     socket.on('trackChange', args => {
         clearInterval(currentUpdateInterval);
+        setTimeout(() => { currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail }, 1000);
         currentlyPlayingTitle.innerHTML = args.title
         currentlyPlayingAuthor.innerHTML = args.author
         currentlyPlayingTitle.classList.remove('hidden')
@@ -37,7 +38,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
             additional.innerHTML = languageStrings.new
         }
         else additional.classList.add('hidden')
-        currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail
         currentlyPlayingImageWait.classList.add('hidden')
         duration = args.duration
         playtime = args.time
@@ -58,15 +58,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         currentlyPlayingImageWait.classList.remove('hidden')
     });
 
-    const shouldLoad = localStorage.getItem('settings')
-    if(!shouldLoad) {
-        playPauseButton.classList.remove('loading')
-        playPauseButton.classList.add('play')    
-    }
-    else {
-        if(document.documentElement.getAttribute('data-theme') != localStorage.getItem("theme")) {
-            switchTheme()
-        }
-        localStorage.removeItem('settings')
-    }
+    playPauseButton.classList.remove('loading')
+    playPauseButton.classList.add('play')
 })
