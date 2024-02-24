@@ -68,6 +68,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         serverLOADED=false
         console.log('Disconnected from server, retrying in 10secs...');
         sessionIDText.innerHTML = languageStrings.connecting
+        stalledHandler()
         setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
     }
     
@@ -153,6 +154,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     };
     const pausedAndWaitingHandler = async () => {
         paused = true
+        playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
         playPauseButton.classList.add('loading')
         const checkIfShouldResume = setInterval(() => {
