@@ -298,7 +298,7 @@ def ai_radio_streamer():
                 radio["additional"] = {}
                 duration = get_audio_duration(queue[0]["fpath"])
 
-            radio["duration"] = queue[0][duration]
+            radio["duration"] = queue[0]["duration"]
             radio["time"] = 0 # Change to duration-10 for debugging
             radio["fpath"] = queue[0]["fpath"]
             radio["title"] = queue[0]["title"]
