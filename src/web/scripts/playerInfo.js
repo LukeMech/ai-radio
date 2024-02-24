@@ -19,7 +19,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         playtime++;
     }
 
-    socket.on('trackChange', args => {
+    socket.on('trackChange', async args => {
         clearInterval(currentUpdateInterval);
         currentlyPlayingImage.src = socket.io.uri + '/' + args.thumbnail
         currentlyPlayingTitle.innerHTML = args.title
@@ -43,6 +43,10 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         playtime = args.time
         updateTimer()
         currentUpdateInterval = setInterval(updateTimer, 1000);
+
+        let status = {ok: false}
+        try {status = await fetch(currentlyPlayingImage.src, { method: 'HEAD' })} catch (e) {}
+        if(!status.ok) return socket.disconnect()
     });
 
     socket.on('disconnect', () => {

@@ -52,7 +52,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         })
     }
 
-    let checkConnection
     // Connect to WebSocket
     socket = io({
         reconnection: false,
@@ -63,12 +62,13 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     });
 
     const handleDisconnect = () => {
-        clearInterval(checkConnection)
+        connStatus.classList.remove('established')
+        connStatus.classList.add('problem')
 
         serverLOADED=false
         console.log('Disconnected from server, retrying in 10secs...');
         sessionIDText.innerHTML = languageStrings.connecting
-        return
+        setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
     }
     
     socket.on('connect', () => {
@@ -82,34 +82,13 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     socket.on('connect_error', handleDisconnect);
 
     socket.on('trackChange', () => {
+        connStatus.classList.remove('problem')
+        connStatus.classList.add('established')
         serverLOADED=true
         if(playPauseButton.classList.contains('loading')) {
             audioStart() 
         }
-
-        try {clearInterval(checkConnection)} catch (e) {}
-        checkConnection = setInterval(async () => {
-            function offline() {
-                connStatus.classList.remove('established')
-                connStatus.classList.add('problem')
-                socket.disconnect()
-                console.log('Disconnected from server, retrying in 10secs...');
-                audioStop()
-                setTimeout(() => getApiLink(awsApiLink).then(resp => connectWithRetry(resp)), 10000);
-            }
-            try {
-                const currentlyPlayingImage = document.getElementById('currently-playing-image');
-                const status = await fetch(currentlyPlayingImage.src, { method: 'HEAD' })
-                if(!status.ok) return offline()
-                else {
-                    connStatus.classList.remove('problem')
-                    connStatus.classList.add('established')
-                }
-            }
-            catch (e) {
-                offline()
-            }
-        }, 1000);
+        // Look to playerinfo.js
     })
 
     async function getApiLink(url) {
