@@ -189,15 +189,20 @@ div.text-info.hidden {
 }
 
 .player-queue-box {
-  margin: 8px 0 10px;
+  outline: var(--player-queue-border);
   border-radius: 10px;
-  outline: var(--player-queue-border)
+  margin: 8px 0 10px;
+  max-width: 80vw;
+  position: relative;
+  z-index: 2;
 }
 .player-info-box-top {
   outline: var(--player-info-border);
   border-radius: 10px;
   padding: 10px;
   transition: all 0.1s ease-in-out;
+  position: relative;
+  z-index: 1;
 }
 .player-info-box-top p.timer {
   margin: 0;
@@ -251,14 +256,14 @@ div.text-info.hidden {
 }
 .queue-box p {
   font-family: "Anta", sans-serif;
-  margin: 0 0 7px;
+  margin: 0 0 10px;
 }
 p.timer {
   font-family: "Audiowide", sans-serif;
   font-size: 15px;
   margin: 0 0 5px;
   color: var(--text-color);
-  text-align: center;
+  text-align: right;
 }
 
 .session-id {
