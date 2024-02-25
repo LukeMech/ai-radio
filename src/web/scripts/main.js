@@ -149,12 +149,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
 
     // When audio data is loaded by the browser
     const loadedDataHandler = () => {
-        if (audio.readyState >= 2) {
-            audio.play();
-        }
         if (audio.readyState > 2) {
             // Audio loaded more than just first chunk
-            starting = false
             if(useMediaButtons) {
                 navigator.mediaSession.metadata = mediaPlayingMetadata
                 navigator.mediaSession.playbackState = 'playing'
@@ -263,6 +259,9 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         audio.addEventListener('stalled', stalledHandler);
         audio.addEventListener('pause', pausedAndWaitingHandler);
         audio.addEventListener('ended', stalledHandler);
+
+        audio.play()
+        starting = false
     }
 
     // Error playing, repeat for trying to restore stream
