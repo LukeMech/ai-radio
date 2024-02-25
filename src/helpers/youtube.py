@@ -34,10 +34,13 @@ def downloadWavFromUrl(url, callback, i, country):
             }],
             'writethumbnail': True,  # Write thumbnail
             'merge_output_format': ext,  # Merge into .wav file,
-            "xff": country   # Bypass geo position error
         }
+        if(country): ydl_opts['geo_bypass_country'] = country
+
+        print(country, True)
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            url = "https://www.youtube.com/watch?v=EAexp0w3H3c" # TESTING
             info_dict = ydl.extract_info(url, download=True)
         
         filename = fpath + '.' + ext
