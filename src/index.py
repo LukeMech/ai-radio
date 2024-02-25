@@ -1,14 +1,14 @@
-from re import S
 from flask import Flask, Response, request, send_from_directory, abort
 from flask_cors import CORS
 from flask_socketio import SocketIO
-import subprocess, time, threading, random, os, string, requests, json
+import subprocess, time, threading, random, os, string, requests, json, datetime
 from helpers import youtube
 
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")    
 token = os.environ['AWS_TOKEN']
+today = datetime.datetime.now().isoweekday()
 
 # Set to false when pushing
 if os.environ.get("NONLOCAL"): local_ytlist = False
@@ -234,16 +234,26 @@ def ai_radio_streamer():
         else: 
             with open('ytlist.min.json', 'r') as file:
                 tracksList = json.load(file)
-        urls = [entry if isinstance(entry, str) else entry[0] for entry in tracksList]
-        multipliers = [entry[1].get("m", 1) if isinstance(entry, list) and len(entry) > 1 else 1 for entry in tracksList]        
-        settings = [None if isinstance(entry, str) or len(entry) < 2 else {key: value for key, value in entry[1].items() if key != "m"} for entry in tracksList]
+
         weighted_choices = []
-        for url, multiplier, setting in zip(urls, multipliers, settings):
-            weighted_choices.extend([(url, setting)] * multiplier) 
+        for entry in tracksList:
+            if isinstance(entry, str):
+                url = entry
+                multiplier = 1
+                setting = None
+            else:
+                url = entry[0]
+                multiplier = entry[1].get("m", 1)
+                setting = {key: value for key, value in entry[1].items() if key != "m"}
+                if 'dm' in entry[1]:
+                    day, additional_multiplier = map(int, entry[1]['dm'].split(';'))
+                    if day == today:
+                        multiplier *= additional_multiplier
+            weighted_choices.extend([(url, setting)] * multiplier)
 
         if len(weighted_choices) < 1: return
         else:
-            if(len(alreadyPlayed) > len(urls)/3): alreadyPlayed.pop(0)
+            if(len(alreadyPlayed) > len(tracksList)/3): alreadyPlayed.pop(0)
             def shuffle():
                 random.shuffle(weighted_choices)
                 chosen_url, setting = random.choice(weighted_choices)
