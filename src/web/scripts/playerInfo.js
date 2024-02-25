@@ -54,7 +54,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         // If should refresh queue
         const shouldRefresh = currentlyPlayingImage.classList.contains('hidden') ? false : true
         
-        player.style.opacity = 0.2
+        player.style.opacity = 0
         
         let playerInfo
         if(shouldRefresh) {
