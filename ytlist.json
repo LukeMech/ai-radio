@@ -34,7 +34,7 @@
     ["Blank space", "https://www.youtube.com/watch?v=gir8BEqAutk"],
     ["Call me maybe", "https://www.youtube.com/watch?v=fWNaR-rxAic"],
     ["Never never", "https://www.youtube.com/watch?v=I5xZRlQFYj0"],
-    ["Tuesday", "https://www.youtube.com/watch?v=Y1_VsyLAGuk", {"dayMultiplier": "5;7"}],
+    ["Tuesday", "https://www.youtube.com/watch?v=Y1_VsyLAGuk", {"dayMultiplier": "2;5"}],
     ["High hopes", "https://www.youtube.com/watch?v=IPXIgEAGe4U", {"multiplier": 2}],
     ["Anioły i demony", "https://www.youtube.com/watch?v=CK1r3ImV46g"]
 ]
