@@ -5,7 +5,10 @@ with open('../ytlist.json', 'r') as file:
 
 formatted_data = []
 for item in ytlist:
-    video_id = item[1].split('=')[-1].split('/')[-1]
+    if 'youtu.be' in item[1]:
+        video_id = item[1].split('/')[-1]
+    else:
+        video_id = item[1].split('=')[-1].split('/')[-1]
     formatted_item = [video_id, {}]
     new_flag = 0
     eurovision = 0
