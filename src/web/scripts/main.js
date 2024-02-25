@@ -282,7 +282,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     }
     
     // When play/pause clicked
-    playPauseButton.addEventListener('click', function() {
+    playPauseButton.addEventListener('click', () => {
         // If it's started or starting
         if (playPauseButton.classList.contains('pause') || playPauseButton.classList.contains('loading')) {
             audioStop()

@@ -17,9 +17,10 @@
   --btn-border: rgb(114, 113, 229) 3px solid;
   --btn-hover-border: #3a4cd6 3px solid;
   --title-color: #0bceff;
-  --theme-switcher-content: '\f185';
+  --theme-switcher-content: '\f186';
   --theme-switcher-color: #ffff00;
   --theme-switcher-font: var(--fa-font-solid);
+  --theme-switcher-top: 50%;
   --theme-switcher-bg-color: #343232;
   --player-queue-border: rgb(167, 36, 36) 1px solid;
   --player-info-border: #0bff89 1px solid;
@@ -32,12 +33,18 @@
   --text-color: #222;
   --btn-border: rgb(15, 60, 242) 3px solid;
   --title-color: #422ce2;
-  --theme-switcher-content: '\f186';
+  --theme-switcher-content: '\f185';
   --theme-switcher-color: #222;
   --theme-switcher-font: var(--fa-font-regular);
+  --theme-switcher-top: 50%;
   --theme-switcher-bg-color: #e2d561;
   --player-queue-border: rgb(167, 36, 36) 3px solid;
   --player-info-border: #0bff89 3px solid;
+}
+[data-theme-auto=true] {
+  --theme-switcher-content: '\41';
+  --theme-switcher-font: var(--fa-font-solid);
+  --theme-switcher-top: 48%;
 }
 
 body {
@@ -184,7 +191,7 @@ div.text-info.hidden {
   color: var(--theme-switcher-color);
   display: block;
   position: absolute;
-  top: 50%;
+  top: var(--theme-switcher-top);
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 22px;
