@@ -215,6 +215,7 @@ def ai_radio_streamer():
         if(ERR): 
             print("Failed to download track ", flush=True)
             downloadErr = i
+            downloading = False
             return 
         
         queue[i]["fpath"] = fp + '.' + ext
@@ -224,7 +225,7 @@ def ai_radio_streamer():
         if(thunb): queue[i]["thumbnail"] = fp + '.' + thunb
         else: queue[i]["thumbnail"] = None
         print("Downloaded and added to queue track " + t + ", id: " + fp, flush=True)
-        firstLaunchReady = True; downloading = False
+        firstLaunchReady = True
         socketio.emit('queueChange', create_queue_change_args(queue))
 
     def addToQueue():
@@ -293,7 +294,7 @@ def ai_radio_streamer():
             if not downloading and "url" in track and not "fpath" in track:
                 indexChanged = 0
                 downloading = True
-                threading.Thread(target=youtube.downloadWavFromUrl,daemon=True,args=('https://www.youtube.com/watch?v=EAexp0w3H3c', on_dwnld_completed, queue.index(track))).start()
+                threading.Thread(target=youtube.downloadWavFromUrl,daemon=True,args=(track["url"], on_dwnld_completed, queue.index(track))).start()
 
         # Change radio playing title
         if forceChange:
