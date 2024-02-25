@@ -225,7 +225,7 @@ def ai_radio_streamer():
         if(thunb): queue[i]["thumbnail"] = fp + '.' + thunb
         else: queue[i]["thumbnail"] = None
         print("Downloaded and added to queue track " + t + ", id: " + fp, flush=True)
-        firstLaunchReady = True
+        firstLaunchReady = True; downloading = False
         socketio.emit('queueChange', create_queue_change_args(queue))
 
     def addToQueue():
@@ -279,7 +279,6 @@ def ai_radio_streamer():
 
     while firstLaunchReady:
         # Pre-adding & fetching next songs
-        print(queue)
         if len(queue) < 2:
             addToQueue()
 
