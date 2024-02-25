@@ -167,10 +167,10 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
 
     // If audio have problem loading, retry connection
     const stalledHandler = () => {
+        audioStop()
         playPauseButton.classList.add('loading')
         playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
-        audioStop()
         setTimeout(() => {
             if(paused) return
             audioStart()
@@ -189,8 +189,10 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
             if(!audio.paused) {
                 clearInterval(checkIfShouldResume)
                 audioStop()
-                paused = false
-                audioStart()
+                setTimeout(() => {
+                    paused = false
+                    audioStart()
+                }, 600)
             }
         }, 300);
     }
@@ -198,7 +200,12 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     // Audio stopping
     function audioStop() {
         // If already stopping stop execution
-        if(stopping) return
+        if(stopping || starting) return
+
+        playPauseButton.classList.add('play')
+        playPauseButton.classList.remove('pause')
+        playPauseButton.classList.remove('loading')
+        
         stopping = true
         if(useMediaButtons) {
             navigator.mediaSession.metadata = mediaStoppedMetadata
@@ -223,7 +230,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
 
     // Audio starting
     function audioStart() {
-        if(starting) return    // If it's already starting stop execution
+        if(stopping || starting) return    // If it's already starting stop execution
 
         playPauseButton.classList.remove('play')
         playPauseButton.classList.remove('pause')
@@ -275,9 +282,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     playPauseButton.addEventListener('click', function() {
         // If it's started or starting
         if (playPauseButton.classList.contains('pause') || playPauseButton.classList.contains('loading')) {
-            playPauseButton.classList.add('play')
-            playPauseButton.classList.remove('pause')
-            playPauseButton.classList.remove('loading');
             audioStop()
         } 
         // If it's paused and server is fully loaded
@@ -300,10 +304,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         });
         // Audio playing
         navigator.mediaSession.setActionHandler('pause', function() {
-            audioStop()  
-            playPauseButton.classList.remove('pause')
-            playPauseButton.classList.remove('loading');
-            playPauseButton.classList.add('play')
+            audioStop()
         });
     }
 
