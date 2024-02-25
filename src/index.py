@@ -112,7 +112,7 @@ def handle_disconnect():
                 print("Terminating ffmpeg process for id '" + session_id + "' for media '" + process["file"] + "'...", flush=True)
                 process["process"].terminate()
         radio["ffmpeg_processes"][session_id] = 'terminated'
-        print("Client disconnected with session id: " + session_id, flush=True)
+    print("Client disconnected with session id: " + session_id, flush=True)
 
 @socketio.on('musicstop')
 def handle_music_stop(session_id):

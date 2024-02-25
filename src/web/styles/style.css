@@ -190,6 +190,8 @@ div.text-info.hidden {
 }
 
 .player-queue-box {
+  opacity: 1;
+  transition: all 1s ease-in-out;
   outline: var(--player-queue-border);
   border-radius: 10px;
   margin: 8px 0 10px;
@@ -198,15 +200,15 @@ div.text-info.hidden {
   z-index: 2;
 }
 .player-info-box-top {
+  opacity: 1;
   outline: var(--player-info-border);
   border-radius: 10px;
   padding: 10px;
-  transition: all 0.1s ease-in-out;
+  height: 90px;
+  min-width: 90px;
+  transition: all 1s ease-in-out;
   position: relative;
   z-index: 1;
-}
-.player-info-box-top p.timer {
-  margin: 0;
 }
 .queue-box {
   margin: 0;
@@ -229,14 +231,18 @@ div.text-info.hidden {
   color: var(--text-color);
 }
 .player-info .images {
+  text-align: center;
   display: block;
   margin: 0;
 }
 .player-info .images img {
   border-radius: 10px;
-  max-width: 100px;
-  max-height: 150px;
+  height: 70px;
+  max-width: 50vw;
   margin: 0;
+}
+.player-info .images .image-wait {
+  height: 90px;
 }
 
 .player-queue-box .text-info {
@@ -266,7 +272,7 @@ div.text-info.hidden {
 p.timer {
   font-family: "Audiowide", sans-serif;
   font-size: 15px;
-  margin: 0 0 5px;
+  margin: 0;
   color: var(--text-color);
   text-align: right;
 }
