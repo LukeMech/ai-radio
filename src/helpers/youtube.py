@@ -8,7 +8,9 @@ def downloadWavFromUrl(url, callback, i, country):
     try:
         ext = 'wav'
         fpath = 'tmp/' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-        if not country: country = 'default'
+
+        country = 'PL'
+        
         ydl_opts = {
             'format': 'bestaudio/best',
             'download_options': '-N 16',
@@ -33,7 +35,7 @@ def downloadWavFromUrl(url, callback, i, country):
                 ],
             }],
             'writethumbnail': True,  # Write thumbnail
-            'merge_output_format': ext,  # Merge into .wav file,
+            'merge_output_format': ext,  # Merge into .wav file
         }
         if(country): ydl_opts['geo_bypass_country'] = country
 

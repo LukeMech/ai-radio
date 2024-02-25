@@ -5,3 +5,4 @@ yt-dlp~=2023.12.30
 youtube-title-parse~=1.0.0
 gunicorn~=21.2.0
 python-socketio~=5.11.1
+websocket-client~=1.7.0
