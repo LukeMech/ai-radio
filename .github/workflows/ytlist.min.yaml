@@ -7,7 +7,7 @@ on:
     paths:
       - 'ytlist.json'
       - '.github/workflows/ytlist.min.yaml'
-      - 'src/ytlist.min.py'
+      - 'src/helpers/actions/ytlist.min.py'
 
 jobs:
     urls:
