@@ -13,7 +13,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     const queueBox = document.getElementById('queue-box');
     const queueDiv = document.getElementById('queue-elements');
     const queueElementConstructor = `
-        <div id="{i}" style="transition: all 1s ease-in-out; height: 0px; opacity: 0">
+        <div id="{i}" style="transition: opacity 1s ease-in-out, height 0.5s ease-in-out; height: 0px; opacity: 0">
             <div class="player-info">
                 <div class="images">
                     <img src={img}>
@@ -43,11 +43,12 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
 
     // When server reported song change
     socket.on('trackChange', async args => {
+        console.log(updatingQueue)
         while(updatingQueue) {
             await new Promise(r => setTimeout(r, 300));
             args.time+=0.3
         }
-        // updatingQueue = true;
+        updatingQueue = true;
         clearInterval(currentUpdateInterval); // Stop timer
         let ph = 90
         // If should refresh queue
@@ -87,7 +88,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
             const year = args.additional.ev.split(';')[0]
             const countryISO = args.additional.ev.split(';')[1]
             additional.innerHTML = languageStrings.eurovision + ' ' + year + '<br>' + languageStrings[countryISO]
-            ph+=50
+            ph+=55
         }
         // New song detected
         else if(args.additional.n) {
@@ -100,16 +101,19 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
         // Show player again
         player.style.height = ph + 'px'
         player.style.opacity = 1
-        updatingQueue = false
 
         // Update timer
         duration = args.duration
         playtime = args.time
         updateTimer()
         currentUpdateInterval = setInterval(updateTimer, 1000)
+
+        await new Promise(r => setTimeout(r, 800));
+        updatingQueue = false
     });
 
     socket.on('queueChange', async args => {
+        console.log(updatingQueue)
         while(updatingQueue) {
             await new Promise(r => setTimeout(r, 300));
         }
@@ -130,7 +134,7 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
             i++
         });
         i=0
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 100));
         args.forEach(() => {
             const anim = document.getElementById(i)
             anim.style.opacity = 1

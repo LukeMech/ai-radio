@@ -16,7 +16,7 @@
   --text-color: #ffffff; /* White */
   --btn-border: rgb(114, 113, 229) 3px solid;
   --btn-hover-border: #3a4cd6 3px solid;
-  --version-font-color: #0bceff;
+  --title-color: #0bceff;
   --theme-switcher-content: '\f185';
   --theme-switcher-color: #ffff00;
   --theme-switcher-font: var(--fa-font-solid);
@@ -31,7 +31,7 @@
   --background-color: #fff;
   --text-color: #222;
   --btn-border: rgb(15, 60, 242) 3px solid;
-  --version-font-color: #422ce2;
+  --title-color: #422ce2;
   --theme-switcher-content: '\f186';
   --theme-switcher-color: #222;
   --theme-switcher-font: var(--fa-font-regular);
@@ -79,7 +79,7 @@ div.text-info.hidden {
 .main-title {
   font-family: "Kode Mono", monospace;
   font-size: 40px;
-  color: var(--version-font-color);
+  color: var(--title-color);
   text-align: center;
 }
 
@@ -192,13 +192,18 @@ div.text-info.hidden {
 
 .player-queue-box {
   opacity: 1;
-  transition: all 1s ease-in-out;
+  transition: opacity 1s ease-in-out, height 0.5s ease-in-out, outline 0.3s ease;
   outline: var(--player-queue-border);
   border-radius: 10px;
   margin: 8px 0 10px;
   max-width: 90vw;
   position: relative;
   z-index: 2;
+}
+@media (min-width: 768px) {
+  .player-queue-box {
+    max-width: 55vw;
+  }
 }
 .player-info-box-top {
   opacity: 1;
@@ -207,7 +212,7 @@ div.text-info.hidden {
   padding: 10px;
   height: 90px;
   min-width: 90px;
-  transition: all 1s ease-in-out;
+  transition: opacity 1s ease-in-out, height 0.5s ease-in-out, outline 0.3s ease;
   position: relative;
   z-index: 1;
 }
@@ -266,9 +271,13 @@ div.text-info.hidden {
   font-family: "Anta", sans-serif;
   margin: 0;
 }
-.queue-box p {
+.queue-box  p {
   font-family: "Anta", sans-serif;
+  color: var(--title-color);
   margin: 0 0 10px;
+}
+.queue-box .queue-elements p {
+  color: var(--text-color);
 }
 p.timer {
   font-family: "Audiowide", sans-serif;
