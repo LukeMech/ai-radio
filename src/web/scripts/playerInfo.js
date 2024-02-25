@@ -43,7 +43,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
 
     // When server reported song change
     socket.on('trackChange', async args => {
-        console.log(updatingQueue)
         while(updatingQueue) {
             await new Promise(r => setTimeout(r, 300));
             args.time+=0.3
@@ -113,7 +112,6 @@ document.querySelector('body').addEventListener('mainLoaded', () => {
     });
 
     socket.on('queueChange', async args => {
-        console.log(updatingQueue)
         while(updatingQueue) {
             await new Promise(r => setTimeout(r, 300));
         }

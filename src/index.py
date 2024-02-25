@@ -7,7 +7,7 @@ from helpers import youtube
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")    
-token = 0
+token = os.environ['AWS_TOKEN']
 
 def today():
     return datetime.datetime.now().isoweekday()

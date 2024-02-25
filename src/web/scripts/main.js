@@ -15,8 +15,6 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     sessionIDText.innerHTML = "Web"+": "+version
     const connStatus = document.getElementById('connStatus');
     const playPauseButton = document.getElementById('play-pause-button');
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const isFirefox = navigator.userAgent.includes("Firefox");
     const useMediaButtons = ('mediaSession' in navigator)
     let serverLOADED, paused, stopping, starting
     let audio={paused:true}
@@ -252,9 +250,9 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         }
 
         starting = true    // Audio starting
-        if(!isMobile || isFirefox) audio.src = ''  // Added it to make sure stream is restarted
-
+        audio.src = ''     // Restart stream
         audio = new Audio(socket.io.uri + '/listen?id=' + id);
+        
         if (!audio.canPlayType('audio/mpeg')) return audioErr('Type not currently supported', '', false) // Can't really play audio here
         
         if(useMediaButtons) {
