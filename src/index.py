@@ -272,7 +272,7 @@ def ai_radio_streamer():
     addToQueue()
     if len(queue) < 1: queue.append({})
     if("url" in queue[0]): 
-        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0)
+        youtube.downloadWavFromUrl(queue[0]['url'], on_dwnld_completed, 0, queue[0]["additional"]["c"] if "c" in queue[0]["additional"] else None)
     else: 
         firstLaunchReady = True
 
@@ -292,7 +292,7 @@ def ai_radio_streamer():
             if not downloading and "url" in track and not "fpath" in track:
                 indexChanged = 0
                 downloading = True
-                threading.Thread(target=youtube.downloadWavFromUrl,daemon=True,args=(track['url'], on_dwnld_completed, queue.index(track))).start()
+                threading.Thread(target=youtube.downloadWavFromUrl,daemon=True,args=(track['url'], on_dwnld_completed, queue.index(track), track["additional"]["c"] if "c" in track["additional"] else None)).start()
 
         # Change radio playing title
         if forceChange:

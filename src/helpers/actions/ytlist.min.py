@@ -25,6 +25,9 @@ for item in ytlist:
         dayMultiplier = item[2].get("dayMultiplier", 0)
         if(dayMultiplier): formatted_item[1]["dm"] = dayMultiplier
 
+        country = item[2].get("country", 0)
+        if(country): formatted_item[1]["c"] = country
+
     if(not formatted_item[1]): formatted_item = video_id
 
     formatted_data.append(formatted_item)

@@ -3,12 +3,12 @@ from youtube_title_parse import get_artist_title
 
 # Somehow using aria2 prevents github actions from stopping...? 
 # So, let's use it even though its slower (slows at the dwnld end)
-def downloadWavFromUrl(url, callback, i):
+def downloadWavFromUrl(url, callback, i, country):
     ERR=None; title=None; artist=None; fpath=None; ext=None; thunb=None
     try:
         ext = 'wav'
         fpath = 'tmp/' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
-
+        if not country: country = 'default'
         ydl_opts = {
             'format': 'bestaudio/best',
             'download_options': '-N 16',
@@ -34,7 +34,7 @@ def downloadWavFromUrl(url, callback, i):
             }],
             'writethumbnail': True,  # Write thumbnail
             'merge_output_format': ext,  # Merge into .wav file,
-            "xff": "default"   # Bypass geo position error
+            "xff": country   # Bypass geo position error
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
