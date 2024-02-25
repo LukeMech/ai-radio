@@ -118,17 +118,21 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
     }
 
     // Try connection
-    async function connectWithRetry(url, firstDisconnect=false) { 
+    async function connectWithRetry(url, firstDisconnect=false, reconnectWithoutTimeout=false) { 
 
         // Be sure server is online before trying socket connection
         let check = {ok: false}
         try {check = await fetch(url + '/' + generateid(), {cache: 'no-store'})} catch(e) {}
         if(!check.ok) {
+            let timeout = 10000
             if(firstDisconnect) return socket.disconnect()  // If it was server sending link but it doesnt work (pretty uncommon, but still possible)
-
+            if(reconnectWithoutTimeout) {
+                timeout = 100       // If it was try from localstorage
+                console.log('Saved url failed, getting new one...')
+            }
+            else console.log('Server offline, retrying in 10secs...')
             // Else if it's standard check -> nope, offline -> retry
-            setTimeout(() => getNextLink(awsApiLink).then(localhostlink => getNextLink(localhostlink).then(link => connectWithRetry(link))), 10000); // Retry in 10s
-            return console.log('Server offline, retrying in 10secs...')
+            return setTimeout(() => getNextLink(awsApiLink).then(localhostlink => getNextLink(localhostlink).then(link => connectWithRetry(link))), timeout); // Retry in 10s
         }
 
         // If it's server url request
@@ -141,9 +145,10 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         // Connect!
         socket.io.uri = url;
         socket.connect()
+        localStorage.setItem('server', url);
     }
     
-    getNextLink(awsApiLink).then(localhostlink => getNextLink(localhostlink).then(link => connectWithRetry(link)))  // Start connection on first load
+    connectWithRetry(localStorage.getItem('server', null), undefined, true)
 
     // When audio data is loaded by the browser
     const loadedDataHandler = () => {
@@ -252,7 +257,7 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         starting = true    // Audio starting
         audio.src = ''     // Restart stream
         audio = new Audio(socket.io.uri + '/listen?id=' + id);
-        
+
         if (!audio.canPlayType('audio/mpeg')) return audioErr('Type not currently supported', '', false) // Can't really play audio here
         
         if(useMediaButtons) {
