@@ -8,7 +8,9 @@ app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")    
 token = 0
-today = datetime.datetime.now().isoweekday()
+
+def today():
+    return datetime.datetime.now().isoweekday()
 
 # Set to false when pushing
 if os.environ.get("NONLOCAL"): local_ytlist = False
@@ -247,7 +249,7 @@ def ai_radio_streamer():
                 setting = {key: value for key, value in entry[1].items() if key != "m"}
                 if 'dm' in entry[1]:
                     day, additional_multiplier = map(int, entry[1]['dm'].split(';'))
-                    if day == today:
+                    if day == today():
                         multiplier *= additional_multiplier
             weighted_choices.extend([(url, setting)] * multiplier)
 
@@ -308,7 +310,6 @@ def ai_radio_streamer():
                 queue.insert(0, fallbackQueue)
                 radio["NOTREMOVE"] = True
                 radio["additional"] = {}
-                duration = get_audio_duration(queue[0]["fpath"])
 
             radio["duration"] = queue[0]["duration"]
             radio["time"] = 0 # Change to duration-10 for debugging
