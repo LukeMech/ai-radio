@@ -33,12 +33,16 @@
     ["Blank space", "https://www.youtube.com/watch?v=gir8BEqAutk"],
     ["Call me maybe", "https://www.youtube.com/watch?v=fWNaR-rxAic"],
     ["Never never", "https://www.youtube.com/watch?v=I5xZRlQFYj0"],
-    ["Tuesday", "https://www.youtube.com/watch?v=Y1_VsyLAGuk", {"dayMultiplier": "2;5"}],
-    ["High hopes", "https://www.youtube.com/watch?v=IPXIgEAGe4U", {"multiplier": 2}],
+    ["Tuesday", "https://www.youtube.com/watch?v=Y1_VsyLAGuk", {"dayMultiplier": "2;10"}],
+    ["High hopes", "https://www.youtube.com/watch?v=IPXIgEAGe4U"],
     ["Anioły i demony", "https://www.youtube.com/watch?v=CK1r3ImV46g"],
     ["Wkręceni", "https://youtu.be/z6jG8LxoeVI"],
     ["ATB Your Love", "https://youtu.be/9hbu9toStfc"],
     ["Makumba", "https://www.youtube.com/watch?v=Bmliz34QCZc"],
     ["Cotton Eye Joe", "https://www.youtube.com/watch?v=mOYZaiDZ7BM"],
-    ["Rodeo", "https://www.youtube.com/watch?v=CM2hMXsFXdc"]
+    ["Rodeo", "https://www.youtube.com/watch?v=CM2hMXsFXdc"],
+    ["I just called to say I love you",  "https://youtu.be/JCLYewUhPns"],
+    ["Lustra", "https://youtu.be/X9doLGPa2T4"],
+    ["Work from home", "https://youtu.be/5GL9JoH4Sws"],
+    ["Friday", "https://www.youtube.com/watch?v=U6n2NcJ7rLc", {"dayMultiplier": "5;10"}]
 ]
