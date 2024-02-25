@@ -19,8 +19,9 @@ for item in ytlist:
         eurovision = item[2].get("eurovision", 0)
         if(eurovision): formatted_item[1]["ev"] = eurovision
 
-        dayMultiplier = item[2].get("dayMultiplier", 1)
+        dayMultiplier = item[2].get("dayMultiplier", 0)
         if(dayMultiplier): formatted_item[1]["dm"] = dayMultiplier
+
     if(not formatted_item[1]): formatted_item = video_id
 
     formatted_data.append(formatted_item)
