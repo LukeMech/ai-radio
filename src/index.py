@@ -38,6 +38,8 @@ radio = {
     "title": '', "author": '', "duration": 0, "thumbnail": 0, "additional": {},
     "fpath": 0, "time": 0, "NOTREMOVE": True, "playID": 0
 }
+currentUrl = None
+
 def create_track_change_args(radio):
     return {
         'title': radio.get("title", ""),
@@ -102,6 +104,7 @@ def handle_connect():
         socketio.emit('serverVersion', file.read(), to=request.sid)
     if(radio["fpath"] != 0): socketio.emit('trackChange', create_track_change_args(radio), to=request.sid) # type: ignore
     if(len(queue) > 0): socketio.emit('queueChange', create_queue_change_args(queue), to=request.sid)
+    if(currentUrl): socketio.emit('urlChanged', currentUrl)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -127,11 +130,11 @@ def handle_music_stop(session_id):
 
 @socketio.on('urlChanged')
 def handle_url_changed(data):
-    url = data['url']
+    currentUrl = data['url']
     getToken = data['token']
     if(getToken == token):
-        socketio.emit('urlChanged', url)
-        print(f"Send URL changed event to connected clients, url: {url}")
+        socketio.emit('urlChanged', currentUrl)
+        print(f"Send URL changed event to connected clients, url: {currentUrl}")
 
 def start_ffmpeg_process():
     global radio

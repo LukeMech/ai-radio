@@ -107,7 +107,8 @@ document.querySelector('body').addEventListener('languagesLoaded', () => {
         if(playPauseButton.classList.contains('loading')) audioStart() // If audio wants to be played, play it!
     })
 
-    socket.on('urlChanged', url => connectWithRetry(url, true))
+    // If url changed reconnect, if not do nothing
+    socket.on('urlChanged', url => url == socket.io.uri ? null : connectWithRetry(url, true))
 
     // Fetch and return next link, text from request
     async function getNextLink(url) {
