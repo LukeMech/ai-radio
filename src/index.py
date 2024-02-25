@@ -278,6 +278,7 @@ def ai_radio_streamer():
 
     while firstLaunchReady:
         # Pre-adding & fetching next songs
+        print(queue)
         if len(queue) < 2:
             addToQueue()
 
@@ -285,7 +286,6 @@ def ai_radio_streamer():
         if downloadErr > -1:
             queue.pop(downloadErr)
             print(f"Popped from queue errored track ({downloadErr})", flush=True)
-            print(queue)
             downloadErr = -1
 
         # Request download
