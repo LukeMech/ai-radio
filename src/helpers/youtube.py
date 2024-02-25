@@ -33,7 +33,8 @@ def downloadWavFromUrl(url, callback, i):
                 ],
             }],
             'writethumbnail': True,  # Write thumbnail
-            'merge_output_format': ext,  # Merge into .wav file
+            'merge_output_format': ext,  # Merge into .wav file,
+            "geo_bypass": True   # Bypass geo position error
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

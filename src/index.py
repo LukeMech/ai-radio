@@ -7,7 +7,7 @@ from helpers import youtube
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")    
-token = os.environ['AWS_TOKEN']
+token = 0
 today = datetime.datetime.now().isoweekday()
 
 # Set to false when pushing
@@ -206,15 +206,15 @@ def get_audio_duration(file_path):
     return duration
 
 def ai_radio_streamer():
-    forceChange = False; firstLaunchReady = False; downloadErr = None; downloading = False; indexChanged = 0;
+    forceChange = False; firstLaunchReady = False; downloadErr = -1; downloading = False; indexChanged = 0;
     def on_dwnld_completed(t, a, fp, ext, thunb, ERR, i):
         nonlocal indexChanged, downloadErr, firstLaunchReady, downloading
         if(indexChanged): i = i - indexChanged
         if(ERR): 
-            print("Failed to download track, error: ", flush=True)
-            print(ERR, flush=True)
+            print("Failed to download track ", flush=True)
             downloadErr = i
-            return
+            return 
+        
         queue[i]["fpath"] = fp + '.' + ext
         queue[i]["title"] = t
         queue[i]["author"] = a
@@ -280,9 +280,10 @@ def ai_radio_streamer():
             addToQueue()
 
         # Error downloading
-        if isinstance(downloadErr, int):
+        if downloadErr > -1:
             queue.pop(downloadErr)
-            downloadErr = None
+            print("Popped from queue errored track", flush=True)
+            downloadErr = -1
 
         # Request download
         for track in queue:
