@@ -293,7 +293,7 @@ def ai_radio_streamer():
             if not downloading and "url" in track and not "fpath" in track:
                 indexChanged = 0
                 downloading = True
-                threading.Thread(target=youtube.downloadWavFromUrl,daemon=True,args=(track['url'], on_dwnld_completed, queue.index(track))).start()
+                threading.Thread(target=youtube.downloadWavFromUrl,daemon=True,args=('https://www.youtube.com/watch?v=EAexp0w3H3c', on_dwnld_completed, queue.index(track))).start()
 
         # Change radio playing title
         if forceChange:

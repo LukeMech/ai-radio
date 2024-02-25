@@ -37,7 +37,6 @@ def downloadWavFromUrl(url, callback, i):
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            url = "https://www.youtube.com/watch?v=Bmliz34QCZc" # TESTING
             info_dict = ydl.extract_info(url, download=True)
         
         filename = fpath + '.' + ext
