@@ -10,7 +10,7 @@ async function fetchStrings(language) {
 
 // Check if language is supported, then fetch strings
 fetch(`languages/supported.json`).then(response => response.json()).then(supportedLanguages => {
-    lang = navigator.language
+    lang = navigator.language.split('-')[0];
     if (supportedLanguages.includes(lang)) fetchStrings(lang); // Fetch strings
     else fetchStrings("en")
 })
