@@ -284,7 +284,7 @@ def ai_radio_streamer():
         # Error downloading
         if downloadErr > -1:
             queue.pop(downloadErr)
-            print("Popped from queue errored track", flush=True)
+            print(f"Popped from queue errored track ({downloadErr})", flush=True)
             downloadErr = -1
 
         # Request download
@@ -311,7 +311,7 @@ def ai_radio_streamer():
                 radio["NOTREMOVE"] = True
                 radio["additional"] = {}
 
-            radio["duration"] = queue[0]["duration"]
+            radio["duration"] = queue[0]["duration"] if "duration" in queue[0] else get_audio_duration(queue[0]["fpath"])
             radio["time"] = 0 # Change to duration-10 for debugging
             radio["fpath"] = queue[0]["fpath"]
             radio["title"] = queue[0]["title"]
